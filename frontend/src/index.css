@@ -1,0 +1,252 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Minimalist Design System - Focus on Ease of Use */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply text-gray-900 bg-white;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+  
+  * {
+    @apply border-gray-200;
+  }
+
+  /* Remove default form styling for consistency */
+  input, textarea, select {
+    @apply outline-none;
+  }
+}
+
+@layer components {
+  /* Minimalist Button System */
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-3 text-sm font-medium rounded-xl 
+           transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-primary {
+    @apply bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500 
+           shadow-sm hover:shadow active:scale-95;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 
+           focus:ring-indigo-500 shadow-sm hover:shadow;
+  }
+  
+  .btn-ghost {
+    @apply text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:ring-gray-500;
+  }
+  
+  .btn-success {
+    @apply bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500;
+  }
+  
+  .btn-danger {
+    @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+  }
+  
+  .btn-sm {
+    @apply px-3 py-2 text-xs rounded-lg;
+  }
+  
+  .btn-lg {
+    @apply px-6 py-4 text-base rounded-xl;
+  }
+  
+  /* Minimalist Input System */
+  .input {
+    @apply block w-full px-4 py-3 text-sm border border-gray-300 rounded-xl 
+           placeholder-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 
+           transition-all duration-200 bg-white;
+  }
+  
+  .input-error {
+    @apply border-red-300 focus:border-red-500 focus:ring-red-500;
+  }
+  
+  .input-success {
+    @apply border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500;
+  }
+  
+  /* Minimalist Card System */
+  .card {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6;
+  }
+  
+  .card-elevated {
+    @apply shadow-lg border-gray-200;
+  }
+  
+  /* Utility Classes for Ease of Use */
+  .text-muted {
+    @apply text-gray-500;
+  }
+  
+  .text-emphasis {
+    @apply text-gray-900 font-medium;
+  }
+  
+  .divider {
+    @apply border-t border-gray-100;
+  }
+  
+  .space-y-4 > * + * {
+    @apply mt-4;
+  }
+  
+  .space-y-6 > * + * {
+    @apply mt-6;
+  }
+  
+  /* Focus and Interaction States */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2;
+  }
+  
+  .interactive {
+    @apply transition-all duration-200 hover:scale-105 active:scale-95;
+  }
+  
+  .input-error {
+    @apply border-error-300 focus:border-error-500 focus:ring-error-500;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+  }
+  
+  .card-header {
+    @apply border-b border-gray-200 pb-4 mb-4;
+  }
+  
+  .avatar {
+    @apply rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium;
+  }
+  
+  .avatar-sm {
+    @apply w-8 h-8 text-sm;
+  }
+  
+  .avatar-md {
+    @apply w-12 h-12 text-base;
+  }
+  
+  .avatar-lg {
+    @apply w-16 h-16 text-lg;
+  }
+  
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .badge-primary {
+    @apply bg-primary-100 text-primary-800;
+  }
+  
+  .badge-success {
+    @apply bg-success-100 text-success-800;
+  }
+  
+  .badge-warning {
+    @apply bg-warning-100 text-warning-800;
+  }
+  
+  .badge-error {
+    @apply bg-error-100 text-error-800;
+  }
+  
+  .badge-gray {
+    @apply bg-gray-100 text-gray-800;
+  }
+  
+  .spinner {
+    @apply animate-spin rounded-full border-2 border-gray-300 border-t-primary-600;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Loading states */
+.loading-skeleton {
+  @apply animate-pulse bg-gray-200 rounded;
+}
+
+/* Focus states for accessibility */
+.focus-visible {
+  @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+}
+
+/* Animation classes */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+.bounce-in {
+  animation: bounceIn 0.6s ease-out;
+}
+
+/* Mobile responsive utilities */
+@media (max-width: 640px) {
+  .mobile-full {
+    @apply w-full;
+  }
+  
+  .mobile-hidden {
+    @apply hidden;
+  }
+  
+  .mobile-p-4 {
+    @apply p-4;
+  }
+}

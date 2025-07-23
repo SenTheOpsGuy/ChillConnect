@@ -1,0 +1,289 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SEEKER
+  PROVIDER
+  EMPLOYEE
+  MANAGER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum VerificationStatus {
+  PENDING
+  IN_PROGRESS
+  APPROVED
+  REJECTED
+}
+
+enum BookingType {
+  INCALL
+  OUTCALL
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  DISPUTED
+}
+
+enum TokenTransactionType {
+  PURCHASE
+  BOOKING_PAYMENT
+  BOOKING_REFUND
+  ESCROW_HOLD
+  ESCROW_RELEASE
+  WITHDRAWAL
+}
+
+enum AssignmentType {
+  VERIFICATION
+  BOOKING_MONITORING
+}
+
+model User {
+  id                String             @id @default(uuid())
+  email             String             @unique
+  phone             String?            @unique
+  passwordHash      String
+  role              UserRole           @default(SEEKER)
+  isVerified        Boolean            @default(false)
+  isEmailVerified   Boolean            @default(false)
+  isPhoneVerified   Boolean            @default(false)
+  isAgeVerified     Boolean            @default(false)
+  consentGiven      Boolean            @default(false)
+  lastLogin         DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  
+  // Relations
+  profile           UserProfile?
+  tokenWallet       TokenWallet?
+  seekerBookings    Booking[]          @relation("SeekerBookings")
+  providerBookings  Booking[]          @relation("ProviderBookings")
+  assignedBookings  Booking[]          @relation("AssignedEmployeeBookings")
+  sentMessages      Message[]          @relation("MessageSender")
+  verifications     Verification[]     @relation("UserVerifications")
+  employeeVerifications Verification[] @relation("EmployeeVerifications")
+  assignments       Assignment[]       @relation("EmployeeAssignments")
+  tokenTransactions TokenTransaction[]
+  monitoringAlerts  MonitoringAlert[]  @relation("MonitoringAlerts")
+  resolvedAlerts    MonitoringAlert[]  @relation("AlertResolvers")
+  otpVerifications  OTPVerification[]
+  
+  @@map("users")
+}
+
+model UserProfile {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  firstName       String
+  lastName        String
+  dateOfBirth     DateTime?
+  bio             String?
+  location        String?
+  profilePhoto    String?
+  services        String[]  // For providers
+  hourlyRate      Int?      // In tokens
+  availability    Json?     // Schedule data
+  verificationDocs String[] // Document URLs
+  rating          Float?    @default(0)
+  reviewCount     Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_profiles")
+}
+
+model TokenWallet {
+  id              String             @id @default(uuid())
+  userId          String             @unique
+  balance         Int                @default(0) // Balance in tokens
+  escrowBalance   Int                @default(0) // Tokens held in escrow
+  totalEarned     Int                @default(0) // Total tokens earned (providers)
+  totalSpent      Int                @default(0) // Total tokens spent (seekers)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions    TokenTransaction[]
+  
+  @@map("token_wallets")
+}
+
+model TokenTransaction {
+  id              String                @id @default(uuid())
+  userId          String
+  walletId        String
+  type            TokenTransactionType
+  amount          Int                   // Amount in tokens
+  previousBalance Int
+  newBalance      Int
+  description     String?
+  paypalOrderId   String?               // For purchases
+  bookingId       String?               // For booking-related transactions
+  metadata        Json?                 // Additional transaction data
+  createdAt       DateTime              @default(now())
+  
+  user            User                  @relation(fields: [userId], references: [id])
+  wallet          TokenWallet           @relation(fields: [walletId], references: [id])
+  booking         Booking?              @relation(fields: [bookingId], references: [id])
+  
+  @@map("token_transactions")
+}
+
+model Booking {
+  id              String            @id @default(uuid())
+  seekerId        String
+  providerId      String
+  type            BookingType
+  status          BookingStatus     @default(PENDING)
+  startTime       DateTime
+  endTime         DateTime
+  duration        Int               // Duration in minutes
+  tokenAmount     Int               // Total cost in tokens
+  location        String?           // For outcall bookings
+  notes           String?
+  assignedEmployeeId String?        // Employee monitoring this booking
+  completedAt     DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  seeker          User              @relation("SeekerBookings", fields: [seekerId], references: [id])
+  provider        User              @relation("ProviderBookings", fields: [providerId], references: [id])
+  assignedEmployee User?            @relation("AssignedEmployeeBookings", fields: [assignedEmployeeId], references: [id])
+  messages        Message[]
+  transactions    TokenTransaction[]
+  monitoringAlerts MonitoringAlert[]
+  
+  @@map("bookings")
+}
+
+model Message {
+  id              String    @id @default(uuid())
+  bookingId       String
+  senderId        String
+  content         String
+  mediaUrl        String?   // For image attachments
+  isSystemMessage Boolean   @default(false)
+  isFlagged       Boolean   @default(false)
+  flaggedReason   String?
+  readAt          DateTime?
+  createdAt       DateTime  @default(now())
+  
+  booking         Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  sender          User      @relation("MessageSender", fields: [senderId], references: [id])
+  monitoringAlerts MonitoringAlert[]
+  
+  @@map("messages")
+}
+
+model Verification {
+  id              String             @id @default(uuid())
+  userId          String
+  employeeId      String?
+  status          VerificationStatus @default(PENDING)
+  documentType    String             // ID, passport, etc.
+  documentUrl     String
+  notes           String?
+  reviewedAt      DateTime?
+  assignedAt      DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  
+  user            User               @relation("UserVerifications", fields: [userId], references: [id])
+  employee        User?              @relation("EmployeeVerifications", fields: [employeeId], references: [id])
+  
+  @@map("verifications")
+}
+
+model Assignment {
+  id              String         @id @default(uuid())
+  employeeId      String
+  itemId          String         // ID of verification or booking
+  itemType        AssignmentType
+  isActive        Boolean        @default(true)
+  assignedAt      DateTime       @default(now())
+  completedAt     DateTime?
+  
+  employee        User           @relation("EmployeeAssignments", fields: [employeeId], references: [id])
+  
+  @@map("assignments")
+}
+
+model RoundRobinCounter {
+  id              String    @id @default(uuid())
+  type            String    @unique // "verification" or "booking_monitoring"
+  lastAssignedId  String?   // Last employee ID assigned
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@map("round_robin_counters")
+}
+
+model MonitoringAlert {
+  id              String    @id @default(uuid())
+  bookingId       String
+  messageId       String
+  employeeId      String
+  alertType       String    // "FLAGGED_MESSAGE", "SUSPICIOUS_ACTIVITY", etc.
+  riskScore       Int       @default(0)
+  description     String
+  isResolved      Boolean   @default(false)
+  resolvedAt      DateTime?
+  resolvedBy      String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  booking         Booking   @relation(fields: [bookingId], references: [id])
+  message         Message   @relation(fields: [messageId], references: [id])
+  employee        User      @relation("MonitoringAlerts", fields: [employeeId], references: [id])
+  resolver        User?     @relation("AlertResolvers", fields: [resolvedBy], references: [id])
+  
+  @@map("monitoring_alerts")
+}
+
+model OTPVerification {
+  id              String    @id @default(uuid())
+  userId          String
+  phone           String
+  otp             String
+  attempts        Int       @default(0)
+  maxAttempts     Int       @default(3)
+  isUsed          Boolean   @default(false)
+  expiresAt       DateTime
+  createdAt       DateTime  @default(now())
+  
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("otp_verifications")
+}
+
+model EmailOTPVerification {
+  id              String    @id @default(uuid())
+  userId          String
+  email           String
+  otp             String
+  attempts        Int       @default(0)
+  maxAttempts     Int       @default(3)
+  isUsed          Boolean   @default(false)
+  expiresAt       DateTime
+  createdAt       DateTime  @default(now())
+  
+  @@map("email_otp_verifications")
+}

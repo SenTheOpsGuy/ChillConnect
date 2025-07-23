@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safety Tips - ChillConnect</title>
+    <meta name="description" content="Essential safety tips for using ChillConnect. Learn how to stay safe while connecting with service providers and seekers.">
+    <link rel="canonical" href="https://chillconnect.in/safety-tips">
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'; this.onload=null;">
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    </noscript>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .safety-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 8rem 1.5rem 4rem;
+        }
+        
+        .safety-section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: var(--white);
+            border-radius: var(--border-radius-large);
+            box-shadow: var(--shadow-small);
+        }
+        
+        .safety-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .safety-section h3 {
+            color: var(--dark-gray);
+            margin-bottom: 1rem;
+            margin-top: 2rem;
+            font-size: 1.25rem;
+        }
+        
+        .safety-section p, .safety-section li {
+            color: var(--gray);
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+        
+        .safety-section ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .breadcrumb {
+            margin-bottom: 2rem;
+            color: var(--gray);
+        }
+        
+        .breadcrumb a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .tip-card {
+            background: linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(0, 123, 255, 0.05));
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .tip-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        
+        .warning-card {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.05));
+            border-left: 4px solid var(--danger-color);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .success-card {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.05));
+            border-left: 4px solid var(--success-color);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .safety-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .safety-card {
+            background: var(--light-gray);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+        
+        .safety-card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        .emergency-section {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.05));
+            border: 2px solid var(--danger-color);
+            padding: 2rem;
+            border-radius: var(--border-radius-large);
+            text-align: center;
+            margin: 3rem 0;
+        }
+        
+        .emergency-section h2 {
+            color: var(--danger-color);
+            margin-bottom: 1rem;
+        }
+        
+        .checklist {
+            background: var(--light-gray);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin: 2rem 0;
+        }
+        
+        .checklist h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border-radius: var(--border-radius-small);
+            transition: var(--transition);
+        }
+        
+        .checklist-item:hover {
+            background: var(--white);
+        }
+        
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary-color);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <div class="logo" aria-label="ChillConnect Logo"></div>
+                    <span class="brand-name">ChillConnect</span>
+                </div>
+                <div class="nav-links">
+                    <a href="/" class="nav-link">Home</a>
+                    <a href="/app/login" class="nav-link login-link">Login</a>
+                    <a href="/app" class="nav-link cta-button">Get Started</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="safety-container">
+        <div class="breadcrumb">
+            <a href="/">Home</a> > Safety Tips
+        </div>
+        
+        <h1>Safety Tips</h1>
+        <p>Your safety is our top priority. Follow these essential tips to stay safe while using ChillConnect.</p>
+
+        <div class="emergency-section">
+            <h2>🚨 Emergency Information</h2>
+            <p><strong>If you're in immediate danger, call emergency services immediately.</strong></p>
+            <p>India Emergency Numbers: <strong>100 (Police)</strong> | <strong>108 (Ambulance)</strong></p>
+            <div style="margin-top: 1.5rem;">
+                <a href="/app" class="cta-primary">Report Emergency</a>
+                <a href="/contact" class="cta-secondary">Contact Support</a>
+            </div>
+        </div>
+
+        <div class="safety-section">
+            <h2>Before Meeting</h2>
+            
+            <div class="tip-card">
+                <div class="tip-icon">🔍</div>
+                <div>
+                    <h4>Research Your Match</h4>
+                    <p>Check profiles thoroughly, read reviews, and verify the person's identity before meeting. Look for verified badges and complete profiles.</p>
+                </div>
+            </div>
+            
+            <div class="tip-card">
+                <div class="tip-icon">💬</div>
+                <div>
+                    <h4>Use Platform Communication</h4>
+                    <p>Keep conversations on ChillConnect until you're comfortable. Our secure messaging system protects your privacy and provides a record of communications.</p>
+                </div>
+            </div>
+            
+            <div class="tip-card">
+                <div class="tip-icon">👥</div>
+                <div>
+                    <h4>Tell Someone Your Plans</h4>
+                    <p>Always inform a trusted friend or family member about your plans, including where you're going, who you're meeting, and when you expect to return.</p>
+                </div>
+            </div>
+
+            <div class="checklist">
+                <h4>Pre-Meeting Checklist</h4>
+                <div class="checklist-item">
+                    <div class="checkbox">✓</div>
+                    <span>Verified the person's profile and reviews</span>
+                </div>
+                <div class="checklist-item">
+                    <div class="checkbox">✓</div>
+                    <span>Communicated clearly about expectations</span>
+                </div>
+                <div class="checklist-item">
+                    <div class="checkbox">✓</div>
+                    <span>Chosen a safe, public meeting location</span>
+                </div>
+                <div class="checklist-item">
+                    <div class="checkbox">✓</div>
+                    <span>Informed someone about your plans</span>
+                </div>
+                <div class="checklist-item">
+                    <div class="checkbox">✓</div>
+                    <span>Planned your transportation</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="safety-section">
+            <h2>Meeting Safely</h2>
+            
+            <div class="safety-grid">
+                <div class="safety-card">
+                    <div class="safety-card-icon">🏢</div>
+                    <h3>Public Places</h3>
+                    <p>Always meet in busy, public locations with good lighting and security. Coffee shops, restaurants, and shopping centers are ideal choices.</p>
+                </div>
+                
+                <div class="safety-card">
+                    <div class="safety-card-icon">🚗</div>
+                    <h3>Your Transportation</h3>
+                    <p>Use your own transportation or trusted ride services. Don't accept rides from people you've just met or let them know your home address initially.</p>
+                </div>
+                
+                <div class="safety-card">
+                    <div class="safety-card-icon">📱</div>
+                    <h3>Stay Connected</h3>
+                    <p>Keep your phone charged and accessible. Consider sharing your live location with a trusted contact during the meeting.</p>
+                </div>
+            </div>
+            
+            <div class="success-card">
+                <div class="tip-icon">✅</div>
+                <div>
+                    <h4>Trust Your Instincts</h4>
+                    <p>If something feels wrong or uncomfortable, trust your gut feeling. It's always okay to leave a situation that doesn't feel right.</p>
+                </div>
+            </div>
+            
+            <div class="warning-card">
+                <div class="tip-icon">⚠️</div>
+                <div>
+                    <h4>Red Flags to Watch For</h4>
+                    <ul>
+                        <li>Pressure to meet immediately or in private locations</li>
+                        <li>Inconsistent information or stories</li>
+                        <li>Reluctance to communicate on the platform</li>
+                        <li>Requests for personal information too quickly</li>
+                        <li>No profile photos or verification</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="safety-section">
+            <h2>Financial Safety</h2>
+            
+            <div class="tip-card">
+                <div class="tip-icon">💳</div>
+                <div>
+                    <h4>Use Platform Payment System</h4>
+                    <p>Always use ChillConnect's secure token system for payments. Never share your bank details, credit card information, or make direct transfers.</p>
+                </div>
+            </div>
+            
+            <div class="tip-card">
+                <div class="tip-icon">🛡️</div>
+                <div>
+                    <h4>Avoid Cash Transactions</h4>
+                    <p>Our escrow system protects both parties. Avoid cash payments as they don't offer the same protection and dispute resolution options.</p>
+                </div>
+            </div>
+            
+            <div class="warning-card">
+                <div class="tip-icon">🚫</div>
+                <div>
+                    <h4>Never Send Money Outside the Platform</h4>
+                    <p>Scammers often ask for payments outside our secure system. Never send money via wire transfer, gift cards, or other payment methods outside ChillConnect.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="safety-section">
+            <h2>Online Safety</h2>
+            
+            <div class="tip-card">
+                <div class="tip-icon">🔐</div>
+                <div>
+                    <h4>Protect Your Personal Information</h4>
+                    <p>Don't share your full name, home address, workplace, or financial information until you've established trust through multiple interactions.</p>
+                </div>
+            </div>
+            
+            <div class="tip-card">
+                <div class="tip-icon">📸</div>
+                <div>
+                    <h4>Be Careful with Photos</h4>
+                    <p>Avoid sharing photos that reveal personal information like your home address, license plates, or workplace. Use recent, appropriate photos on your profile.</p>
+                </div>
+            </div>
+            
+            <div class="tip-card">
+                <div class="tip-icon">🔒</div>
+                <div>
+                    <h4>Secure Your Account</h4>
+                    <p>Use a strong, unique password for your ChillConnect account. Enable two-factor authentication if available and log out from shared devices.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="safety-section">
+            <h2>Reporting and Support</h2>
+            
+            <div class="success-card">
+                <div class="tip-icon">🛡️</div>
+                <div>
+                    <h4>How to Report Issues</h4>
+                    <p>Use the report button on profiles or in conversations to flag inappropriate behavior. You can also contact our 24/7 support team directly.</p>
+                </div>
+            </div>
+            
+            <div class="safety-grid">
+                <div class="safety-card">
+                    <div class="safety-card-icon">📧</div>
+                    <h3>Email Support</h3>
+                    <p>safety@chillconnect.in</p>
+                    <p>For non-urgent safety concerns</p>
+                </div>
+                
+                <div class="safety-card">
+                    <div class="safety-card-icon">🆘</div>
+                    <h3>Emergency Line</h3>
+                    <p>+91-XXX-XXX-XXXX</p>
+                    <p>24/7 immediate assistance</p>
+                </div>
+                
+                <div class="safety-card">
+                    <div class="safety-card-icon">💬</div>
+                    <h3>In-App Reporting</h3>
+                    <p>Use the report feature</p>
+                    <p>Available on all profiles and chats</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="safety-section">
+            <h2>After Your Experience</h2>
+            
+            <div class="tip-card">
+                <div class="tip-icon">⭐</div>
+                <div>
+                    <h4>Leave Honest Reviews</h4>
+                    <p>Help the community by leaving honest, detailed reviews about your experience. This helps other users make informed decisions.</p>
+                </div>
+            </div>
+            
+            <div class="tip-card">
+                <div class="tip-icon">🤝</div>
+                <div>
+                    <h4>Build Trust Gradually</h4>
+                    <p>If you plan to meet again, continue using platform safety features until you've established a strong foundation of trust.</p>
+                </div>
+            </div>
+            
+            <div class="warning-card">
+                <div class="tip-icon">🚨</div>
+                <div>
+                    <h4>Report Any Incidents</h4>
+                    <p>If anything inappropriate or concerning happened during your interaction, report it immediately. Your safety and the safety of other users is our priority.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="safety-section">
+            <h2>Additional Resources</h2>
+            
+            <div class="safety-grid">
+                <div class="safety-card">
+                    <div class="safety-card-icon">📚</div>
+                    <h3>Safety Guide</h3>
+                    <p>Comprehensive safety manual</p>
+                    <a href="/help" class="cta-secondary">Read Guide</a>
+                </div>
+                
+                <div class="safety-card">
+                    <div class="safety-card-icon">🎓</div>
+                    <h3>Safety Training</h3>
+                    <p>Interactive safety course</p>
+                    <a href="/app" class="cta-secondary">Take Course</a>
+                </div>
+                
+                <div class="safety-card">
+                    <div class="safety-card-icon">👥</div>
+                    <h3>Community Forum</h3>
+                    <p>Share experiences and tips</p>
+                    <a href="/community" class="cta-secondary">Join Discussion</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="success-card">
+            <div class="tip-icon">💚</div>
+            <div>
+                <h4>Remember: Safety is a Shared Responsibility</h4>
+                <p>By following these safety tips and staying vigilant, you help create a safer environment for everyone in the ChillConnect community. Together, we can build a platform where everyone feels secure and respected.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <div class="logo-small" aria-label="ChillConnect Logo"></div>
+                        <span>ChillConnect</span>
+                    </div>
+                    <p>Connecting you with premium experiences across India.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Safety</h4>
+                        <ul>
+                            <li><a href="/safety-tips">Safety Tips</a></li>
+                            <li><a href="/guidelines">Community Guidelines</a></li>
+                            <li><a href="/help">Help Center</a></li>
+                            <li><a href="/contact">Report Issue</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="footer-bottom-content">
+                    <p>&copy; 2024 ChillConnect. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

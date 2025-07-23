@@ -1,0 +1,275 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build outputs
+dist/
+build/
+*/dist/
+*/build/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# ESLint cache
+.eslintcache
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.test
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Vite build output
+dist/
+
+# Vuepress build output
+.vuepress/dist
+
+# Serverless directories
+.serverless/
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Prisma
+prisma/migrations/
+prisma/dev.db*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+tmp/
+temp/
+
+# AWS
+.aws/
+
+# Docker
+Dockerfile.prod
+docker-compose.prod.yml
+
+# Uploads (if storing locally)
+uploads/
+*/uploads/
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.csr
+
+# Backup files
+*.backup
+*.bak
+*.tmp
+
+# Lock files (uncomment if you want to ignore them)
+# package-lock.json
+# yarn.lock
+
+# Testing
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+
+# Test files and debugging
+test-*.js
+debug-*.js
+test-*.html
+test-*.png
+test-*.md
+*-test.js
+*-debug.js
+comprehensive-test.js
+mock-backend.js
+enhanced-mock-backend.js
+final-test.js
+final-workflow-test.js
+
+# Screenshots and images (development/testing)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webm
+*.mp4
+!src/**/*.png
+!src/**/*.jpg
+!src/**/*.jpeg
+!public/**/*.png
+!public/**/*.jpg
+!public/**/*.jpeg
+
+# Test directories
+tests/screenshots/
+test-screenshots/
+test-videos/
+ui-diagnostics/
+workflow-tests/
+provider-seeker-tests/
+
+# AWS and deployment scripts (contain sensitive info)
+aws-*.sh
+deploy-*.sh
+configure-aws.sh
+verify-aws-credentials.sh
+ssl-setup.sh
+setup-ssl.sh
+ec2-user-data.sh
+fix-ec2-install.sh
+manage-server.sh
+test-runner.sh
+update-database.sh
+
+# Deployment files and archives
+deploy*.zip
+*.zip
+cloudformation-template.yaml
+docker-compose.aws.yml
+
+# Documentation (temporary/generated)
+*_COMPLETE.md
+*_GUIDE.md
+*_STATUS.md
+*_REPORT.md
+*_INSTRUCTIONS.md
+*_RESULTS.md
+*_TESTING.md
+*_SIMULATION.md
+*_SUMMARY.md
+*_ANALYSIS*.md
+DEPLOYMENT*.md
+AWS_*.md
+RCA_*.md
+FALSE_POSITIVE*.md
+BROWSER_*.md
+OTP_*.md
+QUICK_*.md
+SSL_*.md
+VERIFICATION_*.md
+START_*.md
+FINAL_*.md
+
+# SSL certificates and keys
+*.pem
+*.key
+*.crt
+*.csr
+chillconnect-key.pem
+
+# Log files and server files
+*.log
+server.log
+server.pid
+backend.log
+frontend.log
+backend-*.js
+frontend-*.js
+backend-*.html
+logs/
+
+# Nginx configs (may contain sensitive paths)
+nginx*.conf
+
+# AWS response files
+aws-*.txt
+
+# Storybook build outputs
+storybook-static/
+
+# Editor directories and files
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

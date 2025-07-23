@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log
+.env
+.env.local
+.env.development
+.env.test
+logs/*.log
+coverage
+.nyc_output
+.git
+.gitignore
+README.md
+.eslintrc.js
+.jest.config.js
+test-results
+playwright-report
