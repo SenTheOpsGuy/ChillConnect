@@ -9,11 +9,11 @@ async function main() {
   // Create superadmin user with specified credentials
   const superAdminPasswordHash = await bcrypt.hash('SuperAdmin@2024', 12)
   const superAdmin = await prisma.user.upsert({
-    where: { email: 'mountainsagegiri@gmail.com' },
+    where: { email: 'admin@chillconnect.com' },
     update: {},
     create: {
-      email: 'mountainsagegiri@gmail.com',
-      phone: '+917439269361',
+      email: 'admin@chillconnect.com',
+      phone: '+1234567890',
       passwordHash: superAdminPasswordHash,
       role: 'SUPER_ADMIN',
       isVerified: true,
@@ -384,7 +384,7 @@ async function main() {
   console.log(`- 15 Bookings`)
   console.log(`- Multiple Messages, Transactions, and Verifications`)
   console.log(`\nTest accounts:`)
-  console.log(`SuperAdmin: mountainsagegiri@gmail.com / SuperAdmin@2024 / +917439269361`)
+  console.log(`SuperAdmin: admin@chillconnect.com / SuperAdmin@2024 / +1234567890`)
   console.log(`Admin: admin@chillconnect.com / admin123`)
   console.log(`Manager: manager@chillconnect.com / manager123`)
   console.log(`Employee1: employee1@chillconnect.com / employee1123`)

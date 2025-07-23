@@ -31,7 +31,7 @@ const OtpRequest = () => {
     // Validation based on login type
     if (loginType === 'phone') {
       if (!identifier.match(/^\+?[1-9]\d{1,14}$/)) {
-        toast.error('Please enter a valid phone number (e.g., +917439269361)')
+        toast.error('Please enter a valid phone number (e.g., +1234567890)')
         return
       }
     } else {
@@ -142,7 +142,7 @@ const OtpRequest = () => {
                   type={loginType === 'phone' ? 'tel' : 'email'}
                   required
                   className="input pl-12"
-                  placeholder={loginType === 'phone' ? '+917439269361' : 'mountainsagegiri@gmail.com'}
+                  placeholder={loginType === 'phone' ? '+1234567890' : 'your-email@example.com'}
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                 />

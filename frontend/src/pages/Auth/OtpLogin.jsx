@@ -275,7 +275,7 @@ const OtpLogin = () => {
                     type="email"
                     required
                     className="input pl-12"
-                    placeholder="mountainsagegiri@gmail.com"
+                    placeholder="your-email@example.com"
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                   />
