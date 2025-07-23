@@ -8,24 +8,32 @@ const Layout = ({ children }) => {
   const { user } = useSelector((state) => state.auth)
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-premium">
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div 
+          className="mobile-overlay lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       <Header 
         sidebarOpen={sidebarOpen} 
         setSidebarOpen={setSidebarOpen} 
         user={user}
       />
       
-      <div className="flex">
+      <div className="flex min-h-screen pt-16">
         <Sidebar 
           sidebarOpen={sidebarOpen} 
           setSidebarOpen={setSidebarOpen}
           user={user}
         />
         
-        {/* Responsive main content area */}
-        <main className="flex-1 md:ml-72 transition-all duration-300 ease-out min-h-screen">
-          <div className="px-4 py-6 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-            <div className="space-y-6">
+        {/* Premium main content area with better spacing */}
+        <main className="flex-1 lg:ml-72 transition-all duration-300 ease-out">
+          <div className="px-6 py-8 sm:px-8 lg:px-12 max-w-none">
+            <div className="space-y-8 fade-in">
               {children}
             </div>
           </div>
