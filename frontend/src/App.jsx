@@ -32,6 +32,7 @@ import VerificationQueue from './pages/Admin/VerificationQueue'
 import BookingMonitoring from './pages/Admin/BookingMonitoring'
 import UserManagement from './pages/Admin/UserManagement'
 import NotFound from './pages/NotFound'
+import Landing from './pages/Landing'
 
 function App() {
   const dispatch = useDispatch()
@@ -45,6 +46,9 @@ function App() {
     }
   }, [dispatch])
 
+  // Debug logging
+  console.log('Auth state:', { isAuthenticated, loading, user: !!user })
+
   if (loading) {
     return <LoadingSpinner />
   }
@@ -53,6 +57,18 @@ function App() {
     <SocketProvider>
       <div className="min-h-screen bg-gray-50">
         <Routes>
+          {/* Landing Page */}
+          <Route
+            path="/"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <Landing />
+              )
+            }
+          />
+
           {/* Public Routes */}
           <Route
             path="/login"
@@ -98,93 +114,152 @@ function App() {
 
           {/* Protected Routes */}
           <Route
-            path="/*"
+            path="/dashboard"
             element={
               <ProtectedRoute>
                 <Layout>
-                  <Routes>
-                    {/* Common Routes */}
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/verify" element={<Verification />} />
-                    <Route path="/messages" element={<Messages />} />
-                    <Route path="/chat/:bookingId" element={<Chat />} />
-                    <Route path="/wallet" element={<Wallet />} />
-                    <Route path="/settings" element={<Settings />} />
-
-                    {/* Seeker Routes */}
-                    <Route
-                      path="/search"
-                      element={
-                        <ProtectedRoute roles={['SEEKER']}>
-                          <Search />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/booking/:providerId"
-                      element={
-                        <ProtectedRoute roles={['SEEKER']}>
-                          <Booking />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/booking-details/:bookingId"
-                      element={
-                        <ProtectedRoute roles={['SEEKER', 'PROVIDER']}>
-                          <BookingDetails />
-                        </ProtectedRoute>
-                      }
-                    />
-
-                    {/* Admin Routes */}
-                    <Route
-                      path="/admin/dashboard"
-                      element={
-                        <ProtectedRoute roles={['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN']}>
-                          <AdminDashboard />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/admin/verification-queue"
-                      element={
-                        <ProtectedRoute roles={['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN']}>
-                          <VerificationQueue />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/admin/booking-monitoring"
-                      element={
-                        <ProtectedRoute roles={['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN']}>
-                          <BookingMonitoring />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/admin/users"
-                      element={
-                        <ProtectedRoute roles={['MANAGER', 'ADMIN', 'SUPER_ADMIN']}>
-                          <UserManagement />
-                        </ProtectedRoute>
-                      }
-                    />
-
-                    {/* Default redirect to dashboard */}
-                    <Route
-                      path="/"
-                      element={<Navigate to="/dashboard" replace />}
-                    />
-
-                    {/* 404 Route */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
+                  <Dashboard />
                 </Layout>
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Profile />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/verify"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Verification />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/messages"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Messages />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chat/:bookingId"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Chat />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/wallet"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Wallet />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Settings />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Seeker Routes */}
+          <Route
+            path="/search"
+            element={
+              <ProtectedRoute roles={['SEEKER']}>
+                <Layout>
+                  <Search />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/booking/:providerId"
+            element={
+              <ProtectedRoute roles={['SEEKER']}>
+                <Layout>
+                  <Booking />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/booking-details/:bookingId"
+            element={
+              <ProtectedRoute roles={['SEEKER', 'PROVIDER']}>
+                <Layout>
+                  <BookingDetails />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin Routes */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute roles={['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN']}>
+                <Layout>
+                  <AdminDashboard />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/verification-queue"
+            element={
+              <ProtectedRoute roles={['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN']}>
+                <Layout>
+                  <VerificationQueue />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/booking-monitoring"
+            element={
+              <ProtectedRoute roles={['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN']}>
+                <Layout>
+                  <BookingMonitoring />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute roles={['MANAGER', 'ADMIN', 'SUPER_ADMIN']}>
+                <Layout>
+                  <UserManagement />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* 404 Route */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </SocketProvider>

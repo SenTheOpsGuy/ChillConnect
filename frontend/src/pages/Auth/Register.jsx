@@ -295,19 +295,24 @@ const Register = () => {
   )
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Create your account
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Join ChillConnect today
-        </p>
+    <div className="auth-page">
+      <div className="auth-container" style={{ maxWidth: '600px' }}>
+        {/* Premium Logo */}
+        <div className="auth-logo">
+          <div className="logo-icon">C</div>
+          <span className="brand-name">ChillConnect</span>
+        </div>
+        
+        {/* Premium Typography */}
+        <div className="auth-header">
+          <h1 className="auth-title">Create Account</h1>
+          <p className="auth-subtitle">Join ChillConnect today</p>
+        </div>
+        
         {renderStepIndicator()}
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="auth-form" style={{ marginTop: '32px' }}>
           
           {/* Step 1: Registration Form */}
           {verificationStep === 'form' && (
@@ -698,20 +703,16 @@ const Register = () => {
 
           {/* Login Link */}
           {verificationStep === 'form' && (
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
+            <div className="auth-footer">
+              <p>
                 Already have an account?{' '}
-                <Link
-                  to="/login"
-                  className="font-medium text-primary-600 hover:text-primary-500"
-                >
+                <Link to="/login" className="auth-link">
                   Sign in here
                 </Link>
               </p>
             </div>
           )}
         </div>
-      </div>
     </div>
   )
 }
