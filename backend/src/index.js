@@ -22,6 +22,12 @@ const adminRoutes = require('./routes/admin');
 const uploadRoutes = require('./routes/upload');
 
 const app = express();
+
+// Trust proxy for Railway (fixes rate limiting behind proxy)
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
