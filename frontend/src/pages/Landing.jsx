@@ -49,6 +49,7 @@ const Landing = () => {
               </p>
               <div className="hero-cta">
                 <Link to="/register" className="cta-primary">Start Exploring</Link>
+                <Link to="/clerk-register" className="cta-primary" style={{ marginLeft: '12px', backgroundColor: '#10b981' }}>Quick Sign Up</Link>
                 <Link to="/login" className="cta-secondary">Login</Link>
                 <a href="#how-it-works" className="cta-tertiary">Learn More</a>
               </div>

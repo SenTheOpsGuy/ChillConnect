@@ -13,6 +13,7 @@ import LoadingSpinner from './components/UI/LoadingSpinner'
 // Pages
 import Login from './pages/Auth/Login'
 import Register from './pages/Auth/Register'
+import ClerkRegister from './pages/Auth/ClerkRegister'
 import OtpLogin from './pages/Auth/OtpLogin'
 import OtpRequest from './pages/Auth/OtpRequest'
 import OtpVerify from './pages/Auth/OtpVerify'
@@ -89,6 +90,16 @@ function App() {
                 <Navigate to="/dashboard" replace />
               ) : (
                 <Register />
+              )
+            }
+          />
+          <Route
+            path="/clerk-register"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <ClerkRegister />
               )
             }
           />
