@@ -14,7 +14,6 @@ import LoadingSpinner from './components/UI/LoadingSpinner'
 import Login from './pages/Auth/Login'
 import Register from './pages/Auth/Register'
 import ClerkRegister from './pages/Auth/ClerkRegister'
-import TestClerk from './test-clerk'
 import OtpLogin from './pages/Auth/OtpLogin'
 import OtpRequest from './pages/Auth/OtpRequest'
 import OtpVerify from './pages/Auth/OtpVerify'
@@ -124,7 +123,6 @@ function App() {
               )
             }
           />
-          <Route path="/test-clerk" element={<TestClerk />} />
           <Route path="/verify-email" element={<EmailVerification />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
