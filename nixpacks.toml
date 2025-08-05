@@ -1,11 +1,11 @@
-[phases.setup]
-nixPkgs = ['nodejs-18_x', 'npm-9_x']
+[variables]
+NODE_VERSION = "18"
 
 [phases.install]
-cmds = ['cd backend && npm install']
+cmds = ['npm install', 'cd backend && npm install']
 
-[phases.build]  
+[phases.build]
 cmds = ['cd backend && npx prisma generate']
 
 [start]
-cmd = 'cd backend && node railway-start.js'
+cmd = 'node start.js'
