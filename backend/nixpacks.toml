@@ -8,4 +8,4 @@ cmds = ['npm install']
 cmds = ['npx prisma generate']
 
 [start]
-cmd = 'npm start'
+cmd = 'node railway-start.js'

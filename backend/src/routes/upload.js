@@ -33,18 +33,22 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Configure multer for S3 upload
-const upload = multer({
-  storage: multerS3({
-    s3: s3,
-    bucket: process.env.S3_BUCKET_NAME,
-    acl: 'private', // Files are private by default
-    key: function (req, file, cb) {
-      const folder = getUploadFolder(req.uploadType);
-      const fileExtension = file.originalname.split('.').pop();
-      const filename = `${folder}/${uuidv4()}.${fileExtension}`;
-      cb(null, filename);
-    },
+// Configure multer storage (S3 or local)
+let upload;
+
+if (process.env.AWS_S3_BUCKET && process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+  // S3 configuration when credentials are available
+  upload = multer({
+    storage: multerS3({
+      s3: s3,
+      bucket: process.env.AWS_S3_BUCKET,
+      acl: 'private', // Files are private by default
+      key: function (req, file, cb) {
+        const folder = getUploadFolder(req.uploadType);
+        const fileExtension = file.originalname.split('.').pop();
+        const filename = `${folder}/${uuidv4()}.${fileExtension}`;
+        cb(null, filename);
+      },
     metadata: function (req, file, cb) {
       cb(null, {
         fieldName: file.fieldname,
@@ -61,6 +65,42 @@ const upload = multer({
     files: 5 // Max 5 files per request
   }
 });
+} else {
+  // Local file storage fallback when S3 is not configured
+  const fs = require('fs');
+  const path = require('path');
+  
+  // Ensure uploads directory exists
+  const uploadsDir = path.join(process.cwd(), 'uploads');
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+  
+  upload = multer({
+    storage: multer.diskStorage({
+      destination: function (req, file, cb) {
+        const folder = getUploadFolder(req.uploadType);
+        const uploadPath = path.join(uploadsDir, folder);
+        if (!fs.existsSync(uploadPath)) {
+          fs.mkdirSync(uploadPath, { recursive: true });
+        }
+        cb(null, uploadPath);
+      },
+      filename: function (req, file, cb) {
+        const fileExtension = file.originalname.split('.').pop();
+        const filename = `${uuidv4()}.${fileExtension}`;
+        cb(null, filename);
+      }
+    }),
+    fileFilter: fileFilter,
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB limit
+      files: 5 // Max 5 files per request
+    }
+  });
+  
+  logger.warn('S3 configuration not found, using local file storage. This is not recommended for production.');
+}
 
 // Get upload folder based on upload type
 const getUploadFolder = (uploadType) => {
