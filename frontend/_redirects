@@ -1,0 +1,5 @@
+# SPA fallback
+/*    /index.html   200
+
+# API redirects (update with actual backend URL)
+/api/*  https://your-backend-url.com/api/:splat  200

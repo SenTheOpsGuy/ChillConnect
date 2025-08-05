@@ -33,6 +33,8 @@ import BookingMonitoring from './pages/Admin/BookingMonitoring'
 import UserManagement from './pages/Admin/UserManagement'
 import NotFound from './pages/NotFound'
 import Landing from './pages/Landing'
+import TermsOfService from './pages/TermsOfService'
+import PrivacyPolicy from './pages/PrivacyPolicy'
 
 function App() {
   const dispatch = useDispatch()
@@ -111,6 +113,8 @@ function App() {
             }
           />
           <Route path="/verify-email" element={<EmailVerification />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
 
           {/* Protected Routes */}
           <Route

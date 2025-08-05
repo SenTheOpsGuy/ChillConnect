@@ -83,7 +83,7 @@ const Verification = () => {
 
     setVerifyingCode(true)
     try {
-      await api.post('/auth/verify-phone', { otp: phoneCode })
+      await api.post('/auth/verify-phone-otp', { otp: phoneCode })
       toast.success('Phone verified successfully!')
       setVerificationStatus(prev => ({ ...prev, isPhoneVerified: true }))
       setActiveStep(2)

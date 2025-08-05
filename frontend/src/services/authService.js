@@ -16,7 +16,7 @@ const authService = {
         consent_given: userData.consentGiven
       }
       
-      const response = await api.post('/register', transformedData)
+      const response = await api.post('/auth/register', transformedData)
       return response.data
     } catch (error) {
       throw error.response?.data || error.message
@@ -26,7 +26,7 @@ const authService = {
   // Login user
   login: async (credentials) => {
     try {
-      const response = await api.post('/login', credentials)
+      const response = await api.post('/auth/login', credentials)
       if (response.data.token) {
         localStorage.setItem('token', response.data.token)
         api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
@@ -106,7 +106,7 @@ const authService = {
   // Verify phone OTP
   verifyPhoneOTP: async (phone, otp) => {
     try {
-      const response = await api.post('/auth/verify-phone', { phone, otp })
+      const response = await api.post('/auth/verify-phone-otp', { phone, otp })
       return response.data
     } catch (error) {
       throw error.response?.data || error.message

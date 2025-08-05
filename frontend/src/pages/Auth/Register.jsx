@@ -534,13 +534,13 @@ const Register = () => {
                 />
                 <span className="text-sm text-gray-700">
                   I am a consenting adult and agree to the{' '}
-                  <a href="#" className="text-primary-600 hover:text-primary-500">
+                  <Link to="/terms" className="text-primary-600 hover:text-primary-500" target="_blank">
                     Terms of Service
-                  </a>{' '}
+                  </Link>{' '}
                   and{' '}
-                  <a href="#" className="text-primary-600 hover:text-primary-500">
+                  <Link to="/privacy" className="text-primary-600 hover:text-primary-500" target="_blank">
                     Privacy Policy
-                  </a>
+                  </Link>
                 </span>
               </label>
             </div>

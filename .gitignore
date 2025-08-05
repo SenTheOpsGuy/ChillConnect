@@ -159,108 +159,6 @@ coverage/
 test-results/
 playwright-report/
 
-# Test files and debugging
-test-*.js
-debug-*.js
-test-*.html
-test-*.png
-test-*.md
-*-test.js
-*-debug.js
-comprehensive-test.js
-mock-backend.js
-enhanced-mock-backend.js
-final-test.js
-final-workflow-test.js
-
-# Screenshots and images (development/testing)
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.webm
-*.mp4
-!src/**/*.png
-!src/**/*.jpg
-!src/**/*.jpeg
-!public/**/*.png
-!public/**/*.jpg
-!public/**/*.jpeg
-
-# Test directories
-tests/screenshots/
-test-screenshots/
-test-videos/
-ui-diagnostics/
-workflow-tests/
-provider-seeker-tests/
-
-# AWS and deployment scripts (contain sensitive info)
-aws-*.sh
-deploy-*.sh
-configure-aws.sh
-verify-aws-credentials.sh
-ssl-setup.sh
-setup-ssl.sh
-ec2-user-data.sh
-fix-ec2-install.sh
-manage-server.sh
-test-runner.sh
-update-database.sh
-
-# Deployment files and archives
-deploy*.zip
-*.zip
-cloudformation-template.yaml
-docker-compose.aws.yml
-
-# Documentation (temporary/generated)
-*_COMPLETE.md
-*_GUIDE.md
-*_STATUS.md
-*_REPORT.md
-*_INSTRUCTIONS.md
-*_RESULTS.md
-*_TESTING.md
-*_SIMULATION.md
-*_SUMMARY.md
-*_ANALYSIS*.md
-DEPLOYMENT*.md
-AWS_*.md
-RCA_*.md
-FALSE_POSITIVE*.md
-BROWSER_*.md
-OTP_*.md
-QUICK_*.md
-SSL_*.md
-VERIFICATION_*.md
-START_*.md
-FINAL_*.md
-
-# SSL certificates and keys
-*.pem
-*.key
-*.crt
-*.csr
-chillconnect-key.pem
-
-# Log files and server files
-*.log
-server.log
-server.pid
-backend.log
-frontend.log
-backend-*.js
-frontend-*.js
-backend-*.html
-logs/
-
-# Nginx configs (may contain sensitive paths)
-nginx*.conf
-
-# AWS response files
-aws-*.txt
-
 # Storybook build outputs
 storybook-static/
 
@@ -273,3 +171,5 @@ storybook-static/
 *.njsproj
 *.sln
 *.sw?
+# Local Netlify folder
+.netlify
