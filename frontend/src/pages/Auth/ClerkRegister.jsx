@@ -143,6 +143,9 @@ const ClerkRegister = () => {
                     accountType: userRole,
                     registrationSource: 'clerk'
                   }}
+                  initialValues={{
+                    phoneNumber: '+91'
+                  }}
                 />
               </div>
             </div>

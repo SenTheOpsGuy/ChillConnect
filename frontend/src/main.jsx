@@ -35,7 +35,13 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+    <ClerkProvider 
+      publishableKey={PUBLISHABLE_KEY}
+      localization={{
+        phoneInputPlaceholder: "+91 98765 43210",
+        phoneInputLabel: "Phone number"
+      }}
+    >
       <Provider store={store}>
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
