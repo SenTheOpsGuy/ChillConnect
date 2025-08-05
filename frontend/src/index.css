@@ -1554,11 +1554,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .cta-primary {
-  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%) !important;
+  color: #ffffff !important;
   padding: 1rem 2rem;
   border-radius: 12px;
-  text-decoration: none;
+  text-decoration: none !important;
   font-weight: 600;
   transition: all 0.3s ease;
   box-shadow: 0 4px 20px rgba(220, 38, 38, 0.3);
@@ -1567,6 +1567,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .cta-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 30px rgba(220, 38, 38, 0.4);
+  color: #ffffff !important;
+  text-decoration: none !important;
 }
 
 .cta-primary.large {
@@ -1574,20 +1576,35 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-size: 1.1rem;
 }
 
+.cta-primary.cta-green {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 20px rgba(5, 150, 105, 0.3);
+  text-decoration: none !important;
+}
+
+.cta-primary.cta-green:hover {
+  box-shadow: 0 8px 30px rgba(5, 150, 105, 0.4);
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+
 .cta-secondary {
-  background: rgba(55, 65, 81, 0.3);
-  color: #ffffff;
+  background: rgba(55, 65, 81, 0.3) !important;
+  color: #ffffff !important;
   padding: 1rem 2rem;
   border-radius: 12px;
-  text-decoration: none;
+  text-decoration: none !important;
   font-weight: 500;
   transition: all 0.3s ease;
   border: 1px solid #374151;
 }
 
 .cta-secondary:hover {
-  background: rgba(55, 65, 81, 0.5);
+  background: rgba(55, 65, 81, 0.5) !important;
   border-color: #6b7280;
+  color: #ffffff !important;
+  text-decoration: none !important;
 }
 
 .cta-secondary.large {
@@ -1596,17 +1613,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .cta-tertiary {
-  color: #9ca3af;
+  color: #d1d5db !important;
   padding: 1rem 2rem;
-  text-decoration: none;
+  text-decoration: none !important;
   font-weight: 500;
   transition: all 0.3s ease;
   border-radius: 12px;
 }
 
 .cta-tertiary:hover {
-  color: #ffffff;
-  background: rgba(55, 65, 81, 0.2);
+  color: #ffffff !important;
+  background: rgba(55, 65, 81, 0.2) !important;
+  text-decoration: none !important;
 }
 
 .cta-tertiary.large {
