@@ -1,0 +1,44 @@
+# Ignore frontend (not needed for backend deployment)
+frontend/
+build/
+nextjs-redis-netlify/
+
+# Ignore documentation and deployment scripts
+*.md
+*.sh
+*.js
+test-deployment.js
+
+# Ignore environment files
+.env*
+!backend/.env.production.example
+
+# Ignore git and IDE files
+.git
+.gitignore
+.vscode/
+.idea/
+
+# Ignore node_modules (will be installed during build)
+node_modules/
+*/node_modules/
+
+# Ignore logs
+logs/
+*.log
+
+# Ignore temporary files
+tmp/
+temp/
+*.tmp
+
+# Ignore SSL certificates
+*.pem
+*.key
+*.crt
+
+# Keep only backend essentials
+!backend/
+!netlify.toml
+!railway.json
+!nixpacks.toml

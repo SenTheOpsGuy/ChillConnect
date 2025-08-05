@@ -1,0 +1,19 @@
+{
+  "name": "chillconnect-monorepo",
+  "version": "1.0.0",
+  "description": "ChillConnect monorepo with backend API for Railway deployment",
+  "private": true,
+  "scripts": {
+    "start": "cd backend && node railway-start.js",
+    "build": "cd backend && npm install && npx prisma generate",
+    "backend:start": "cd backend && node railway-start.js",
+    "backend:build": "cd backend && npm install && npx prisma generate"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ]
+}
