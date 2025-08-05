@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { SignUp, useSignUp } from '@clerk/clerk-react'
+import { SignUp } from '@clerk/clerk-react'
 import toast from 'react-hot-toast'
 
 const ClerkRegister = () => {
-  const { signUp, isLoaded } = useSignUp()
   const [showClerkSignUp, setShowClerkSignUp] = useState(false)
   const [userRole, setUserRole] = useState('SEEKER')
 
@@ -13,18 +12,6 @@ const ClerkRegister = () => {
     setUserRole(role)
     setShowClerkSignUp(true)
     toast.success(`Selected role: ${role}`)
-  }
-
-  if (!isLoaded) {
-    return (
-      <div className="auth-page">
-        <div className="auth-container">
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -149,7 +136,7 @@ const ClerkRegister = () => {
                       footerActionLink: 'text-blue-600 hover:text-blue-500'
                     }
                   }}
-                  redirectUrl="/dashboard"
+                  forceRedirectUrl="/dashboard"
                   signInUrl="/login"
                   unsafeMetadata={{ 
                     role: userRole,
