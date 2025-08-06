@@ -181,6 +181,7 @@ const sendTransactionalEmail = async (to, subject, htmlContent, templateData = {
   return await brevoSendTransactionalEmail(to, subject, htmlContent, templateData);
 };
 
+
 /**
  * Send transactional SMS
  */
@@ -190,9 +191,16 @@ const sendTransactionalSMS = async (phoneNumber, message) => {
   }
 
   try {
+    const fromNumber = process.env.TWILIO_PHONE_NUMBER;
+    
+    if (!fromNumber || fromNumber === 'your_twilio_phone_number') {
+      logger.error('Twilio phone number not configured. Please set TWILIO_PHONE_NUMBER in .env');
+      throw new Error('SMS service not configured properly. Please contact support.');
+    }
+
     const sms = await twilioClient.messages.create({
       body: message,
-      from: process.env.TWILIO_PHONE_NUMBER || 'ChillConnect',
+      from: fromNumber,
       to: phoneNumber
     });
 

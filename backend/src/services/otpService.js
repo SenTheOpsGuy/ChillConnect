@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
-const { sendSMSOTP, sendPhoneVerificationEmail } = require('./notificationService');
+const { sendPhoneVerificationEmail } = require('./notificationService');
+const { sendPhoneVerification, verifyPhoneNumber } = require('./twilioService');
 const logger = require('../utils/logger');
 
 const prisma = new PrismaClient();
@@ -58,8 +59,22 @@ const sendPhoneOTP = async (userId, phone) => {
       }
     });
 
-    // Send OTP via SMS
-    await sendSMSOTP(phone, otp);
+    // Send OTP via Twilio Verify service (no custom OTP needed)
+    try {
+      await sendPhoneVerification(phone);
+      logger.info(`Twilio Verify OTP sent to ${phone} for user ${userId}`);
+      
+      // Update database record with Twilio Verify status
+      await prisma.oTPVerification.update({
+        where: { id: otpRecord.id },
+        data: { otp: 'TWILIO_VERIFY' } // Special marker for Twilio Verify
+      });
+    } catch (twilioError) {
+      logger.error('Failed to send Twilio Verify OTP:', twilioError);
+      // Delete the OTP record since sending failed
+      await prisma.oTPVerification.delete({ where: { id: otpRecord.id } });
+      throw new Error('Failed to send verification code');
+    }
 
     logger.info(`Phone OTP sent to ${phone} for user ${userId}`);
 
@@ -193,9 +208,23 @@ const verifyPhoneOTP = async (userId, phone, otp) => {
       data: { attempts: otpRecord.attempts + 1 }
     });
 
-    // Verify OTP
-    if (otpRecord.otp !== otp) {
-      throw new Error('Invalid OTP');
+    // Verify OTP - handle both custom OTP and Twilio Verify
+    if (otpRecord.otp === 'TWILIO_VERIFY') {
+      // Use Twilio Verify service
+      try {
+        const verificationResult = await verifyPhoneNumber(phone, otp);
+        if (!verificationResult.success || !verificationResult.valid) {
+          throw new Error('Invalid verification code');
+        }
+      } catch (twilioError) {
+        logger.error('Twilio Verify verification failed:', twilioError);
+        throw new Error('Invalid verification code');
+      }
+    } else {
+      // Standard OTP verification
+      if (otpRecord.otp !== otp) {
+        throw new Error('Invalid OTP');
+      }
     }
 
     // Mark OTP as used

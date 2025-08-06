@@ -4,18 +4,19 @@ const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const { auth } = require('../middleware/auth');
 const logger = require('../utils/logger');
-const { sendVerificationEmail } = require('../services/notificationService');
 const { sendPhoneOTP, sendEmailOTP, verifyPhoneOTP, verifyEmailOTP, getPhoneOTPStatus, getEmailOTPStatus } = require('../services/otpService');
 const { 
   sendPhoneVerification, 
-  verifyPhoneNumber, 
-  sendEmailVerification, 
-  generateEmailVerificationToken, 
-  verifyEmailVerificationToken,
-  sendWelcomeEmail,
-  sendTransactionalEmail,
+  verifyPhoneNumber,
   sendTransactionalSMS
 } = require('../services/twilioService');
+const {
+  sendEmailVerification,
+  generateEmailVerificationToken,
+  verifyEmailVerificationToken,
+  sendWelcomeEmail,
+  sendTransactionalEmail
+} = require('../services/brevoService');
 
 const router = express.Router();
 
@@ -125,8 +126,10 @@ router.post('/register', [
       return newUser;
     });
 
-    // Send verification email
-    await sendVerificationEmail(user.email, user.id);
+
+    // Send verification email using Brevo
+    const verificationToken = generateEmailVerificationToken(user.id, user.email);
+    await sendEmailVerification(user.email, verificationToken);
 
     // Generate JWT token
     const token = generateToken(user.id);
@@ -277,12 +280,19 @@ router.post('/verify-email', [
 
     const { token } = req.body;
 
-    // Verify JWT token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Verify email verification token using Brevo service
+    const verificationResult = verifyEmailVerificationToken(token);
+    
+    if (!verificationResult.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid or expired verification token'
+      });
+    }
     
     // Update user email verification status
     const user = await req.prisma.user.update({
-      where: { email: decoded.email },
+      where: { email: verificationResult.email },
       data: { isEmailVerified: true }
     });
 
@@ -294,10 +304,11 @@ router.post('/verify-email', [
     });
 
   } catch (error) {
-    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+    if (error.message.includes('Verification token has expired') || 
+        error.message.includes('Invalid verification token')) {
       return res.status(400).json({
         success: false,
-        error: 'Invalid or expired verification token'
+        error: error.message
       });
     }
     next(error);
@@ -1161,6 +1172,7 @@ router.post('/send-welcome', auth, async (req, res, next) => {
     next(error);
   }
 });
+
 
 // @route   GET /api/auth/profile
 // @desc    Get user profile

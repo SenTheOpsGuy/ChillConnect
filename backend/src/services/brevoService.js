@@ -108,11 +108,12 @@ const sendEmailVerification = async (email, verificationToken) => {
 
     const result = await apiInstance.sendTransacEmail(emailData);
     
-    logger.info(`Email verification sent via Brevo to ${email}, Message ID: ${result.messageId}`);
+    const messageId = result.body?.messageId || result.messageId;
+    logger.info(`Email verification sent via Brevo to ${email}, Message ID: ${messageId}`);
     
     return {
       success: true,
-      messageId: result.messageId
+      messageId: messageId
     };
   } catch (error) {
     logger.error('Failed to send email verification via Brevo:', error);
@@ -203,11 +204,12 @@ const sendWelcomeEmail = async (email, firstName, userRole) => {
 
     const result = await apiInstance.sendTransacEmail(emailData);
     
-    logger.info(`Welcome email sent via Brevo to ${email} (${firstName}), Message ID: ${result.messageId}`);
+    const messageId = result.body?.messageId || result.messageId;
+    logger.info(`Welcome email sent via Brevo to ${email} (${firstName}), Message ID: ${messageId}`);
     
     return {
       success: true,
-      messageId: result.messageId
+      messageId: messageId
     };
   } catch (error) {
     logger.error('Failed to send welcome email via Brevo:', error);
@@ -242,11 +244,12 @@ const sendTransactionalEmail = async (to, subject, htmlContent, templateData = {
 
     const result = await apiInstance.sendTransacEmail(emailData);
     
-    logger.info(`Transactional email sent via Brevo to ${to}, Subject: ${subject}, Message ID: ${result.messageId}`);
+    const messageId = result.body?.messageId || result.messageId;
+    logger.info(`Transactional email sent via Brevo to ${to}, Subject: ${subject}, Message ID: ${messageId}`);
     
     return {
       success: true,
-      messageId: result.messageId
+      messageId: messageId
     };
   } catch (error) {
     logger.error('Failed to send transactional email via Brevo:', error);
