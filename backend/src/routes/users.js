@@ -178,7 +178,7 @@ router.put('/password', [
 // @access  Private
 router.put('/email', [
   auth,
-  body('newEmail').isEmail().normalizeEmail().withMessage('Valid email is required'),
+  body('newEmail').isEmail().withMessage('Valid email is required'),
   body('password').notEmpty().withMessage('Password is required')
 ], async (req, res, next) => {
   try {

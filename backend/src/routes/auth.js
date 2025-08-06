@@ -31,7 +31,7 @@ const generateToken = (userId) => {
 // @desc    Register new user
 // @access  Public
 router.post('/register', [
-  body('email').isEmail().normalizeEmail(),
+  body('email').isEmail(),
   body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
   body('role').isIn(['SEEKER', 'PROVIDER']).withMessage('Role must be SEEKER or PROVIDER'),
   body('firstName').notEmpty().withMessage('First name is required'),
@@ -163,7 +163,7 @@ router.post('/register', [
 // @desc    Login user
 // @access  Public
 router.post('/login', [
-  body('email').isEmail().normalizeEmail(),
+  body('email').isEmail(),
   body('password').exists()
 ], async (req, res, next) => {
   try {
@@ -369,10 +369,10 @@ router.post('/send-phone-otp', [
   }
 });
 
-// @route   POST /api/auth/verify-phone
-// @desc    Verify phone number with OTP
+// @route   POST /api/auth/verify-phone-update
+// @desc    Verify phone number with OTP (for authenticated users)
 // @access  Private
-router.post('/verify-phone', [
+router.post('/verify-phone-update', [
   auth,
   body('phone').isMobilePhone().withMessage('Valid phone number is required'),
   body('otp').isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits')
@@ -876,8 +876,7 @@ router.post('/verify-phone', [
 router.post('/send-email-verification', [
   body('email')
     .isEmail()
-    .normalizeEmail()
-    .withMessage('Valid email address is required')
+        .withMessage('Valid email address is required')
 ], async (req, res, next) => {
   try {
     const errors = validationResult(req);
@@ -934,7 +933,7 @@ router.post('/send-email-verification', [
 // @desc    Complete Twilio-based registration
 // @access  Public
 router.post('/twilio-register', [
-  body('email').isEmail().normalizeEmail(),
+  body('email').isEmail(),
   body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
   body('role').isIn(['SEEKER', 'PROVIDER']).withMessage('Role must be SEEKER or PROVIDER'),
   body('firstName').notEmpty().withMessage('First name is required'),
