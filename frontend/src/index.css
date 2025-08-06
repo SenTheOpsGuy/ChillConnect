@@ -362,7 +362,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   .btn-primary {
     padding: 12px 24px;
     background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-    color: #ffffff;
+    color: #ffffff !important;
     border: none;
     border-radius: 12px;
     font-weight: 600;
@@ -371,11 +371,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     box-shadow: 0 4px 20px rgba(220, 38, 38, 0.3);
     position: relative;
     overflow: hidden;
+    text-decoration: none !important;
   }
 
   .btn-primary:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 30px rgba(220, 38, 38, 0.4);
+    color: #ffffff !important;
+    text-decoration: none !important;
   }
 
   .btn-primary::before {
@@ -399,18 +402,20 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   .btn-secondary {
     padding: 12px 20px;
     background: rgba(55, 65, 81, 0.3);
-    color: #9ca3af;
+    color: #9ca3af !important;
     border: 1px solid #374151;
     border-radius: 12px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
+    text-decoration: none !important;
   }
 
   .btn-secondary:hover {
     background: rgba(55, 65, 81, 0.5);
-    color: #ffffff;
+    color: #ffffff !important;
     border-color: #6b7280;
+    text-decoration: none !important;
   }
 
   /* Dashboard Content */
@@ -1253,7 +1258,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
     border: none;
     border-radius: 12px;
-    color: #ffffff;
+    color: #ffffff !important;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
@@ -1262,11 +1267,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    text-decoration: none !important;
   }
 
   .auth-button:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 8px 32px rgba(220, 38, 38, 0.4);
+    color: #ffffff !important;
+    text-decoration: none !important;
   }
 
   .auth-button:disabled {
@@ -1324,10 +1332,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     background: rgba(0, 0, 0, 0.5);
     border: 1px solid #374151;
     border-radius: 12px;
-    color: #e5e7eb;
+    color: #e5e7eb !important;
     font-size: 16px;
     font-weight: 500;
-    text-decoration: none;
+    text-decoration: none !important;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1337,7 +1345,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
   .auth-link-button:hover {
     border-color: #dc2626;
-    color: #ffffff;
+    color: #ffffff !important;
+    text-decoration: none !important;
   }
 
   .auth-footer {
