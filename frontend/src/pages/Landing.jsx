@@ -48,8 +48,8 @@ const Landing = () => {
                 unforgettable experiences.
               </p>
               <div className="hero-cta">
-                <Link to="/register" className="cta-primary">Start Exploring</Link>
-                <Link to="/clerk-register" className="cta-primary cta-green" style={{ marginLeft: '12px' }}>Quick Sign Up</Link>
+                <Link to="/register-new" className="cta-primary">Start Exploring</Link>
+                <Link to="/register-new" className="cta-primary cta-green" style={{ marginLeft: '12px' }}>Quick Sign Up</Link>
                 <Link to="/login" className="cta-secondary">Login</Link>
                 <a href="#how-it-works" className="cta-tertiary">Learn More</a>
               </div>

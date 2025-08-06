@@ -20,7 +20,6 @@ const bookingRoutes = require('./routes/bookings');
 const chatRoutes = require('./routes/chat');
 const adminRoutes = require('./routes/admin');
 const uploadRoutes = require('./routes/upload');
-const migrationRoutes = require('./routes/migration');
 
 const app = express();
 
@@ -93,7 +92,6 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
-app.use('/api/migrate', migrationRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
