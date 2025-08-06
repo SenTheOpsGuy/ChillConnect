@@ -9,7 +9,6 @@
   VITE_API_BASE_URL = "https://chillconnect-production.up.railway.app/api"
   VITE_NODE_ENV = "production"
   VITE_SOCKET_URL = "https://chillconnect-production.up.railway.app"
-  VITE_CLERK_PUBLISHABLE_KEY = "pk_test_ZWFzeS1nZWxkaW5nLTU4LmNsZXJrLmFjY291bnRzLmRldiQ"
 
 # Redirects for React Router (SPA)
 [[redirects]]
@@ -32,7 +31,7 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.clerk.accounts.dev https://clerk.accounts.dev https://challenges.cloudflare.com; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: https://*.clerk.accounts.dev; font-src 'self' https: https://fonts.gstatic.com; connect-src 'self' wss: https: https://*.clerk.accounts.dev https://challenges.cloudflare.com; frame-src https://*.clerk.accounts.dev https://challenges.cloudflare.com;"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https: https://fonts.gstatic.com; connect-src 'self' wss: https:;"
 
 # Cache static assets
 [[headers]]

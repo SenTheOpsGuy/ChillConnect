@@ -13,7 +13,7 @@ import LoadingSpinner from './components/UI/LoadingSpinner'
 // Pages
 import Login from './pages/Auth/Login'
 import Register from './pages/Auth/Register'
-import ClerkRegister from './pages/Auth/ClerkRegister'
+import TwilioRegister from './pages/Auth/TwilioRegister'
 import OtpLogin from './pages/Auth/OtpLogin'
 import OtpRequest from './pages/Auth/OtpRequest'
 import OtpVerify from './pages/Auth/OtpVerify'
@@ -94,12 +94,12 @@ function App() {
             }
           />
           <Route
-            path="/clerk-register"
+            path="/register-new"
             element={
               isAuthenticated ? (
                 <Navigate to="/dashboard" replace />
               ) : (
-                <ClerkRegister />
+                <TwilioRegister />
               )
             }
           />

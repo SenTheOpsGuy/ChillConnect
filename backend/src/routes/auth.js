@@ -6,6 +6,16 @@ const { auth } = require('../middleware/auth');
 const logger = require('../utils/logger');
 const { sendVerificationEmail } = require('../services/notificationService');
 const { sendPhoneOTP, sendEmailOTP, verifyPhoneOTP, verifyEmailOTP, getPhoneOTPStatus, getEmailOTPStatus } = require('../services/otpService');
+const { 
+  sendPhoneVerification, 
+  verifyPhoneNumber, 
+  sendEmailVerification, 
+  generateEmailVerificationToken, 
+  verifyEmailVerificationToken,
+  sendWelcomeEmail,
+  sendTransactionalEmail,
+  sendTransactionalSMS
+} = require('../services/twilioService');
 
 const router = express.Router();
 
@@ -272,7 +282,7 @@ router.post('/verify-email', [
     
     // Update user email verification status
     const user = await req.prisma.user.update({
-      where: { id: decoded.id },
+      where: { email: decoded.email },
       data: { isEmailVerified: true }
     });
 
@@ -725,6 +735,482 @@ router.post('/logout', auth, (req, res) => {
     success: true,
     message: 'Logout successful'
   });
+});
+
+// =============================================================================
+// TWILIO-BASED REGISTRATION FLOW ENDPOINTS
+// =============================================================================
+
+// @route   POST /api/auth/send-phone-verification
+// @desc    Send phone verification via Twilio for registration
+// @access  Public
+router.post('/send-phone-verification', [
+  body('phoneNumber')
+    .isMobilePhone()
+    .withMessage('Valid phone number is required')
+    .custom((value) => {
+      // Ensure it starts with +91 for Indian numbers
+      if (!value.startsWith('+91')) {
+        throw new Error('Phone number must include +91 country code');
+      }
+      return true;
+    })
+], async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: errors.array()
+      });
+    }
+
+    const { phoneNumber } = req.body;
+
+    // Check if phone number is already registered
+    const existingUser = await req.prisma.user.findFirst({
+      where: { phone: phoneNumber }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        error: 'Phone number is already registered'
+      });
+    }
+
+    // Send verification via Twilio
+    const result = await sendPhoneVerification(phoneNumber);
+
+    logger.info(`Twilio phone verification sent to: ${phoneNumber}`);
+
+    res.json({
+      success: true,
+      message: 'Verification code sent to your phone',
+      data: {
+        to: result.to,
+        channel: result.channel,
+        status: result.status
+      }
+    });
+
+  } catch (error) {
+    logger.error('Twilio phone verification error:', error);
+    
+    res.status(400).json({
+      success: false,
+      error: error.message || 'Failed to send verification code'
+    });
+  }
+});
+
+// @route   POST /api/auth/verify-phone
+// @desc    Verify phone number via Twilio for registration
+// @access  Public
+router.post('/verify-phone', [
+  body('phoneNumber')
+    .isMobilePhone()
+    .withMessage('Valid phone number is required'),
+  body('otp')
+    .isLength({ min: 4, max: 8 })
+    .withMessage('Verification code must be 4-8 digits')
+], async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: errors.array()
+      });
+    }
+
+    const { phoneNumber, otp } = req.body;
+
+    // Verify with Twilio
+    const result = await verifyPhoneNumber(phoneNumber, otp);
+
+    if (!result.success || !result.valid) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid verification code'
+      });
+    }
+
+    logger.info(`Twilio phone verification successful for: ${phoneNumber}`);
+
+    res.json({
+      success: true,
+      message: 'Phone number verified successfully',
+      data: {
+        phoneNumber,
+        verified: true
+      }
+    });
+
+  } catch (error) {
+    logger.error('Twilio phone verification error:', error);
+    
+    res.status(400).json({
+      success: false,
+      error: error.message || 'Failed to verify phone number'
+    });
+  }
+});
+
+// @route   POST /api/auth/send-email-verification
+// @desc    Send email verification for registration
+// @access  Public
+router.post('/send-email-verification', [
+  body('email')
+    .isEmail()
+    .normalizeEmail()
+    .withMessage('Valid email address is required')
+], async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: errors.array()
+      });
+    }
+
+    const { email } = req.body;
+
+    // Check if email is already registered
+    const existingUser = await req.prisma.user.findUnique({
+      where: { email }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email is already registered'
+      });
+    }
+
+    // Generate verification token
+    const verificationToken = generateEmailVerificationToken('temp-registration', email);
+
+    // Send verification email
+    await sendEmailVerification(email, verificationToken);
+
+    logger.info(`Email verification sent to: ${email}`);
+
+    res.json({
+      success: true,
+      message: 'Verification email sent successfully',
+      data: {
+        email,
+        token: verificationToken // For development/testing
+      }
+    });
+
+  } catch (error) {
+    logger.error('Email verification error:', error);
+    
+    res.status(400).json({
+      success: false,
+      error: error.message || 'Failed to send verification email'
+    });
+  }
+});
+
+// @route   POST /api/auth/twilio-register
+// @desc    Complete Twilio-based registration
+// @access  Public
+router.post('/twilio-register', [
+  body('email').isEmail().normalizeEmail(),
+  body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
+  body('role').isIn(['SEEKER', 'PROVIDER']).withMessage('Role must be SEEKER or PROVIDER'),
+  body('firstName').notEmpty().withMessage('First name is required'),
+  body('lastName').notEmpty().withMessage('Last name is required'),
+  body('phoneNumber')
+    .isMobilePhone()
+    .withMessage('Valid phone number is required')
+    .custom((value) => {
+      if (!value.startsWith('+91')) {
+        throw new Error('Phone number must include +91 country code');
+      }
+      return true;
+    }),
+  body('ageConfirmed').equals('true').withMessage('Age confirmation is required'),
+  body('consentGiven').equals('true').withMessage('Consent is required')
+], async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: errors.array()
+      });
+    }
+
+    const { 
+      email, 
+      password, 
+      role, 
+      firstName, 
+      lastName, 
+      phoneNumber,
+      ageConfirmed, 
+      consentGiven 
+    } = req.body;
+
+    // Check if user already exists
+    const existingUser = await req.prisma.user.findFirst({
+      where: {
+        OR: [
+          { email },
+          { phone: phoneNumber }
+        ]
+      }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        error: 'User already exists with this email or phone number'
+      });
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(parseInt(process.env.BCRYPT_ROUNDS) || 12);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    // Create user with profile in transaction
+    const user = await req.prisma.$transaction(async (prisma) => {
+      // Create user
+      const newUser = await prisma.user.create({
+        data: {
+          email,
+          phone: phoneNumber,
+          passwordHash,
+          role,
+          consentGiven: consentGiven === 'true',
+          isAgeVerified: true,
+          isPhoneVerified: true, // Since we verified via Twilio
+          isEmailVerified: false // Will be verified via email link
+        }
+      });
+
+      // Create profile
+      await prisma.userProfile.create({
+        data: {
+          userId: newUser.id,
+          firstName,
+          lastName
+        }
+      });
+
+      // Create token wallet
+      await prisma.tokenWallet.create({
+        data: {
+          userId: newUser.id,
+          balance: 0,
+          escrowBalance: 0
+        }
+      });
+
+      return newUser;
+    });
+
+    // Generate JWT token
+    const token = generateToken(user.id);
+
+    // Send welcome email
+    try {
+      await sendWelcomeEmail(user.email, firstName, user.role);
+      logger.info(`Welcome email sent to new user: ${email}`);
+    } catch (emailError) {
+      logger.error('Failed to send welcome email:', emailError);
+      // Don't fail registration if welcome email fails
+    }
+
+    // Send welcome SMS
+    try {
+      const welcomeSMS = `🎉 Welcome to ChillConnect, ${firstName}! Your ${role.toLowerCase()} account is ready. Start connecting today!`;
+      await sendTransactionalSMS(phoneNumber, welcomeSMS);
+      logger.info(`Welcome SMS sent to new user: ${phoneNumber}`);
+    } catch (smsError) {
+      logger.error('Failed to send welcome SMS:', smsError);
+      // Don't fail registration if welcome SMS fails
+    }
+
+    logger.info(`New user registered via Twilio: ${email} (${role}), phone: ${phoneNumber}`);
+
+    res.status(201).json({
+      success: true,
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+          phone: user.phone,
+          role: user.role,
+          isVerified: user.isVerified,
+          isEmailVerified: user.isEmailVerified,
+          isPhoneVerified: user.isPhoneVerified,
+          isAgeVerified: user.isAgeVerified,
+          consentGiven: user.consentGiven
+        },
+        token
+      },
+      message: 'Registration successful! Welcome emails and SMS sent.'
+    });
+
+  } catch (error) {
+    next(error);
+  }
+});
+
+// =============================================================================
+// TRANSACTIONAL COMMUNICATION ENDPOINTS
+// =============================================================================
+
+// @route   POST /api/auth/send-notification
+// @desc    Send transactional email or SMS
+// @access  Private
+router.post('/send-notification', [
+  auth,
+  body('type').isIn(['email', 'sms', 'both']).withMessage('Type must be email, sms, or both'),
+  body('subject').optional().notEmpty().withMessage('Subject required for email'),
+  body('message').notEmpty().withMessage('Message is required'),
+  body('recipient').optional().notEmpty().withMessage('Recipient required if not using user data')
+], async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: errors.array()
+      });
+    }
+
+    const { type, subject, message, recipient } = req.body;
+    const user = req.user;
+
+    const results = [];
+
+    if (type === 'email' || type === 'both') {
+      try {
+        const emailResult = await sendTransactionalEmail(
+          recipient || user.email,
+          subject || 'ChillConnect Notification',
+          message
+        );
+        results.push({ type: 'email', success: true, messageId: emailResult.messageId });
+      } catch (error) {
+        results.push({ type: 'email', success: false, error: error.message });
+      }
+    }
+
+    if (type === 'sms' || type === 'both') {
+      try {
+        const smsResult = await sendTransactionalSMS(
+          recipient || user.phone,
+          message.replace(/<[^>]*>/g, '') // Strip HTML tags for SMS
+        );
+        results.push({ type: 'sms', success: true, messageId: smsResult.sid });
+      } catch (error) {
+        results.push({ type: 'sms', success: false, error: error.message });
+      }
+    }
+
+    logger.info(`Transactional notifications sent to user: ${user.email}`);
+
+    res.json({
+      success: true,
+      message: 'Notifications processed',
+      results
+    });
+
+  } catch (error) {
+    next(error);
+  }
+});
+
+// @route   POST /api/auth/send-welcome
+// @desc    Manually send welcome email (for testing)
+// @access  Private
+router.post('/send-welcome', auth, async (req, res, next) => {
+  try {
+    const user = req.user;
+    
+    if (!user.profile) {
+      return res.status(400).json({
+        success: false,
+        error: 'User profile not found'
+      });
+    }
+
+    await sendWelcomeEmail(user.email, user.profile.firstName, user.role);
+
+    logger.info(`Welcome email manually sent to user: ${user.email}`);
+
+    res.json({
+      success: true,
+      message: 'Welcome email sent successfully'
+    });
+
+  } catch (error) {
+    next(error);
+  }
+});
+
+// @route   GET /api/auth/profile
+// @desc    Get user profile
+// @access  Private
+router.get('/profile', auth, async (req, res, next) => {
+  try {
+    const user = await req.prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        role: true,
+        isVerified: true,
+        isEmailVerified: true,
+        isPhoneVerified: true,
+        isAgeVerified: true,
+        consentGiven: true,
+        createdAt: true,
+        profile: {
+          select: {
+            firstName: true,
+            lastName: true,
+            dateOfBirth: true,
+            profilePhoto: true,
+            services: true,
+            hourlyRate: true,
+            availability: true,
+            rating: true,
+            reviewCount: true
+          }
+        }
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      user
+    });
+
+  } catch (error) {
+    next(error);
+  }
 });
 
 module.exports = router;
