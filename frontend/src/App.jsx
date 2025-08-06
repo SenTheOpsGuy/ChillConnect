@@ -131,7 +131,16 @@ function App() {
           <Route path="/verify-email" element={<EmailVerification />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/employee-login" element={<EmployeeLogin />} />
+          <Route
+            path="/employee-login"
+            element={
+              isAuthenticated && user && ['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(user.role) ? (
+                <Navigate to="/admin/dashboard" replace />
+              ) : (
+                <EmployeeLogin />
+              )
+            }
+          />
           <Route path="/contact" element={<Contact />} />
           <Route path="/guidelines" element={<CommunityGuidelines />} />
           <Route path="/terms" element={<TermsOfService />} />

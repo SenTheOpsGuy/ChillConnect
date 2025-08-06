@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { FiMail, FiLock, FiBriefcase, FiArrowLeft } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 import { login } from '../../store/slices/authSlice'
@@ -8,12 +8,20 @@ import { login } from '../../store/slices/authSlice'
 const EmployeeLogin = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const { isAuthenticated, user } = useSelector((state) => state.auth)
   
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   })
   const [isLoading, setIsLoading] = useState(false)
+
+  // Redirect if already authenticated with proper role
+  useEffect(() => {
+    if (isAuthenticated && user && ['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(user.role)) {
+      navigate('/admin/dashboard', { replace: true })
+    }
+  }, [isAuthenticated, user, navigate])
 
   const handleChange = (e) => {
     setFormData({
@@ -34,20 +42,20 @@ const EmployeeLogin = () => {
     try {
       const resultAction = await dispatch(login({
         email: formData.email,
-        password: formData.password,
-        employeeLogin: true // Flag to indicate this is employee login
+        password: formData.password
       }))
       
       if (login.fulfilled.match(resultAction)) {
-        const user = resultAction.payload.user
+        const userData = resultAction.payload.data?.user || resultAction.payload.user
         
         // Check if user has admin/employee privileges
-        if (['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(user.role)) {
+        if (['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(userData.role)) {
           toast.success('Employee login successful!')
-          navigate('/admin/dashboard')
+          // Navigation will be handled by useEffect after state updates
         } else {
           toast.error('Access denied. Employee credentials required.')
-          // Don't clear the login state, just show error
+          // Clear the login state for non-admin users
+          localStorage.removeItem('token')
         }
       }
     } catch (error) {
