@@ -243,6 +243,7 @@ const Landing = () => {
                   <li><a href="#features">Features</a></li>
                   <li><a href="#safety">Safety</a></li>
                   <li><a href="/pricing">Pricing</a></li>
+                  <li><Link to="/employee-login">Employee Login</Link></li>
                 </ul>
               </div>
               <div className="footer-column">
