@@ -566,7 +566,16 @@ router.post('/login-otp-request', [
       });
     }
 
-    const { identifier, type } = req.body;
+    let { identifier, type } = req.body;
+
+    // Normalize phone number for India if needed
+    if (type === 'phone') {
+      // If phone number doesn't start with +, assume it's Indian and add +91
+      if (!identifier.startsWith('+')) {
+        // Remove any leading 0 and add +91 prefix
+        identifier = '+91' + identifier.replace(/^0+/, '');
+      }
+    }
 
     // Find user by phone or email
     let user;
@@ -581,6 +590,10 @@ router.post('/login-otp-request', [
     }
 
     if (!user) {
+      // Add debugging info in development
+      if (process.env.NODE_ENV === 'development') {
+        logger.warn(`OTP login attempt for non-existent user: ${identifier} (type: ${type})`);
+      }
       return res.status(404).json({
         success: false,
         error: 'User not found with this phone number or email'
@@ -652,7 +665,16 @@ router.post('/login-otp-verify', [
       });
     }
 
-    const { identifier, otp, type, userId } = req.body;
+    let { identifier, otp, type, userId } = req.body;
+
+    // Normalize phone number for India if needed (same as in request endpoint)
+    if (type === 'phone') {
+      // If phone number doesn't start with +, assume it's Indian and add +91
+      if (!identifier.startsWith('+')) {
+        // Remove any leading 0 and add +91 prefix
+        identifier = '+91' + identifier.replace(/^0+/, '');
+      }
+    }
 
     // Verify the user exists
     const user = await req.prisma.user.findUnique({
