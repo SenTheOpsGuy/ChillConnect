@@ -37,6 +37,7 @@ import Landing from './pages/Landing'
 import TermsOfService from './pages/TermsOfService'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import ForgotPassword from './pages/Auth/ForgotPassword'
+import ResetPassword from './pages/Auth/ResetPassword'
 import EmployeeLogin from './pages/Auth/EmployeeLogin'
 import Contact from './pages/Contact'
 import CommunityGuidelines from './pages/CommunityGuidelines'
@@ -129,6 +130,7 @@ function App() {
           />
           <Route path="/verify-email" element={<EmailVerification />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/employee-login" element={<EmployeeLogin />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/guidelines" element={<CommunityGuidelines />} />

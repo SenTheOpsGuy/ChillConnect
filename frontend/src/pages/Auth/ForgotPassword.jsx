@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FiMail, FiArrowLeft, FiCheck } from 'react-icons/fi'
 import toast from 'react-hot-toast'
-import { authService } from '../../services/authService'
+import authService from '../../services/authService'
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('')

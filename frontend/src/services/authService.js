@@ -149,6 +149,16 @@ const authService = {
     }
   },
 
+  // Forgot password (alias for requestPasswordReset)
+  forgotPassword: async (email) => {
+    try {
+      const response = await api.post('/forgot-password', { email })
+      return response.data
+    } catch (error) {
+      throw error.response?.data || error.message
+    }
+  },
+
   // Reset password
   resetPassword: async (token, password) => {
     try {

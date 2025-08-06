@@ -74,12 +74,6 @@ const OtpLogin = () => {
   const handleRequestOTP = async (e) => {
     e.preventDefault()
     
-    // TEMPORARY: Direct state change to test React state management
-    console.log('🧪 TESTING: Direct state change to otp')
-    setCurrentStep('otp')
-    setDevelopmentOtp('123456') // Mock OTP for testing
-    return
-    
     if (!identifier) {
       toast.error(`Please enter your ${loginType === 'phone' ? 'phone number' : 'email address'}`)
       return
@@ -101,49 +95,29 @@ const OtpLogin = () => {
       const result = await dispatch(requestLoginOTP({ identifier, type: loginType })).unwrap()
       console.log('OTP request result:', result)
       
-      try {
-        // Set states and show OTP input
-        console.log('🔄 Setting OTP states...')
-        setUserId(result.userId)
-        setCountdown(60)
-        
-        // Use direct state update with string
-        console.log('🔄 Changing step from email to otp')
-        setCurrentStep('otp')
-        console.log('🔄 setCurrentStep call completed')
-        
-        // Force immediate check
-        setTimeout(() => {
-          console.log('🔄 Timeout check - currentStep should be otp now')
-        }, 100)
-        
-        toast.success(result.message || `OTP sent to your ${loginType}`)
-        
-        // In development, show and store OTP
-        if (result.otp) {
-          console.log('🔄 Setting development OTP:', result.otp)
-          setDevelopmentOtp(result.otp)
-          toast.success(`Development OTP: ${result.otp}`, { 
-            duration: 30000,
-            style: {
-              background: '#10B981',
-              color: 'white',
-              fontSize: '16px',
-              fontWeight: 'bold'
-            }
-          })
-          console.log('Development OTP set successfully')
-        }
-        console.log('🔄 OTP success handler completed')
-      } catch (stateError) {
-        console.error('🚨 ERROR in state update:', stateError)
-        // Try alternative approach
-        console.log('🔄 Trying alternative state update...')
-        setCurrentStep(() => 'otp')
+      // Set states and show OTP input
+      setUserId(result.userId)
+      setCountdown(60)
+      setCurrentStep('otp')
+      
+      toast.success(result.message || `OTP sent to your ${loginType}`)
+      
+      // In development, show and store OTP
+      if (result.otp) {
+        setDevelopmentOtp(result.otp)
+        toast.success(`Development OTP: ${result.otp}`, { 
+          duration: 30000,
+          style: {
+            background: '#10B981',
+            color: 'white',
+            fontSize: '16px',
+            fontWeight: 'bold'
+          }
+        })
       }
     } catch (error) {
       console.error('OTP request failed:', error)
-      toast.error('Failed to send OTP. Please try again.')
+      toast.error(error.message || 'Failed to send OTP. Please try again.')
     }
   }
 
