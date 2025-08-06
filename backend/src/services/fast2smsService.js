@@ -38,7 +38,6 @@ const sendSMS = async (phoneNumber, message) => {
     }
 
     const payload = {
-      authorization: process.env.FAST2SMS_API_KEY,
       variables_values: message,
       route: 'otp',
       numbers: cleanNumber
@@ -48,9 +47,12 @@ const sendSMS = async (phoneNumber, message) => {
 
     const response = await axios.post(FAST2SMS_BASE_URL, payload, {
       headers: {
-        'Content-Type': 'application/json'
+        'authorization': process.env.FAST2SMS_API_KEY,
+        'Content-Type': 'application/json',
+        'accept': '*/*',
+        'cache-control': 'no-cache'
       },
-      timeout: 10000 // 10 seconds timeout
+      timeout: 30000 // 30 seconds timeout as per documentation
     });
 
     if (response.data && response.data.return === true) {
@@ -96,13 +98,15 @@ const generateOTP = () => {
 
 /**
  * Send OTP via Fast2SMS
+ * Fast2SMS OTP route expects only numeric values and will send as "Your OTP: {otp}"
  */
 const sendOTP = async (phoneNumber) => {
   try {
     const otp = generateOTP();
-    const message = `Your ChillConnect verification code is: ${otp}. Valid for 10 minutes. Do not share with anyone.`;
     
-    const result = await sendSMS(phoneNumber, message);
+    // For Fast2SMS OTP route, we only pass the numeric OTP value
+    // Fast2SMS will format it as "Your OTP: {otp}"
+    const result = await sendSMS(phoneNumber, otp);
     
     return {
       ...result,
