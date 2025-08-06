@@ -1224,4 +1224,112 @@ router.get('/profile', auth, async (req, res, next) => {
   }
 });
 
+// @route   POST /api/auth/forgot-password
+// @desc    Send password reset email
+// @access  Public
+router.post('/forgot-password', [
+  body('email').isEmail().withMessage('Valid email address is required')
+], async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: errors.array()
+      });
+    }
+
+    const { email } = req.body;
+
+    // Find user by email
+    const user = await req.prisma.user.findUnique({
+      where: { email }
+    });
+
+    // Don't reveal if user exists or not for security
+    // Always return success to prevent user enumeration
+    if (!user) {
+      logger.warn(`Password reset requested for non-existent email: ${email}`);
+      return res.json({
+        success: true,
+        message: 'If an account with that email exists, we have sent a password reset link.'
+      });
+    }
+
+    // Generate password reset token (24 hour expiry)
+    const resetToken = jwt.sign(
+      { userId: user.id, email: user.email, type: 'password_reset' },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    // Send password reset email
+    const { sendTransactionalEmail } = require('../services/brevoService');
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+    const emailContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); padding: 20px; text-align: center;">
+          <h1 style="color: white; margin: 0;">ChillConnect</h1>
+          <p style="color: white; margin: 5px 0;">Password Reset Request</p>
+        </div>
+        
+        <div style="padding: 30px; background: #f9f9f9;">
+          <h2 style="color: #333; margin-bottom: 20px;">Reset Your Password</h2>
+          
+          <p style="color: #666; font-size: 16px; line-height: 1.6;">
+            You requested a password reset for your ChillConnect account. Click the button below to reset your password.
+          </p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetUrl}" 
+               style="background: #dc2626; color: white; padding: 12px 30px; 
+                      text-decoration: none; border-radius: 5px; font-weight: bold;
+                      display: inline-block;">
+              Reset Password
+            </a>
+          </div>
+          
+          <p style="color: #666; font-size: 14px;">
+            If the button doesn't work, copy and paste this link into your browser:
+            <br>
+            <a href="${resetUrl}" style="color: #dc2626; word-break: break-all;">
+              ${resetUrl}
+            </a>
+          </p>
+          
+          <p style="color: #999; font-size: 12px; margin-top: 30px;">
+            This password reset link will expire in 24 hours. If you didn't request this reset, 
+            please ignore this email and your password will remain unchanged.
+          </p>
+        </div>
+        
+        <div style="background: #333; color: white; text-align: center; padding: 20px;">
+          <p style="margin: 0; font-size: 14px;">
+            © 2024 ChillConnect. All rights reserved.
+          </p>
+        </div>
+      </div>
+    `;
+
+    await sendTransactionalEmail(
+      email,
+      'Password Reset - ChillConnect',
+      emailContent
+    );
+
+    logger.info(`Password reset email sent to: ${email}`);
+
+    res.json({
+      success: true,
+      message: 'If an account with that email exists, we have sent a password reset link.'
+    });
+
+  } catch (error) {
+    logger.error('Password reset error:', error);
+    next(error);
+  }
+});
+
 module.exports = router;
