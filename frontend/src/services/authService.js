@@ -152,7 +152,7 @@ const authService = {
   // Forgot password (alias for requestPasswordReset)
   forgotPassword: async (email) => {
     try {
-      console.log('🔍 AuthService - Making API call to /auth/forgot-password for:', email)
+      console.log('🔍 AuthService - Making API call to /auth/forgot-password for:', email, '(v2.0 - fixed path)')
       const response = await api.post('/auth/forgot-password', { email })
       console.log('✅ AuthService - API response:', response.data)
       return response.data
