@@ -142,7 +142,7 @@ const authService = {
   // Request password reset
   requestPasswordReset: async (email) => {
     try {
-      const response = await api.post('/forgot-password', { email })
+      const response = await api.post('/auth/forgot-password', { email })
       return response.data
     } catch (error) {
       throw error.response?.data || error.message
@@ -152,8 +152,8 @@ const authService = {
   // Forgot password (alias for requestPasswordReset)
   forgotPassword: async (email) => {
     try {
-      console.log('🔍 AuthService - Making API call to /forgot-password for:', email)
-      const response = await api.post('/forgot-password', { email })
+      console.log('🔍 AuthService - Making API call to /auth/forgot-password for:', email)
+      const response = await api.post('/auth/forgot-password', { email })
       console.log('✅ AuthService - API response:', response.data)
       return response.data
     } catch (error) {
@@ -165,7 +165,7 @@ const authService = {
   // Reset password
   resetPassword: async (token, password) => {
     try {
-      const response = await api.post('/reset-password', { token, password })
+      const response = await api.post('/auth/reset-password', { token, password })
       return response.data
     } catch (error) {
       throw error.response?.data || error.message
