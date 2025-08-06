@@ -261,28 +261,57 @@ const sendNotificationEmail = async (email, subject, content) => {
 // Send phone verification email (alternative to SMS)
 const sendPhoneVerificationEmail = async (email, otp) => {
   try {
-    const params = {
-      Source: process.env.FROM_EMAIL,
-      Destination: {
-        ToAddresses: [email]
-      },
-      Message: {
-        Subject: {
-          Data: emailTemplates.phoneVerification.subject
-        },
-        Body: {
-          Html: {
-            Data: emailTemplates.phoneVerification.html(otp)
-          }
-        }
-      }
-    };
+    const { sendTransactionalEmail } = require('./brevoService');
+    
+    const emailContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); padding: 20px; text-align: center;">
+          <h1 style="color: white; margin: 0;">ChillConnect</h1>
+          <p style="color: white; margin: 5px 0;">Login Verification Code</p>
+        </div>
+        
+        <div style="padding: 30px; background: #f9f9f9;">
+          <h2 style="color: #333; margin-bottom: 20px;">Your Login Code</h2>
+          
+          <p style="color: #666; font-size: 16px; line-height: 1.6;">
+            Use the following code to complete your login to ChillConnect:
+          </p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <div style="background: #f1f5f9; border: 2px solid #dc2626; border-radius: 8px; 
+                        padding: 20px; display: inline-block; font-size: 28px; font-weight: bold; 
+                        color: #dc2626; letter-spacing: 4px; font-family: monospace;">
+              ${otp}
+            </div>
+          </div>
+          
+          <p style="color: #666; font-size: 14px;">
+            This code will expire in 10 minutes for security reasons.
+          </p>
+          
+          <p style="color: #999; font-size: 12px; margin-top: 30px;">
+            If you didn't request this login code, please ignore this email and your account will remain secure.
+          </p>
+        </div>
+        
+        <div style="background: #333; color: white; text-align: center; padding: 20px;">
+          <p style="margin: 0; font-size: 14px;">
+            © 2024 ChillConnect. All rights reserved.
+          </p>
+        </div>
+      </div>
+    `;
 
-    await ses.sendEmail(params).promise();
-    logger.info(`Phone verification email sent to: ${email}`);
+    await sendTransactionalEmail(
+      email,
+      'Login Verification Code - ChillConnect',
+      emailContent
+    );
+    
+    logger.info(`Email OTP sent to: ${email}`);
   } catch (error) {
-    logger.error('Error sending phone verification email:', error);
-    throw new Error('Failed to send phone verification email');
+    logger.error('Error sending email OTP:', error);
+    throw new Error('Failed to send verification email');
   }
 };
 
