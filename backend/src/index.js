@@ -31,7 +31,13 @@ if (process.env.NODE_ENV === 'production') {
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:3001",
+    origin: process.env.NODE_ENV === 'development'
+      ? true
+      : [
+          process.env.FRONTEND_URL || "http://localhost:3001",
+          "https://chillconnect.in",
+          "https://www.chillconnect.in"
+        ],
     methods: ["GET", "POST"]
   }
 });
@@ -51,7 +57,11 @@ app.use(helmet());
 app.use(cors({
   origin: process.env.NODE_ENV === 'development' 
     ? true // Allow all origins in development
-    : (process.env.FRONTEND_URL || "http://localhost:3001"),
+    : [
+        process.env.FRONTEND_URL || "http://localhost:3001",
+        "https://chillconnect.in",
+        "https://www.chillconnect.in"
+      ],
   credentials: true
 }));
 app.use(compression());
