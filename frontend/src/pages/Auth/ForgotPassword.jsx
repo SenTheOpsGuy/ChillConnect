@@ -19,11 +19,21 @@ const ForgotPassword = () => {
 
     setIsLoading(true)
     try {
-      await authService.forgotPassword(email)
+      console.log('🔍 Forgot Password - Attempting to send reset email to:', email)
+      const result = await authService.forgotPassword(email)
+      console.log('✅ Forgot Password - Success:', result)
       setEmailSent(true)
       toast.success('Password reset email sent!')
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to send reset email')
+      console.error('❌ Forgot Password - Error:', error)
+      console.error('❌ Forgot Password - Error details:', {
+        message: error.message,
+        status: error.status,
+        response: error.response,
+        responseData: error.response?.data,
+        stack: error.stack
+      })
+      toast.error(error.response?.data?.message || error.message || 'Failed to send reset email')
     } finally {
       setIsLoading(false)
     }
