@@ -70,7 +70,11 @@ function App() {
             path="/"
             element={
               isAuthenticated ? (
-                <Navigate to="/dashboard" replace />
+                user && ['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(user.role) ? (
+                  <Navigate to="/admin/dashboard" replace />
+                ) : (
+                  <Navigate to="/dashboard" replace />
+                )
               ) : (
                 <Landing />
               )
@@ -82,7 +86,11 @@ function App() {
             path="/login"
             element={
               isAuthenticated ? (
-                <Navigate to="/dashboard" replace />
+                user && ['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(user.role) ? (
+                  <Navigate to="/admin/dashboard" replace />
+                ) : (
+                  <Navigate to="/dashboard" replace />
+                )
               ) : (
                 <Login />
               )
@@ -92,7 +100,11 @@ function App() {
             path="/register"
             element={
               isAuthenticated ? (
-                <Navigate to="/dashboard" replace />
+                user && ['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(user.role) ? (
+                  <Navigate to="/admin/dashboard" replace />
+                ) : (
+                  <Navigate to="/dashboard" replace />
+                )
               ) : (
                 <Register />
               )
@@ -102,7 +114,11 @@ function App() {
             path="/register-new"
             element={
               isAuthenticated ? (
-                <Navigate to="/dashboard" replace />
+                user && ['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(user.role) ? (
+                  <Navigate to="/admin/dashboard" replace />
+                ) : (
+                  <Navigate to="/dashboard" replace />
+                )
               ) : (
                 <TwilioRegister />
               )
@@ -112,7 +128,11 @@ function App() {
             path="/login-otp"
             element={
               isAuthenticated ? (
-                <Navigate to="/dashboard" replace />
+                user && ['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(user.role) ? (
+                  <Navigate to="/admin/dashboard" replace />
+                ) : (
+                  <Navigate to="/dashboard" replace />
+                )
               ) : (
                 <OtpRequest />
               )
@@ -122,7 +142,11 @@ function App() {
             path="/otp-verify"
             element={
               isAuthenticated ? (
-                <Navigate to="/dashboard" replace />
+                user && ['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(user.role) ? (
+                  <Navigate to="/admin/dashboard" replace />
+                ) : (
+                  <Navigate to="/dashboard" replace />
+                )
               ) : (
                 <OtpVerify />
               )
