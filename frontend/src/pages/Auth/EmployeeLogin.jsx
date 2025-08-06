@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { FiMail, FiLock, FiBriefcase, FiArrowLeft } from 'react-icons/fi'
 import toast from 'react-hot-toast'
-import { login } from '../../store/slices/authSlice'
+import { login, logout } from '../../store/slices/authSlice'
 
 const EmployeeLogin = () => {
   const navigate = useNavigate()
@@ -18,8 +18,12 @@ const EmployeeLogin = () => {
 
   // Redirect if already authenticated with proper role
   useEffect(() => {
+    console.log('🔍 Employee Login useEffect - Auth state:', { isAuthenticated, user: user?.role })
     if (isAuthenticated && user && ['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(user.role)) {
+      console.log('✅ Employee Login useEffect - Redirecting to /admin/dashboard')
       navigate('/admin/dashboard', { replace: true })
+    } else if (isAuthenticated && user) {
+      console.log('❌ Employee Login useEffect - User authenticated but wrong role:', user.role)
     }
   }, [isAuthenticated, user, navigate])
 
@@ -47,16 +51,23 @@ const EmployeeLogin = () => {
       
       if (login.fulfilled.match(resultAction)) {
         const userData = resultAction.payload.data?.user || resultAction.payload.user
+        console.log('🔍 Employee Login - User data:', userData)
+        console.log('🔍 Employee Login - User role:', userData?.role)
         
         // Check if user has admin/employee privileges
         if (['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(userData.role)) {
+          console.log('✅ Employee Login - Admin role confirmed, should redirect to /admin/dashboard')
           toast.success('Employee login successful!')
           // Navigation will be handled by useEffect after state updates
         } else {
+          console.log('❌ Employee Login - Access denied, role:', userData?.role)
           toast.error('Access denied. Employee credentials required.')
           // Clear the login state for non-admin users
-          localStorage.removeItem('token')
+          dispatch(logout())
         }
+      } else {
+        console.log('❌ Employee Login - Login action was not fulfilled')
+        console.log('🔍 Employee Login - Result action:', resultAction)
       }
     } catch (error) {
       toast.error(error.message || 'Login failed')
