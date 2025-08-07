@@ -14,7 +14,6 @@ import LoadingSpinner from './components/UI/LoadingSpinner'
 import Login from './pages/Auth/Login'
 import Register from './pages/Auth/Register'
 import TwilioRegister from './pages/Auth/TwilioRegister'
-import OtpLogin from './pages/Auth/OtpLogin'
 import OtpRequest from './pages/Auth/OtpRequest'
 import OtpVerify from './pages/Auth/OtpVerify'
 import EmailVerification from './pages/Auth/EmailVerification'
@@ -41,6 +40,7 @@ import ResetPassword from './pages/Auth/ResetPassword'
 import EmployeeLogin from './pages/Auth/EmployeeLogin'
 import Contact from './pages/Contact'
 import CommunityGuidelines from './pages/CommunityGuidelines'
+import Bookings from './pages/Bookings'
 
 function App() {
   const dispatch = useDispatch()
@@ -167,8 +167,11 @@ function App() {
           />
           <Route path="/contact" element={<Contact />} />
           <Route path="/guidelines" element={<CommunityGuidelines />} />
+          <Route path="/community-guidelines" element={<CommunityGuidelines />} />
           <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
           {/* Protected Routes */}
           <Route
@@ -237,6 +240,16 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <Settings />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/bookings"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Bookings />
                 </Layout>
               </ProtectedRoute>
             }

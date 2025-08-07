@@ -109,7 +109,7 @@ app.post('/api/change-user-role', async (req, res) => {
     const { email, newRole, adminPassword } = req.body;
     
     // Security check
-    if (!adminPassword || adminPassword !== 'ChillConnect2024Admin') {
+    if (!adminPassword || adminPassword !== process.env.ADMIN_CHANGE_PASSWORD) {
       logger.warn('Unauthorized role change attempt');
       return res.status(401).json({ error: 'Unauthorized' });
     }
