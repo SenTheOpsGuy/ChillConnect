@@ -141,7 +141,7 @@ app.post('/api/setup-admin-users', async (req, res) => {
     const { adminPassword } = req.body;
     
     // Security check - require admin password
-    if (!adminPassword || adminPassword !== 'ChillConnect2024Admin!') {
+    if (!adminPassword || adminPassword !== 'ChillConnect2024Admin') {
       logger.warn('Unauthorized admin setup attempt');
       return res.status(401).json({ error: 'Unauthorized' });
     }
