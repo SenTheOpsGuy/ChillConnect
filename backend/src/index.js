@@ -103,6 +103,37 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
 
+// Check admin users in database
+app.get('/api/test-admin-users', async (req, res) => {
+  try {
+    const adminUsers = await prisma.user.findMany({
+      where: { 
+        role: { 
+          in: ['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'] 
+        } 
+      },
+      select: { id: true, email: true, role: true, phone: true, isVerified: true, isEmailVerified: true }
+    });
+    
+    const userCount = await prisma.user.count();
+    
+    logger.info('Admin users check:', { adminUsers, totalUsers: userCount });
+    res.json({ 
+      adminUsers, 
+      totalUsers: userCount,
+      timestamp: new Date().toISOString() 
+    });
+    
+  } catch (error) {
+    logger.error('❌ Admin users check failed:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({ 
