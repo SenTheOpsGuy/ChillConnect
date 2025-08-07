@@ -148,6 +148,18 @@ app.post('/api/change-user-role', async (req, res) => {
   }
 });
 
+// Debug endpoint for environment variables
+app.get('/api/debug-env', (req, res) => {
+  res.json({
+    timestamp: new Date().toISOString(),
+    nodeEnv: process.env.NODE_ENV,
+    hasAdminChangePassword: !!process.env.ADMIN_CHANGE_PASSWORD,
+    adminChangePasswordLength: process.env.ADMIN_CHANGE_PASSWORD?.length || 0,
+    port: process.env.PORT,
+    hasJwtSecret: !!process.env.JWT_SECRET
+  });
+});
+
 // Setup production admin endpoint
 app.post('/api/setup-admin', async (req, res) => {
   try {
