@@ -160,7 +160,7 @@ app.get('/api/test-users', async (req, res) => {
     for (const email of testEmails) {
       const user = await prisma.user.findUnique({
         where: { email },
-        select: { id: true, email: true, firstName: true, role: true }
+        select: { id: true, email: true, role: true, phone: true }
       });
       results[email] = user ? { exists: true, user } : { exists: false };
     }
