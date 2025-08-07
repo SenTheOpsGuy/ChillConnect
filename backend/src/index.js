@@ -145,6 +145,39 @@ app.post('/api/test-brevo', async (req, res) => {
   }
 });
 
+// Check which users exist in database
+app.get('/api/test-users', async (req, res) => {
+  try {
+    const testEmails = [
+      'mountainsagegiri@gmail.com',
+      'sen.rishov@gmail.com', 
+      'sentheopsguy@gmail.com',
+      'admin@chillconnect.com'
+    ];
+    
+    const results = {};
+    
+    for (const email of testEmails) {
+      const user = await prisma.user.findUnique({
+        where: { email },
+        select: { id: true, email: true, firstName: true, role: true }
+      });
+      results[email] = user ? { exists: true, user } : { exists: false };
+    }
+    
+    logger.info('User existence check:', results);
+    res.json({ results, timestamp: new Date().toISOString() });
+    
+  } catch (error) {
+    logger.error('❌ User check failed:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({ 
