@@ -2140,3 +2140,93 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     align-items: center;
   }
 }
+
+/* Admin Components CSS Classes */
+.card {
+  background: rgba(31, 41, 55, 0.9);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(55, 65, 81, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
+}
+
+.btn-secondary {
+  background: rgba(55, 65, 81, 0.8);
+  color: #d1d5db;
+  border: 1px solid #374151;
+}
+
+.btn-secondary:hover {
+  background: rgba(75, 85, 99, 0.8);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: white;
+}
+
+.btn-success:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+}
+
+.btn-error {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  color: white;
+}
+
+.btn-error:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  border-radius: 50%;
+  color: white;
+  font-weight: 600;
+}
+
+.avatar-md {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+}
+
+.avatar-lg {
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
+}
