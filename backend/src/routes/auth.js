@@ -1289,6 +1289,13 @@ router.post('/forgot-password', [
     // Send password reset email
     const { sendTransactionalEmail } = require('../services/brevoService');
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+    
+    logger.info('Password reset attempt:', {
+      email,
+      frontendUrl: process.env.FRONTEND_URL,
+      resetUrl: resetUrl.substring(0, 50) + '...',
+      brevoApiKey: process.env.BREVO_API_KEY ? 'SET' : 'NOT SET'
+    });
 
     const emailContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
