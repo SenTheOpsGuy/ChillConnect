@@ -103,6 +103,22 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
 
+// Temporary environment test route
+app.get('/api/test-env', (req, res) => {
+  const envCheck = {
+    NODE_ENV: process.env.NODE_ENV,
+    BREVO_API_KEY: process.env.BREVO_API_KEY ? `SET (${process.env.BREVO_API_KEY.substring(0, 10)}...)` : 'NOT SET',
+    EMAIL_FROM: process.env.EMAIL_FROM || 'NOT SET',
+    FRONTEND_URL: process.env.FRONTEND_URL || 'NOT SET',
+    JWT_SECRET: process.env.JWT_SECRET ? 'SET' : 'NOT SET',
+    DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT SET',
+    timestamp: new Date().toISOString()
+  };
+  
+  logger.info('Environment check requested:', envCheck);
+  res.json(envCheck);
+});
+
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({ 
