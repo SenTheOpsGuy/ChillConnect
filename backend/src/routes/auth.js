@@ -1354,47 +1354,5 @@ router.post('/forgot-password', [
   }
 });
 
-// TEMPORARY: Emergency admin password reset endpoint
-// TODO: Remove this after fixing the admin login issue
-router.post('/emergency-admin-reset', async (req, res, next) => {
-  try {
-    const { secret } = req.body;
-    
-    // Simple protection - only allow with specific secret
-    if (secret !== 'emergency-fix-2024') {
-      return res.status(403).json({
-        success: false,
-        error: 'Unauthorized'
-      });
-    }
-    
-    // Reset admin password
-    const newPassword = 'ChillAdmin2024!Secure';
-    const hashedPassword = await bcrypt.hash(newPassword, 12);
-    
-    const updatedUser = await req.prisma.user.update({
-      where: { email: 'admin@chillconnect.com' },
-      data: { 
-        passwordHash: hashedPassword,
-        isVerified: true,
-        isEmailVerified: true,
-        isPhoneVerified: true
-      }
-    });
-    
-    logger.info('Emergency admin password reset completed');
-    
-    res.json({
-      success: true,
-      message: 'Admin password reset completed',
-      email: updatedUser.email,
-      role: updatedUser.role
-    });
-    
-  } catch (error) {
-    logger.error('Emergency admin reset error:', error);
-    next(error);
-  }
-});
 
 module.exports = router;
