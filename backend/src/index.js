@@ -103,6 +103,51 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
 
+// Change user role endpoint (temporary for testing)
+app.post('/api/change-user-role', async (req, res) => {
+  try {
+    const { email, newRole, adminPassword } = req.body;
+    
+    // Security check
+    if (!adminPassword || adminPassword !== 'ChillConnect2024Admin') {
+      logger.warn('Unauthorized role change attempt');
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    logger.info(`🔧 Changing user role for ${email} to ${newRole}...`);
+
+    // Update user role
+    const updatedUser = await prisma.user.update({
+      where: { email },
+      data: { role: newRole }
+    });
+
+    logger.info('✅ User role updated successfully:', { 
+      email: updatedUser.email, 
+      newRole: updatedUser.role 
+    });
+
+    res.json({
+      success: true,
+      message: `User ${email} role changed to ${newRole}`,
+      user: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        role: updatedUser.role
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    logger.error('❌ Role change failed:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({ 
