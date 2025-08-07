@@ -119,6 +119,32 @@ app.get('/api/test-env', (req, res) => {
   res.json(envCheck);
 });
 
+// Test Brevo email sending directly
+app.post('/api/test-brevo', async (req, res) => {
+  try {
+    const { sendTransactionalEmail } = require('./services/brevoService');
+    
+    logger.info('🔍 Direct Brevo test requested');
+    
+    const testResult = await sendTransactionalEmail(
+      'mountainsagegiri@gmail.com',
+      'Test Email from Railway - ChillConnect',
+      '<h1>Railway Brevo Test</h1><p>This email was sent directly from Railway to test Brevo integration.</p><p>Timestamp: ' + new Date().toISOString() + '</p>'
+    );
+    
+    logger.info('✅ Direct Brevo test successful:', testResult);
+    res.json({ success: true, message: 'Email sent successfully!', result: testResult });
+    
+  } catch (error) {
+    logger.error('❌ Direct Brevo test failed:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({ 
