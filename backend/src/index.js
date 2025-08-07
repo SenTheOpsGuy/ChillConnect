@@ -148,6 +148,131 @@ app.post('/api/change-user-role', async (req, res) => {
   }
 });
 
+// Setup production admin endpoint
+app.post('/api/setup-admin', async (req, res) => {
+  try {
+    const { adminPassword } = req.body;
+    
+    // Security check
+    if (!adminPassword || adminPassword !== process.env.ADMIN_CHANGE_PASSWORD) {
+      logger.warn('Unauthorized admin setup attempt');
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    logger.info('🏭 Setting up production admin user...');
+
+    const bcrypt = require('bcryptjs');
+    const adminEmail = 'admin@chillconnect.com';
+    const adminPlainPassword = 'SuperSecurePassword123!';
+
+    // Check if admin user exists
+    const existingAdmin = await prisma.user.findUnique({
+      where: { email: adminEmail }
+    });
+
+    if (existingAdmin) {
+      logger.info('✅ Admin user found, updating password...');
+      
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(adminPlainPassword, 12);
+      
+      // Update the admin user
+      const updatedAdmin = await prisma.user.update({
+        where: { email: adminEmail },
+        data: { 
+          passwordHash: hashedPassword,
+          role: 'SUPER_ADMIN',
+          isVerified: true,
+          isEmailVerified: true,
+          isPhoneVerified: false
+        }
+      });
+      
+      // Test the password
+      const passwordMatch = await bcrypt.compare(adminPlainPassword, updatedAdmin.passwordHash);
+      
+      logger.info('✅ Admin user updated successfully');
+      
+      res.json({
+        success: true,
+        message: 'Admin user updated successfully',
+        admin: {
+          id: updatedAdmin.id,
+          email: updatedAdmin.email,
+          role: updatedAdmin.role,
+          passwordTest: passwordMatch ? 'PASS' : 'FAIL'
+        },
+        timestamp: new Date().toISOString()
+      });
+      
+    } else {
+      logger.info('❌ Admin user not found, creating new admin user...');
+      
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(adminPlainPassword, 12);
+      
+      // Create new admin user with profile
+      const newAdmin = await prisma.$transaction(async (tx) => {
+        const user = await tx.user.create({
+          data: {
+            email: adminEmail,
+            passwordHash: hashedPassword,
+            role: 'SUPER_ADMIN',
+            isVerified: true,
+            isEmailVerified: true,
+            isPhoneVerified: false,
+            consentGiven: true,
+            isAgeVerified: true
+          }
+        });
+        
+        await tx.userProfile.create({
+          data: {
+            userId: user.id,
+            firstName: 'System',
+            lastName: 'Administrator'
+          }
+        });
+        
+        await tx.tokenWallet.create({
+          data: {
+            userId: user.id,
+            balance: 0,
+            escrowBalance: 0
+          }
+        });
+        
+        return user;
+      });
+      
+      // Test the password
+      const passwordMatch = await bcrypt.compare(adminPlainPassword, newAdmin.passwordHash);
+      
+      logger.info('✅ Admin user created successfully');
+      
+      res.json({
+        success: true,
+        message: 'Admin user created successfully',
+        admin: {
+          id: newAdmin.id,
+          email: newAdmin.email,
+          role: newAdmin.role,
+          passwordTest: passwordMatch ? 'PASS' : 'FAIL'
+        },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+  } catch (error) {
+    logger.error('❌ Admin setup failed:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({ 
