@@ -354,6 +354,7 @@ if (process.env.NODE_ENV !== 'test') {
   server.listen(PORT, () => {
     logger.info(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
     logger.info(`📊 Health check available at http://localhost:${PORT}/health`);
+    logger.info(`🔧 Admin setup endpoint available at /api/setup-admin`);
   });
 }
 
