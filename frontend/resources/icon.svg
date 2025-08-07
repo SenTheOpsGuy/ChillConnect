@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="230" fill="#DC2626"/>
+  
+  <!-- Main Icon Shape - Letter C for ChillConnect -->
+  <path d="M352 512C352 423.163 423.163 352 512 352C600.837 352 672 423.163 672 512C672 600.837 600.837 672 512 672C423.163 672 352 600.837 352 512Z" fill="none" stroke="white" stroke-width="64"/>
+  
+  <!-- Inner design elements -->
+  <circle cx="400" cy="450" r="24" fill="white" opacity="0.8"/>
+  <circle cx="624" cy="574" r="24" fill="white" opacity="0.8"/>
+  
+  <!-- Connection line -->
+  <line x1="424" y1="474" x2="600" y2="550" stroke="white" stroke-width="12" stroke-linecap="round" opacity="0.6"/>
+  
+  <!-- Bottom accent -->
+  <rect x="256" y="800" width="512" height="8" rx="4" fill="white" opacity="0.3"/>
+  
+  <!-- Text hint (very small) -->
+  <text x="512" y="870" font-family="Inter, sans-serif" font-size="48" font-weight="600" text-anchor="middle" fill="white" opacity="0.8">ChillConnect</text>
+</svg>

@@ -1,9 +1,11 @@
 import { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
+import { App as CapacitorApp } from '@capacitor/app'
 
 import { loadUser } from './store/slices/authSlice'
 import { SocketProvider } from './contexts/SocketContext'
+import mobileService from './services/mobileService'
 
 // Components
 import Layout from './components/Layout/Layout'
@@ -52,7 +54,45 @@ function App() {
     if (token) {
       dispatch(loadUser())
     }
+
+    // Initialize mobile features
+    if (mobileService.isMobile()) {
+      initializeMobileFeatures()
+    }
+
+    // Handle app state changes
+    CapacitorApp.addListener('appStateChange', ({ isActive }) => {
+      console.log('App state changed. Is active?', isActive)
+      if (isActive && token) {
+        // App became active, refresh user data
+        dispatch(loadUser())
+      }
+    })
+
+    // Handle back button on Android
+    CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+      if (!canGoBack) {
+        CapacitorApp.exitApp()
+      } else {
+        window.history.back()
+      }
+    })
+
+    return () => {
+      CapacitorApp.removeAllListeners()
+    }
   }, [dispatch])
+
+  const initializeMobileFeatures = async () => {
+    try {
+      // Setup push notifications for authenticated users
+      if (isAuthenticated) {
+        await mobileService.setupPushNotifications()
+      }
+    } catch (error) {
+      console.error('Mobile features initialization error:', error)
+    }
+  }
 
   // Debug logging
   console.log('Auth state:', { isAuthenticated, loading, user: !!user })
