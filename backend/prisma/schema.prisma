@@ -8,9 +8,9 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(uuid())
-  email       String   @unique
-  password    String
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
   role        String   @default("USER") // "USER", "ADMIN", "EMPLOYEE", "SUPER_ADMIN"
   isVerified  Boolean  @default(false)
   createdAt   DateTime @default(now())
