@@ -7,7 +7,7 @@
 
 const axios = require('axios');
 
-const API_BASE = 'https://chillconnect-backend.railway.app';
+const API_BASE = 'https://chillconnect-production.up.railway.app';
 
 const testData = {
   email: 'mountainsagegiri@gmail.com',
@@ -16,7 +16,7 @@ const testData = {
   firstName: 'Mountain',
   lastName: 'Sage',
   dateOfBirth: '1990-01-15',
-  phone: '9258221177',
+  phone: '+919258221177',
   ageConfirmed: 'true',
   consentGiven: 'true'
 };

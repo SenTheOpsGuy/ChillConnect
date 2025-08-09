@@ -33,7 +33,7 @@ const generateToken = (userId) => {
 router.post('/register', [
   body('email').isEmail(),
   body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
-  body('role').isIn(['SEEKER', 'PROVIDER']).withMessage('Role must be SEEKER or PROVIDER'),
+  body('role').isIn(['SEEKER', 'PROVIDER', 'EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN']).withMessage('Role must be SEEKER, PROVIDER, EMPLOYEE, MANAGER, ADMIN, or SUPER_ADMIN'),
   body('firstName').notEmpty().withMessage('First name is required'),
   body('lastName').notEmpty().withMessage('Last name is required'),
   body('dateOfBirth').isISO8601().withMessage('Valid date of birth is required'),
@@ -1077,7 +1077,7 @@ router.post('/send-email-verification', [
 router.post('/twilio-register', [
   body('email').isEmail(),
   body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
-  body('role').isIn(['SEEKER', 'PROVIDER']).withMessage('Role must be SEEKER or PROVIDER'),
+  body('role').isIn(['SEEKER', 'PROVIDER', 'EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN']).withMessage('Role must be SEEKER, PROVIDER, EMPLOYEE, MANAGER, ADMIN, or SUPER_ADMIN'),
   body('firstName').notEmpty().withMessage('First name is required'),
   body('lastName').notEmpty().withMessage('Last name is required'),
   body('phoneNumber')

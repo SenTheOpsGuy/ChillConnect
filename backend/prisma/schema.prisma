@@ -32,7 +32,6 @@ model User {
   
   // Token transactions
   tokenTransactions TokenTransaction[]
-  walletBalance     Int @default(0)
   
   @@map("users")
 }
