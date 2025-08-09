@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: chillconnect-minimal-backend
+    env: node
+    repo: https://github.com/SenTheOpsGuy/ChillConnect.git
+    buildCommand: npm install
+    startCommand: node minimal-production-server.js
+    plan: free
+    region: oregon
+    branch: main
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        value: chillconnect-production-jwt-secret-2024-very-secure
+      - key: CORS_ORIGIN
+        value: https://chillconnect.in,https://www.chillconnect.in,https://chillconnect.netlify.app
