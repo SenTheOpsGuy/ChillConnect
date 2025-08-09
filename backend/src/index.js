@@ -13,7 +13,7 @@ const logger = require('./utils/logger');
 const errorHandler = require('./middleware/errorHandler');
 
 // Import routes
-const authRoutes = require('./routes/auth-simple');
+const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const tokenRoutes = require('./routes/tokens');
 const bookingRoutes = require('./routes/bookings');
