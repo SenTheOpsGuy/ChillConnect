@@ -8,16 +8,24 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String
-  role        String   @default("USER") // "USER", "ADMIN", "EMPLOYEE", "SUPER_ADMIN"
-  isVerified  Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(uuid())
+  email           String   @unique
+  phone           String?
+  passwordHash    String
+  role            String   @default("USER") // "USER", "ADMIN", "EMPLOYEE", "SUPER_ADMIN"
+  isVerified      Boolean  @default(false)
+  isAgeVerified   Boolean  @default(false)
+  isPhoneVerified Boolean  @default(false)
+  isEmailVerified Boolean  @default(false)
+  consentGiven    Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
   
   // Profile information
-  profile     Profile?
+  profile     UserProfile?
+  
+  // Token wallet
+  tokenWallet TokenWallet?
   
   // OTP verification
   otps        OTP[]
@@ -36,7 +44,7 @@ model User {
   @@map("users")
 }
 
-model Profile {
+model UserProfile {
   id          String   @id @default(uuid())
   userId      String   @unique
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -165,4 +173,19 @@ model TokenTransaction {
   updatedAt     DateTime          @updatedAt
   
   @@map("token_transactions")
+}
+
+model TokenWallet {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  balance      Int      @default(0)
+  totalEarned  Int      @default(0)
+  totalSpent   Int      @default(0)
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@map("token_wallets")
 }
