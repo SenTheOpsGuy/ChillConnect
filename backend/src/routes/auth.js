@@ -316,10 +316,9 @@ router.post('/verify-email', [
 });
 
 // @route   POST /api/auth/send-phone-otp
-// @desc    Send OTP to phone number
-// @access  Private
+// @desc    Send OTP to phone number (public for registration, private for updates)
+// @access  Public/Private
 router.post('/send-phone-otp', [
-  auth,
   body('phone').isMobilePhone().withMessage('Valid phone number is required')
 ], async (req, res, next) => {
   try {
@@ -334,33 +333,154 @@ router.post('/send-phone-otp', [
 
     const { phone } = req.body;
 
-    // Check OTP status first
-    const otpStatus = await getPhoneOTPStatus(req.user.id, phone);
-    
-    if (otpStatus.hasActiveOTP && !otpStatus.canSendOTP) {
-      return res.status(429).json({
-        success: false,
-        error: 'Please wait before requesting another OTP',
-        cooldownRemaining: otpStatus.cooldownRemaining
-      });
+    // Check if user is authenticated (for profile updates) or unauthenticated (for registration)
+    const authHeader = req.headers.authorization;
+    let userId = null;
+    let isAuthenticated = false;
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.substring(7);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await req.prisma.user.findUnique({
+          where: { id: decoded.id }
+        });
+        if (user) {
+          userId = user.id;
+          isAuthenticated = true;
+        }
+      } catch (authError) {
+        // Continue as unauthenticated user for registration
+      }
     }
 
-    // Send OTP
-    const result = await sendPhoneOTP(req.user.id, phone);
+    let result;
+    
+    if (isAuthenticated) {
+      // For authenticated users (profile updates)
+      const otpStatus = await getPhoneOTPStatus(userId, phone);
+      
+      if (otpStatus.hasActiveOTP && !otpStatus.canSendOTP) {
+        return res.status(429).json({
+          success: false,
+          error: 'Please wait before requesting another OTP',
+          cooldownRemaining: otpStatus.cooldownRemaining
+        });
+      }
 
-    logger.info(`OTP sent to phone: ${phone} for user: ${req.user.email}`);
+      result = await sendPhoneOTP(userId, phone);
+      logger.info(`OTP sent to phone: ${phone} for authenticated user: ${userId}`);
+    } else {
+      // For registration flow (unauthenticated)
+      try {
+        result = await sendPhoneVerification(phone);
+        logger.info(`Registration OTP sent to phone: ${phone}`);
+      } catch (error) {
+        logger.error('Phone verification error:', error);
+        
+        // In development, return mock success
+        if (process.env.NODE_ENV === 'development') {
+          result = { otp: '123456' };
+        } else {
+          throw error;
+        }
+      }
+    }
 
     res.json({
       success: true,
-      message: 'OTP sent successfully',
-      expiresAt: result.expiresAt,
+      message: 'OTP sent successfully to your phone',
+      expiresAt: result.expiresAt || new Date(Date.now() + 10 * 60 * 1000),
       // In development, return OTP for testing
-      ...(process.env.NODE_ENV === 'development' && { otp: result.otp })
+      ...(process.env.NODE_ENV === 'development' && { otp: result.otp || '123456' })
     });
 
   } catch (error) {
     if (error.message === 'Please wait before requesting another OTP') {
       return res.status(429).json({
+        success: false,
+        error: error.message
+      });
+    }
+    next(error);
+  }
+});
+
+// @route   POST /api/auth/verify-phone-otp
+// @desc    Verify phone number with OTP (public for registration, private for updates)
+// @access  Public/Private
+router.post('/verify-phone-otp', [
+  body('phone').isMobilePhone().withMessage('Valid phone number is required'),
+  body('otp').isLength({ min: 4, max: 6 }).withMessage('OTP must be 4-6 digits')
+], async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: errors.array()
+      });
+    }
+
+    const { phone, otp } = req.body;
+
+    // Check if user is authenticated (for profile updates) or unauthenticated (for registration)
+    const authHeader = req.headers.authorization;
+    let userId = null;
+    let isAuthenticated = false;
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.substring(7);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await req.prisma.user.findUnique({
+          where: { id: decoded.id }
+        });
+        if (user) {
+          userId = user.id;
+          isAuthenticated = true;
+        }
+      } catch (authError) {
+        // Continue as unauthenticated user for registration
+      }
+    }
+
+    if (isAuthenticated) {
+      // For authenticated users (profile updates)
+      const result = await verifyPhoneOTP(userId, phone, otp);
+      logger.info(`Phone verified for authenticated user: ${userId}`);
+    } else {
+      // For registration flow (unauthenticated)
+      try {
+        await verifyPhoneNumber(phone, otp);
+        logger.info(`Phone verified for registration: ${phone}`);
+      } catch (error) {
+        logger.error('Phone verification error:', error);
+        
+        // In development, accept any 4-6 digit OTP
+        if (process.env.NODE_ENV === 'development' && /^\d{4,6}$/.test(otp)) {
+          logger.info(`Phone verified for registration (development): ${phone}`);
+        } else {
+          if (error.message.includes('Invalid') || error.message.includes('expired')) {
+            return res.status(400).json({
+              success: false,
+              error: error.message
+            });
+          }
+          throw error;
+        }
+      }
+    }
+
+    res.json({
+      success: true,
+      message: 'Phone number verified successfully'
+    });
+
+  } catch (error) {
+    if (error.message.includes('Invalid') || error.message.includes('expired') || error.message.includes('Maximum')) {
+      return res.status(400).json({
         success: false,
         error: error.message
       });
@@ -1354,6 +1474,5 @@ router.post('/forgot-password', [
     next(error);
   }
 });
-
 
 module.exports = router;
