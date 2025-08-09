@@ -319,7 +319,13 @@ router.post('/verify-email', [
 // @desc    Send OTP to phone number (public for registration, private for updates)
 // @access  Public/Private
 router.post('/send-phone-otp', [
-  body('phone').isMobilePhone().withMessage('Valid phone number is required')
+  body('phone').custom((phone) => {
+    // Allow international format or Indian 10-digit numbers
+    if (/^\+\d{10,15}$/.test(phone) || /^[6-9]\d{9}$/.test(phone)) {
+      return true;
+    }
+    throw new Error('Valid phone number is required');
+  })
 ], async (req, res, next) => {
   try {
     const errors = validationResult(req);
@@ -331,7 +337,16 @@ router.post('/send-phone-otp', [
       });
     }
 
-    const { phone } = req.body;
+    let { phone } = req.body;
+    
+    // Format phone number for Indian numbers
+    if (phone && !phone.startsWith('+')) {
+      // If it's a 10-digit Indian number, add +91
+      if (/^[6-9]\d{9}$/.test(phone)) {
+        phone = '+91' + phone;
+        logger.info(`Formatted phone number: ${phone}`);
+      }
+    }
 
     // Check if user is authenticated (for profile updates) or unauthenticated (for registration)
     const authHeader = req.headers.authorization;
@@ -410,7 +425,13 @@ router.post('/send-phone-otp', [
 // @desc    Verify phone number with OTP (public for registration, private for updates)
 // @access  Public/Private
 router.post('/verify-phone-otp', [
-  body('phone').isMobilePhone().withMessage('Valid phone number is required'),
+  body('phone').custom((phone) => {
+    // Allow international format or Indian 10-digit numbers
+    if (/^\+\d{10,15}$/.test(phone) || /^[6-9]\d{9}$/.test(phone)) {
+      return true;
+    }
+    throw new Error('Valid phone number is required');
+  }),
   body('otp').isLength({ min: 4, max: 6 }).withMessage('OTP must be 4-6 digits')
 ], async (req, res, next) => {
   try {
@@ -423,7 +444,16 @@ router.post('/verify-phone-otp', [
       });
     }
 
-    const { phone, otp } = req.body;
+    let { phone, otp } = req.body;
+    
+    // Format phone number for Indian numbers
+    if (phone && !phone.startsWith('+')) {
+      // If it's a 10-digit Indian number, add +91
+      if (/^[6-9]\d{9}$/.test(phone)) {
+        phone = '+91' + phone;
+        logger.info(`Formatted phone number for verification: ${phone}`);
+      }
+    }
 
     // Check if user is authenticated (for profile updates) or unauthenticated (for registration)
     const authHeader = req.headers.authorization;
