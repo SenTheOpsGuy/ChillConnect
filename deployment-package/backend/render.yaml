@@ -1,0 +1,52 @@
+services:
+  - type: web
+    name: chillconnect-backend
+    env: node
+    plan: free
+    buildCommand: npm install && npx prisma generate
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: FRONTEND_URL
+        value: https://chillconnect.in
+      - key: CORS_ORIGIN
+        value: https://chillconnect.in,http://localhost:3000
+      - key: SUPER_ADMIN_EMAIL
+        value: admin@chillconnect.in
+      - key: SUPER_ADMIN_PASSWORD
+        value: ChillConnect2024Admin
+      - key: BREVO_API_KEY
+        value: xkeysib-placeholder
+      - key: FROM_EMAIL
+        value: noreply@chillconnect.in
+      - key: FROM_NAME
+        value: ChillConnect
+      - key: PAYPAL_MODE
+        value: sandbox
+      - key: PAYPAL_CLIENT_ID
+        value: placeholder
+      - key: PAYPAL_CLIENT_SECRET
+        value: placeholder
+      - key: TOKEN_VALUE_INR
+        value: 100
+      - key: MIN_TOKEN_PURCHASE
+        value: 10
+      - key: BCRYPT_ROUNDS
+        value: 12
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 900000
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 100
+
+databases:
+  - name: chillconnect-db
+    databaseName: chillconnect
+    user: chillconnect
