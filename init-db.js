@@ -31,13 +31,22 @@ async function initializeDatabase() {
         const execAsync = promisify(exec);
         
         try {
-          // Change to backend directory and push schema
-          const result = await execAsync('cd backend && npx prisma db push --accept-data-loss');
-          console.log('✅ Database schema created successfully');
-          console.log(result.stdout);
+          // Force reset and push schema
+          console.log('🔄 Resetting database schema...');
+          const resetResult = await execAsync('cd backend && npx prisma db push --force-reset --accept-data-loss');
+          console.log('✅ Database schema reset and created successfully');
+          console.log(resetResult.stdout);
         } catch (pushError) {
-          console.error('❌ Failed to create database schema:', pushError.message);
-          throw pushError;
+          console.error('❌ Failed to reset database schema, trying regular push...');
+          try {
+            // Fallback to regular push
+            const result = await execAsync('cd backend && npx prisma db push --accept-data-loss');
+            console.log('✅ Database schema updated successfully');
+            console.log(result.stdout);
+          } catch (fallbackError) {
+            console.error('❌ Failed to update database schema:', fallbackError.message);
+            throw fallbackError;
+          }
         }
       } else {
         throw error;
