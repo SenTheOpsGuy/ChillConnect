@@ -60,7 +60,7 @@ app.get('/health', (req, res) => {
 app.post('/api/auth/register', [
   body('email').isEmail(),
   body('password').isLength({ min: 8 }),
-  body('role').isIn(['SEEKER', 'PROVIDER']),
+  body('role').isIn(['SEEKER', 'PROVIDER', 'EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN']),
   body('firstName').notEmpty(),
   body('lastName').notEmpty()
 ], async (req, res) => {
@@ -395,6 +395,259 @@ app.post('/api/auth/verify-email-otp', [
     res.status(500).json({
       success: false,
       error: 'OTP verification failed'
+    });
+  }
+});
+
+// ====== ADMIN ENDPOINTS ======
+
+// Middleware for admin authentication
+const adminAuth = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({
+      success: false,
+      error: 'No token provided'
+    });
+  }
+
+  try {
+    const token = authHeader.substring(7);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'minimal-jwt-secret-2024');
+    
+    // Get user from store
+    const user = users.get(decoded.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    // Check if user is admin (for demo, allow all authenticated users to be admin)
+    req.user = user;
+    next();
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      error: 'Invalid token'
+    });
+  }
+};
+
+// Get all users (Admin endpoint)
+app.get('/api/admin/users', adminAuth, (req, res) => {
+  try {
+    const { page = 1, limit = 20, role, verified, search } = req.query;
+    
+    // Convert users Map to Array
+    let usersList = Array.from(users.values()).filter(user => user.email); // Filter out duplicates stored by ID
+    
+    // Apply filters
+    if (role) {
+      usersList = usersList.filter(user => user.role === role);
+    }
+    
+    if (verified !== undefined) {
+      usersList = usersList.filter(user => user.isVerified === (verified === 'true'));
+    }
+    
+    if (search) {
+      const searchLower = search.toLowerCase();
+      usersList = usersList.filter(user => 
+        user.email.toLowerCase().includes(searchLower) ||
+        user.firstName?.toLowerCase().includes(searchLower) ||
+        user.lastName?.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    // Pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + parseInt(limit);
+    const paginatedUsers = usersList.slice(startIndex, endIndex);
+    
+    // Transform users to match expected format
+    const formattedUsers = paginatedUsers.map(user => ({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      isVerified: user.isVerified,
+      isEmailVerified: true, // Assume verified for demo
+      isPhoneVerified: !!user.phone,
+      isAgeVerified: true,
+      createdAt: user.createdAt,
+      profile: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        profilePhoto: null,
+        bio: null,
+        rating: 0,
+        reviewCount: 0
+      },
+      tokenWallet: {
+        balance: 0,
+        totalEarned: 0,
+        totalSpent: 0
+      }
+    }));
+    
+    res.json({
+      success: true,
+      data: {
+        users: formattedUsers,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total: usersList.length,
+          totalPages: Math.ceil(usersList.length / limit)
+        }
+      }
+    });
+    
+  } catch (error) {
+    log(`Admin users error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch users'
+    });
+  }
+});
+
+// Update user role (Admin endpoint)
+app.put('/api/admin/users/:userId/role', adminAuth, [
+  body('role').isIn(['SEEKER', 'PROVIDER', 'EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'])
+], (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: errors.array()
+      });
+    }
+
+    const { userId } = req.params;
+    const { role } = req.body;
+    
+    // Find and update user
+    const user = users.get(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+    
+    user.role = role;
+    users.set(userId, user);
+    users.set(user.email, user); // Update both mappings
+    
+    log(`User role updated: ${user.email} -> ${role}`);
+    
+    res.json({
+      success: true,
+      message: 'User role updated successfully'
+    });
+    
+  } catch (error) {
+    log(`Update user role error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update user role'
+    });
+  }
+});
+
+// Suspend user (Admin endpoint)
+app.post('/api/admin/users/:userId/suspend', adminAuth, [
+  body('suspended').isBoolean(),
+  body('reason').optional().isString()
+], (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: errors.array()
+      });
+    }
+
+    const { userId } = req.params;
+    const { suspended, reason } = req.body;
+    
+    // Find and update user
+    const user = users.get(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+    
+    user.isVerified = !suspended;
+    users.set(userId, user);
+    users.set(user.email, user); // Update both mappings
+    
+    log(`User ${suspended ? 'suspended' : 'activated'}: ${user.email} - ${reason || 'No reason'}`);
+    
+    res.json({
+      success: true,
+      message: `User ${suspended ? 'suspended' : 'activated'} successfully`
+    });
+    
+  } catch (error) {
+    log(`Suspend user error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to suspend user'
+    });
+  }
+});
+
+// Admin dashboard (basic stats)
+app.get('/api/admin/dashboard', adminAuth, (req, res) => {
+  try {
+    const usersList = Array.from(users.values()).filter(user => user.email);
+    
+    const stats = {
+      totalUsers: usersList.length,
+      totalBookings: 0,
+      pendingVerifications: usersList.filter(user => !user.isVerified).length,
+      activeBookings: 0
+    };
+    
+    const userRoleStats = usersList.reduce((acc, user) => {
+      const existing = acc.find(stat => stat.role === user.role);
+      if (existing) {
+        existing._count.role++;
+      } else {
+        acc.push({
+          role: user.role,
+          _count: { role: 1 }
+        });
+      }
+      return acc;
+    }, []);
+    
+    res.json({
+      success: true,
+      data: {
+        stats,
+        userRoleStats,
+        bookingStatusStats: [],
+        recentActivities: {
+          users: usersList.slice(-5).reverse()
+        }
+      }
+    });
+    
+  } catch (error) {
+    log(`Admin dashboard error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch dashboard data'
     });
   }
 });
