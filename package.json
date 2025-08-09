@@ -4,7 +4,7 @@
   "description": "Backend API for ChillConnect booking platform",
   "main": "backend/src/index.js",
   "scripts": {
-    "start": "node start.js",
+    "start": "node minimal-production-server.js",
     "build": "cd backend && npx prisma generate",
     "postinstall": "cd backend && npm install && npx prisma generate"
   },
