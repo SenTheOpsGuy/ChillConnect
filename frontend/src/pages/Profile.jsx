@@ -1,11 +1,15 @@
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
-import { FiEdit, FiCamera, FiShield, FiMail, FiPhone, FiUser } from 'react-icons/fi'
+import { FiEdit, FiCamera, FiShield, FiMail, FiPhone, FiUser, FiSend, FiCheck } from 'react-icons/fi'
 import LoadingSpinner from '../components/UI/LoadingSpinner'
+import authService from '../services/authService'
 
 const Profile = () => {
   const { user, loading } = useSelector((state) => state.auth)
   const [editing, setEditing] = useState(false)
+  const [verificationLoading, setVerificationLoading] = useState({})
+  const [verificationMessages, setVerificationMessages] = useState({})
+  const [otpInputs, setOtpInputs] = useState({})
 
   // Show loading spinner while user data is being fetched
   if (loading || !user) {
@@ -140,7 +144,45 @@ const Profile = () => {
               <p className={`text-xs ${user?.isEmailVerified ? 'text-green-600' : 'text-yellow-600'}`}>
                 {user?.isEmailVerified ? 'Verified' : 'Pending'}
               </p>
+              {verificationMessages.email && (
+                <p className="text-xs text-blue-600 mt-1">{verificationMessages.email}</p>
+              )}
             </div>
+            {!user?.isEmailVerified && (
+              <div className="flex flex-col space-y-2">
+                <button
+                  onClick={() => handleSendEmailVerification()}
+                  disabled={verificationLoading.email}
+                  className="btn btn-sm btn-primary flex items-center space-x-1"
+                >
+                  {verificationLoading.email ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <FiSend className="w-3 h-3" />
+                  )}
+                  <span className="text-xs">Send OTP</span>
+                </button>
+                {otpInputs.emailSent && (
+                  <div className="flex space-x-1">
+                    <input
+                      type="text"
+                      placeholder="Enter OTP"
+                      value={otpInputs.email || ''}
+                      onChange={(e) => setOtpInputs(prev => ({ ...prev, email: e.target.value }))}
+                      className="input input-sm w-20 text-xs"
+                      maxLength={6}
+                    />
+                    <button
+                      onClick={() => handleVerifyEmailOTP()}
+                      disabled={!otpInputs.email || otpInputs.email.length < 4}
+                      className="btn btn-sm btn-success flex items-center"
+                    >
+                      <FiCheck className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <div className="flex items-center space-x-3 p-3 rounded-lg border border-gray-100">
             <div className={`p-2 rounded-full flex-shrink-0 ${user?.isPhoneVerified ? 'bg-green-100' : 'bg-yellow-100'}`}>
@@ -151,7 +193,53 @@ const Profile = () => {
               <p className={`text-xs ${user?.isPhoneVerified ? 'text-green-600' : 'text-yellow-600'}`}>
                 {user?.isPhoneVerified ? 'Verified' : 'Pending'}
               </p>
+              {verificationMessages.phone && (
+                <p className="text-xs text-blue-600 mt-1">{verificationMessages.phone}</p>
+              )}
             </div>
+            {!user?.isPhoneVerified && user?.phone && (
+              <div className="flex flex-col space-y-2">
+                <button
+                  onClick={() => handleSendPhoneVerification()}
+                  disabled={verificationLoading.phone}
+                  className="btn btn-sm btn-primary flex items-center space-x-1"
+                >
+                  {verificationLoading.phone ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <FiSend className="w-3 h-3" />
+                  )}
+                  <span className="text-xs">Send SMS</span>
+                </button>
+                {otpInputs.phoneSent && (
+                  <div className="flex space-x-1">
+                    <input
+                      type="text"
+                      placeholder="Enter OTP"
+                      value={otpInputs.phone || ''}
+                      onChange={(e) => setOtpInputs(prev => ({ ...prev, phone: e.target.value }))}
+                      className="input input-sm w-20 text-xs"
+                      maxLength={6}
+                    />
+                    <button
+                      onClick={() => handleVerifyPhoneOTP()}
+                      disabled={!otpInputs.phone || otpInputs.phone.length < 4}
+                      className="btn btn-sm btn-success flex items-center"
+                    >
+                      <FiCheck className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+            {!user?.isPhoneVerified && !user?.phone && (
+              <button
+                onClick={() => setEditing(true)}
+                className="btn btn-sm btn-secondary text-xs"
+              >
+                Add Phone
+              </button>
+            )}
           </div>
           <div className="flex items-center space-x-3 p-3 rounded-lg border border-gray-100">
             <div className={`p-2 rounded-full flex-shrink-0 ${user?.isAgeVerified ? 'bg-green-100' : 'bg-yellow-100'}`}>
@@ -162,7 +250,33 @@ const Profile = () => {
               <p className={`text-xs ${user?.isAgeVerified ? 'text-green-600' : 'text-yellow-600'}`}>
                 {user?.isAgeVerified ? 'Verified' : 'Pending'}
               </p>
+              {verificationMessages.age && (
+                <p className="text-xs text-blue-600 mt-1">{verificationMessages.age}</p>
+              )}
             </div>
+            {!user?.isAgeVerified && (
+              <div className="flex flex-col space-y-1">
+                <button
+                  onClick={() => handleDocumentVerification()}
+                  disabled={verificationLoading.age}
+                  className="btn btn-sm btn-primary flex items-center space-x-1"
+                >
+                  {verificationLoading.age ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <FiUser className="w-3 h-3" />
+                  )}
+                  <span className="text-xs">Upload ID</span>
+                </button>
+                <input
+                  type="file"
+                  id="ageVerificationFile"
+                  accept="image/*,.pdf"
+                  onChange={(e) => handleFileUpload(e, 'age')}
+                  className="hidden"
+                />
+              </div>
+            )}
           </div>
           <div className="flex items-center space-x-3 p-3 rounded-lg border border-gray-100">
             <div className={`p-2 rounded-full flex-shrink-0 ${user?.isVerified ? 'bg-green-100' : 'bg-yellow-100'}`}>
@@ -173,7 +287,26 @@ const Profile = () => {
               <p className={`text-xs ${user?.isVerified ? 'text-green-600' : 'text-yellow-600'}`}>
                 {user?.isVerified ? 'Active' : 'Pending Review'}
               </p>
+              {!user?.isVerified && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Complete email and phone verification to activate account
+                </p>
+              )}
             </div>
+            {!user?.isVerified && (
+              <button
+                onClick={() => handleRefreshStatus()}
+                disabled={verificationLoading.status}
+                className="btn btn-sm btn-secondary flex items-center space-x-1"
+              >
+                {verificationLoading.status ? (
+                  <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <FiShield className="w-3 h-3" />
+                )}
+                <span className="text-xs">Refresh</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -196,6 +329,109 @@ const Profile = () => {
       )}
     </div>
   )
+
+  // Verification handler functions
+  const handleSendEmailVerification = async () => {
+    setVerificationLoading(prev => ({ ...prev, email: true }))
+    try {
+      await authService.sendEmailVerification(user?.email, user?.id)
+      setVerificationMessages(prev => ({ ...prev, email: 'OTP sent to your email!' }))
+      setOtpInputs(prev => ({ ...prev, emailSent: true }))
+    } catch (error) {
+      setVerificationMessages(prev => ({ ...prev, email: error?.message || 'Failed to send OTP' }))
+    } finally {
+      setVerificationLoading(prev => ({ ...prev, email: false }))
+    }
+  }
+
+  const handleVerifyEmailOTP = async () => {
+    if (!otpInputs.email) return
+    setVerificationLoading(prev => ({ ...prev, email: true }))
+    try {
+      await authService.verifyEmailOTP(user?.email, otpInputs.email, user?.id)
+      setVerificationMessages(prev => ({ ...prev, email: 'Email verified successfully!' }))
+      setOtpInputs(prev => ({ ...prev, email: '', emailSent: false }))
+      // Refresh user data or trigger a re-fetch
+      setTimeout(() => window.location.reload(), 2000)
+    } catch (error) {
+      setVerificationMessages(prev => ({ ...prev, email: error?.message || 'Invalid OTP' }))
+    } finally {
+      setVerificationLoading(prev => ({ ...prev, email: false }))
+    }
+  }
+
+  const handleSendPhoneVerification = async () => {
+    if (!user?.phone) return
+    setVerificationLoading(prev => ({ ...prev, phone: true }))
+    try {
+      await authService.sendPhoneOTP(user.phone)
+      setVerificationMessages(prev => ({ ...prev, phone: 'OTP sent to your phone!' }))
+      setOtpInputs(prev => ({ ...prev, phoneSent: true }))
+    } catch (error) {
+      setVerificationMessages(prev => ({ ...prev, phone: error?.message || 'Failed to send SMS' }))
+    } finally {
+      setVerificationLoading(prev => ({ ...prev, phone: false }))
+    }
+  }
+
+  const handleVerifyPhoneOTP = async () => {
+    if (!otpInputs.phone || !user?.phone) return
+    setVerificationLoading(prev => ({ ...prev, phone: true }))
+    try {
+      await authService.verifyPhoneOTP(user.phone, otpInputs.phone)
+      setVerificationMessages(prev => ({ ...prev, phone: 'Phone verified successfully!' }))
+      setOtpInputs(prev => ({ ...prev, phone: '', phoneSent: false }))
+      // Refresh user data or trigger a re-fetch
+      setTimeout(() => window.location.reload(), 2000)
+    } catch (error) {
+      setVerificationMessages(prev => ({ ...prev, phone: error?.message || 'Invalid OTP' }))
+    } finally {
+      setVerificationLoading(prev => ({ ...prev, phone: false }))
+    }
+  }
+
+  const handleDocumentVerification = () => {
+    document.getElementById('ageVerificationFile')?.click()
+  }
+
+  const handleFileUpload = async (event, type) => {
+    const file = event.target.files[0]
+    if (!file) return
+    
+    setVerificationLoading(prev => ({ ...prev, [type]: true }))
+    try {
+      const formData = new FormData()
+      formData.append('document', file)
+      formData.append('type', type)
+      
+      await authService.submitDocumentVerification(formData)
+      setVerificationMessages(prev => ({ 
+        ...prev, 
+        [type]: 'Document uploaded successfully! Review may take 1-2 business days.' 
+      }))
+    } catch (error) {
+      setVerificationMessages(prev => ({ 
+        ...prev, 
+        [type]: error?.message || 'Failed to upload document' 
+      }))
+    } finally {
+      setVerificationLoading(prev => ({ ...prev, [type]: false }))
+    }
+  }
+
+  const handleRefreshStatus = async () => {
+    setVerificationLoading(prev => ({ ...prev, status: true }))
+    try {
+      await authService.getVerificationStatus()
+      setVerificationMessages(prev => ({ ...prev, status: 'Status refreshed!' }))
+      // Trigger a re-fetch of user data
+      setTimeout(() => window.location.reload(), 1000)
+    } catch (error) {
+      setVerificationMessages(prev => ({ ...prev, status: 'Failed to refresh status' }))
+    } finally {
+      setVerificationLoading(prev => ({ ...prev, status: false }))
+    }
+  }
 }
 
 export default Profile
