@@ -731,11 +731,27 @@ router.post('/login-otp-request', [
     let user;
     if (type === 'phone') {
       user = await req.prisma.user.findFirst({
-        where: { phone: identifier }
+        where: { phone: identifier },
+        select: {
+          id: true,
+          email: true,
+          phone: true,
+          isVerified: true,
+          isPhoneVerified: true,
+          isEmailVerified: true
+        }
       });
     } else {
       user = await req.prisma.user.findUnique({
-        where: { email: identifier }
+        where: { email: identifier },
+        select: {
+          id: true,
+          email: true,
+          phone: true,
+          isVerified: true,
+          isPhoneVerified: true,
+          isEmailVerified: true
+        }
       });
     }
 
@@ -953,7 +969,14 @@ router.post('/send-phone-verification', [
 
     // Check if phone number is already registered
     const existingUser = await req.prisma.user.findFirst({
-      where: { phone: phoneNumber }
+      where: { phone: phoneNumber },
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        isVerified: true,
+        isPhoneVerified: true
+      }
     });
 
     if (existingUser) {
@@ -1150,6 +1173,13 @@ router.post('/twilio-register', [
           { email },
           { phone: phoneNumber }
         ]
+      },
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        isVerified: true,
+        isPhoneVerified: true
       }
     });
 
