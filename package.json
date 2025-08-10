@@ -5,7 +5,7 @@
   "main": "backend/src/index.js",
   "scripts": {
     "start": "node migrate-db.js && node backend/src/index.js",
-    "build": "echo 'Build should run from frontend directory for Netlify'",
+    "build": "cd frontend && npm install && npm run build && cd .. && cp -r frontend/dist .",
     "postinstall": "cd backend && npm install && npx prisma generate"
   },
   "engines": {
