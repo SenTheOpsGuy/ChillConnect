@@ -731,29 +731,41 @@ router.post('/login-otp-request', [
 
     // Find user by phone or email
     let user;
-    if (type === 'phone') {
-      user = await req.prisma.user.findFirst({
-        where: { phone: identifier },
-        select: {
-          id: true,
-          email: true,
-          phone: true,
-          isVerified: true,
-          isPhoneVerified: true,
-          isEmailVerified: true
-        }
+    
+    // Debug: Check if prisma is available
+    if (!req.prisma) {
+      logger.error('Prisma client not available in request context');
+      return res.status(500).json({
+        success: false,
+        error: 'Server configuration error'
       });
-    } else {
-      user = await req.prisma.user.findUnique({
-        where: { email: identifier },
-        select: {
-          id: true,
-          email: true,
-          phone: true,
-          isVerified: true,
-          isPhoneVerified: true,
-          isEmailVerified: true
-        }
+    }
+
+    try {
+      if (type === 'phone') {
+        // Use raw query to avoid enum issues
+        const users = await req.prisma.$queryRaw`
+          SELECT id, email, phone, "isVerified", "isPhoneVerified", "isEmailVerified" 
+          FROM "User" 
+          WHERE phone = ${identifier} 
+          LIMIT 1
+        `;
+        user = users.length > 0 ? users[0] : null;
+      } else {
+        // Use raw query for email too
+        const users = await req.prisma.$queryRaw`
+          SELECT id, email, phone, "isVerified", "isPhoneVerified", "isEmailVerified" 
+          FROM "User" 
+          WHERE email = ${identifier} 
+          LIMIT 1
+        `;
+        user = users.length > 0 ? users[0] : null;
+      }
+    } catch (dbError) {
+      logger.error('Database query error in login OTP:', dbError);
+      return res.status(500).json({
+        success: false,
+        error: 'Database connection error'
       });
     }
 
