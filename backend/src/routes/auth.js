@@ -967,17 +967,30 @@ router.post('/send-phone-verification', [
 
     const { phoneNumber } = req.body;
 
-    // Check if phone number is already registered
-    const existingUser = await req.prisma.user.findFirst({
-      where: { phone: phoneNumber },
-      select: {
-        id: true,
-        email: true,
-        phone: true,
-        isVerified: true,
-        isPhoneVerified: true
-      }
-    });
+    // Check if phone number is already registered  
+    let existingUser;
+    try {
+      // Use raw query to avoid enum issues
+      existingUser = await req.prisma.$queryRaw`
+        SELECT id, email, phone, "isVerified", "isPhoneVerified" 
+        FROM "User" 
+        WHERE phone = ${phoneNumber} 
+        LIMIT 1
+      `;
+      existingUser = existingUser.length > 0 ? existingUser[0] : null;
+    } catch (rawQueryError) {
+      console.log('Raw query failed, falling back to regular query');
+      existingUser = await req.prisma.user.findFirst({
+        where: { phone: phoneNumber },
+        select: {
+          id: true,
+          email: true,
+          phone: true,
+          isVerified: true,
+          isPhoneVerified: true
+        }
+      });
+    }
 
     if (existingUser) {
       return res.status(400).json({
