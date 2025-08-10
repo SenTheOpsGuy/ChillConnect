@@ -71,7 +71,9 @@ router.post('/register', [
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        error: 'User already exists with this email'
+        error: 'Email already exists, try logging in instead',
+        action: 'LOGIN',
+        loginUrl: '/login'
       });
     }
 
@@ -993,8 +995,14 @@ router.post('/send-phone-verification', [
     }
 
     if (existingUser) {
-      // For existing users, still send OTP for verification/login purposes
-      logger.info(`Sending OTP to existing user: ${phoneNumber}`);
+      // Return specific message based on what exists
+      logger.info(`User already exists: ${phoneNumber}`);
+      return res.status(400).json({
+        success: false,
+        error: 'Phone number already exists, try logging in instead',
+        action: 'LOGIN',
+        loginUrl: '/login'
+      });
     }
 
     // Send verification via Twilio
@@ -1195,9 +1203,23 @@ router.post('/twilio-register', [
     });
 
     if (existingUser) {
+      // Determine what specifically exists
+      let errorMessage = '';
+      if (existingUser.email === email && existingUser.phone === phoneNumber) {
+        errorMessage = 'Both email and phone number already exist, try logging in instead';
+      } else if (existingUser.email === email) {
+        errorMessage = 'Email already exists, try logging in instead';
+      } else if (existingUser.phone === phoneNumber) {
+        errorMessage = 'Phone number already exists, try logging in instead';
+      } else {
+        errorMessage = 'Account already exists, try logging in instead';
+      }
+      
       return res.status(400).json({
         success: false,
-        error: 'User already exists with this email or phone number'
+        error: errorMessage,
+        action: 'LOGIN',
+        loginUrl: '/login'
       });
     }
 
