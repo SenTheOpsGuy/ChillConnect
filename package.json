@@ -4,7 +4,7 @@
   "description": "Backend API for ChillConnect booking platform",
   "main": "backend/src/index.js",
   "scripts": {
-    "start": "node migrate-db.js && node backend/src/index.js",
+    "start": "node backend/src/index.js",
     "build": "cd frontend && npm install && npm run build && cd .. && cp -r frontend/dist .",
     "postinstall": "cd backend && npm install && npx prisma generate"
   },

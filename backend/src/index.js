@@ -169,9 +169,7 @@ app.post('/api/setup-admin', async (req, res) => {
     const expectedAdminPassword = 'SuperSecurePassword123!';
     const validPasswords = [
       process.env.ADMIN_CHANGE_PASSWORD,
-      'ChillConnect2024Admin',
-      expectedAdminPassword,
-      'admin-setup-emergency-2024'
+      expectedAdminPassword
     ].filter(Boolean);
     
     if (!adminPassword || !validPasswords.includes(adminPassword)) {
