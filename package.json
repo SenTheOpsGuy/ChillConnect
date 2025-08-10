@@ -9,7 +9,7 @@
     "postinstall": "cd backend && npm install && npx prisma generate"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "dependencies": {
     "@prisma/client": "^5.6.0",
