@@ -765,14 +765,18 @@ router.post('/login-otp-request', [
         `;
         user = users.length > 0 ? users[0] : null;
       } else {
-        // Use raw query for email too
-        const users = await req.prisma.$queryRaw`
-          SELECT id, email, phone, "isVerified", "isPhoneVerified", "isEmailVerified" 
-          FROM "User" 
-          WHERE email = ${identifier} 
-          LIMIT 1
-        `;
-        user = users.length > 0 ? users[0] : null;
+        // Use regular findUnique for email since it shouldn't have enum issues
+        user = await req.prisma.user.findUnique({
+          where: { email: identifier },
+          select: {
+            id: true,
+            email: true,
+            phone: true,
+            isVerified: true,
+            isPhoneVerified: true,
+            isEmailVerified: true
+          }
+        });
       }
     } catch (dbError) {
       logger.error('Database query error in login OTP:', dbError);
