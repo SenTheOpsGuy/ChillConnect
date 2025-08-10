@@ -180,14 +180,23 @@ router.post('/login', [
 
     const { email, password } = req.body;
 
-    // Find user
-    const user = await req.prisma.user.findUnique({
-      where: { email },
-      include: {
-        profile: true,
-        tokenWallet: true
-      }
-    });
+    // Find user - use raw query to avoid enum issues
+    let user;
+    try {
+      const users = await req.prisma.$queryRaw`
+        SELECT id, email, phone, "passwordHash", "isVerified", "isPhoneVerified", "isEmailVerified" 
+        FROM "User" 
+        WHERE email = ${email} 
+        LIMIT 1
+      `;
+      user = users.length > 0 ? users[0] : null;
+    } catch (dbError) {
+      logger.error('Database query error in login:', dbError);
+      return res.status(500).json({
+        success: false,
+        error: 'Database connection error'
+      });
+    }
 
     if (!user) {
       return res.status(400).json({
@@ -205,11 +214,15 @@ router.post('/login', [
       });
     }
 
-    // Update last login
-    await req.prisma.user.update({
-      where: { id: user.id },
-      data: { lastLogin: new Date() }
-    });
+    // Update last login - use raw query
+    try {
+      await req.prisma.$queryRaw`
+        UPDATE "User" SET "lastLogin" = ${new Date()} WHERE id = ${user.id}
+      `;
+    } catch (updateError) {
+      // Log error but don't fail login
+      logger.error('Failed to update last login:', updateError);
+    }
 
     // Generate JWT token
     const token = generateToken(user.id);
