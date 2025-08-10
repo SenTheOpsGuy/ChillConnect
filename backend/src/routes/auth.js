@@ -993,10 +993,8 @@ router.post('/send-phone-verification', [
     }
 
     if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        error: 'Phone number is already registered'
-      });
+      // For existing users, still send OTP for verification/login purposes
+      logger.info(`Sending OTP to existing user: ${phoneNumber}`);
     }
 
     // Send verification via Twilio
