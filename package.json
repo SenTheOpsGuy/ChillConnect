@@ -5,7 +5,7 @@
   "main": "backend/src/index.js",
   "scripts": {
     "start": "node migrate-db.js && node backend/src/index.js",
-    "build": "cd backend && npx prisma generate",
+    "build": "cd frontend && npm install && npm run build && cd .. && cd backend && npx prisma generate",
     "postinstall": "cd backend && npm install && npx prisma generate"
   },
   "engines": {
