@@ -181,10 +181,21 @@ router.post('/login', [
 
     const { email, password } = req.body;
 
-    // Find user using helper function
+    // Find user - simple query without includes to avoid enum issues
     let user;
     try {
-      user = await findUserByEmail(req.prisma, email);
+      user = await req.prisma.user.findUnique({
+        where: { email },
+        select: {
+          id: true,
+          email: true,
+          phone: true,
+          passwordHash: true,
+          isVerified: true,
+          isPhoneVerified: true,
+          isEmailVerified: true
+        }
+      });
     } catch (dbError) {
       logger.error('Database query error in login:', dbError);
       return res.status(500).json({
@@ -209,8 +220,16 @@ router.post('/login', [
       });
     }
 
-    // Update last login using helper
-    await updateLastLogin(req.prisma, user.id);
+    // Update last login - simple update 
+    try {
+      await req.prisma.user.update({
+        where: { id: user.id },
+        data: { lastLogin: new Date() }
+      });
+    } catch (updateError) {
+      logger.error('Failed to update last login:', updateError);
+      // Don't fail login for this
+    }
 
     // Generate JWT token
     const token = generateToken(user.id);
@@ -744,9 +763,29 @@ router.post('/login-otp-request', [
 
     try {
       if (type === 'phone') {
-        user = await findUserByPhone(req.prisma, identifier);
+        user = await req.prisma.user.findFirst({
+          where: { phone: identifier },
+          select: {
+            id: true,
+            email: true,
+            phone: true,
+            isVerified: true,
+            isPhoneVerified: true,
+            isEmailVerified: true
+          }
+        });
       } else {
-        user = await findUserByEmail(req.prisma, identifier);
+        user = await req.prisma.user.findUnique({
+          where: { email: identifier },
+          select: {
+            id: true,
+            email: true,
+            phone: true,
+            isVerified: true,
+            isPhoneVerified: true,
+            isEmailVerified: true
+          }
+        });
       }
     } catch (dbError) {
       logger.error('Database query error in login OTP:', dbError);
