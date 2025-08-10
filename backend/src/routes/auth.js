@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const { auth } = require('../middleware/auth');
 const logger = require('../utils/logger');
+const { createUserWithRawSQL, findUserByEmail, findUserByPhone, updateLastLogin } = require('../utils/rawSqlHelpers');
 const { sendPhoneOTP, sendEmailOTP, verifyPhoneOTP, verifyEmailOTP, getPhoneOTPStatus, getEmailOTPStatus } = require('../services/otpService');
 const { 
   sendPhoneVerification, 
@@ -180,16 +181,10 @@ router.post('/login', [
 
     const { email, password } = req.body;
 
-    // Find user - use raw query to avoid enum issues
+    // Find user using helper function
     let user;
     try {
-      const users = await req.prisma.$queryRaw`
-        SELECT id, email, phone, "passwordHash", "isVerified", "isPhoneVerified", "isEmailVerified" 
-        FROM "User" 
-        WHERE email = ${email} 
-        LIMIT 1
-      `;
-      user = users.length > 0 ? users[0] : null;
+      user = await findUserByEmail(req.prisma, email);
     } catch (dbError) {
       logger.error('Database query error in login:', dbError);
       return res.status(500).json({
@@ -214,15 +209,8 @@ router.post('/login', [
       });
     }
 
-    // Update last login - use raw query
-    try {
-      await req.prisma.$queryRaw`
-        UPDATE "User" SET "lastLogin" = ${new Date()} WHERE id = ${user.id}
-      `;
-    } catch (updateError) {
-      // Log error but don't fail login
-      logger.error('Failed to update last login:', updateError);
-    }
+    // Update last login using helper
+    await updateLastLogin(req.prisma, user.id);
 
     // Generate JWT token
     const token = generateToken(user.id);
@@ -756,27 +744,9 @@ router.post('/login-otp-request', [
 
     try {
       if (type === 'phone') {
-        // Use raw query to avoid enum issues
-        const users = await req.prisma.$queryRaw`
-          SELECT id, email, phone, "isVerified", "isPhoneVerified", "isEmailVerified" 
-          FROM "User" 
-          WHERE phone = ${identifier} 
-          LIMIT 1
-        `;
-        user = users.length > 0 ? users[0] : null;
+        user = await findUserByPhone(req.prisma, identifier);
       } else {
-        // Use regular findUnique for email since it shouldn't have enum issues
-        user = await req.prisma.user.findUnique({
-          where: { email: identifier },
-          select: {
-            id: true,
-            email: true,
-            phone: true,
-            isVerified: true,
-            isPhoneVerified: true,
-            isEmailVerified: true
-          }
-        });
+        user = await findUserByEmail(req.prisma, identifier);
       }
     } catch (dbError) {
       logger.error('Database query error in login OTP:', dbError);

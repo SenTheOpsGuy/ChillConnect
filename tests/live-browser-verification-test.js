@@ -143,7 +143,7 @@ async function testLivePhoneVerification() {
       for (const selector of phoneSelectors) {
         const phoneInput = await page.$(selector);
         if (phoneInput) {
-          await page.type(selector, '9258221177');
+          await page.type(selector, '9999999999');
           console.log('✅ Phone number filled:', selector);
           phoneFilled = true;
           break;
