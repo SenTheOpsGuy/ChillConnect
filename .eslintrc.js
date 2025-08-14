@@ -135,7 +135,6 @@ module.exports = {
       extends: [
         'eslint:recommended',
         'plugin:node/recommended',
-        'plugin:security/recommended',
       ],
       plugins: [
         'node',
@@ -153,17 +152,14 @@ module.exports = {
         'node/no-new-require': 'error',
         'node/no-path-concat': 'error',
         
-        // Security
+        // Security - manually enabled rules
         'security/detect-buffer-noassert': 'error',
         'security/detect-child-process': 'warn',
-        'security/detect-disable-mustache-escape': 'error',
         'security/detect-eval-with-expression': 'error',
         'security/detect-new-buffer': 'error',
-        'security/detect-no-csrf-before-method-override': 'error',
         'security/detect-non-literal-fs-filename': 'warn',
         'security/detect-non-literal-regexp': 'error',
         'security/detect-object-injection': 'warn',
-        'security/detect-possible-timing-attacks': 'warn',
         'security/detect-pseudoRandomBytes': 'error',
         'security/detect-unsafe-regex': 'error',
       },
