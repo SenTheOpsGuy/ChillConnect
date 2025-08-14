@@ -18,6 +18,12 @@ on:
           - staging
           - production
 
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+  checks: write
+
 env:
   NODE_VERSION: '20'
   WORKING_DIRECTORY: './frontend'
@@ -175,7 +181,7 @@ jobs:
         with:
           status: success
           channel: '#ci-cd'
-          message: |
+          text: |
             ✅ **Frontend Deployment Successful**
             
             **Branch:** ${{ github.ref_name }}
@@ -191,7 +197,7 @@ jobs:
         with:
           status: failure
           channel: '#ci-cd'
-          message: |
+          text: |
             ❌ **Frontend Deployment Failed**
             
             **Branch:** ${{ github.ref_name }}

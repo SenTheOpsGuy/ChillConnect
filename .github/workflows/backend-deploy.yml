@@ -18,6 +18,12 @@ on:
           - staging
           - production
 
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+  checks: write
+
 env:
   NODE_VERSION: '20'
   WORKING_DIRECTORY: './backend'
@@ -292,7 +298,7 @@ jobs:
         with:
           status: success
           channel: '#ci-cd'
-          message: |
+          text: |
             ✅ **Backend Deployment Successful**
             
             **Branch:** ${{ github.ref_name }}
@@ -309,7 +315,7 @@ jobs:
         with:
           status: failure
           channel: '#ci-cd'
-          message: |
+          text: |
             ❌ **Backend Deployment Failed**
             
             **Branch:** ${{ github.ref_name }}

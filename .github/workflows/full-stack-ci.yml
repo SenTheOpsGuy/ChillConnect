@@ -7,6 +7,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+  checks: write
+
 env:
   NODE_VERSION: '20'
 
@@ -424,7 +430,7 @@ jobs:
         with:
           status: ${{ steps.status.outputs.status }}
           channel: '#ci-cd'
-          message: |
+          text: |
             **Full-Stack CI Pipeline Results**
             
             ${{ steps.status.outputs.message }}
