@@ -1,7 +1,6 @@
 [build]
-  publish = "dist"
-  command = "npm ci && npm run build"
-  base = "frontend"
+  publish = "frontend/dist"
+  command = "cd frontend && rm -f package-lock.json && npm install && npm run build"
 
 [build.environment]
   NODE_VERSION = "20"
