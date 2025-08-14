@@ -1,0 +1,321 @@
+name: Backend CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+    paths: ['backend/**', '.github/workflows/backend-deploy.yml']
+  pull_request:
+    branches: [main]
+    paths: ['backend/**', '.github/workflows/backend-deploy.yml']
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  NODE_VERSION: '20'
+  WORKING_DIRECTORY: './backend'
+
+jobs:
+  # Lint and Test Job
+  test:
+    name: Test & Lint Backend
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: chillconnect_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm ci
+
+      - name: Setup test environment
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: |
+          echo "NODE_ENV=test" >> .env.test
+          echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/chillconnect_test" >> .env.test
+          echo "REDIS_URL=redis://localhost:6379" >> .env.test
+          echo "JWT_SECRET=test-jwt-secret-key-for-testing-only" >> .env.test
+          echo "ADMIN_CHANGE_PASSWORD=test-admin-password-123" >> .env.test
+          echo "PORT=5001" >> .env.test
+
+      - name: Generate Prisma client
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npx prisma generate
+
+      - name: Run database migrations
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/chillconnect_test
+
+      - name: Seed test database
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npx prisma db seed
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/chillconnect_test
+
+      - name: Run ESLint
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm run lint
+
+      - name: Run unit tests
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm run test:ci
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/chillconnect_test
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test-jwt-secret-key-for-testing-only
+
+      - name: Run integration tests
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm run test:integration
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/chillconnect_test
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test-jwt-secret-key-for-testing-only
+
+      - name: Upload test coverage
+        uses: codecov/codecov-action@v3
+        with:
+          directory: ${{ env.WORKING_DIRECTORY }}/coverage
+          flags: backend
+          name: backend-coverage
+
+  # Security and Quality Checks
+  security:
+    name: Security & Quality Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm ci
+
+      - name: Run Snyk security scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high --file=${{ env.WORKING_DIRECTORY }}/package.json
+
+      - name: Run audit
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm audit --audit-level high
+
+      - name: Check for secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./backend
+          base: main
+          head: HEAD
+
+  # Build and Deploy Job
+  deploy:
+    name: Build & Deploy Backend
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    strategy:
+      matrix:
+        environment: [staging, production]
+        exclude:
+          - environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment != 'staging' && 'staging' || 'none' }}
+          - environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment != 'production' && 'production' || 'none' }}
+          - environment: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' && 'production' || 'none' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/package-lock.json'
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Install dependencies
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm ci --only=production
+
+      - name: Generate Prisma client
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npx prisma generate
+
+      - name: Build Docker image
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: |
+          docker build -t chillconnect-backend:${{ github.sha }} .
+          docker tag chillconnect-backend:${{ github.sha }} chillconnect-backend:latest
+
+      - name: Set Railway environment
+        run: |
+          if [ "${{ matrix.environment }}" = "production" ]; then
+            echo "RAILWAY_SERVICE=${{ secrets.RAILWAY_PROD_SERVICE }}" >> $GITHUB_ENV
+            echo "RAILWAY_PROJECT=${{ secrets.RAILWAY_PROD_PROJECT }}" >> $GITHUB_ENV
+          else
+            echo "RAILWAY_SERVICE=${{ secrets.RAILWAY_STAGING_SERVICE }}" >> $GITHUB_ENV
+            echo "RAILWAY_PROJECT=${{ secrets.RAILWAY_STAGING_PROJECT }}" >> $GITHUB_ENV
+          fi
+
+      - name: Deploy to Railway
+        run: |
+          railway login --token ${{ secrets.RAILWAY_TOKEN }}
+          railway link ${{ env.RAILWAY_PROJECT }}
+          railway service ${{ env.RAILWAY_SERVICE }}
+          railway up --detach
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+
+      - name: Run database migrations
+        run: |
+          railway connect ${{ env.RAILWAY_SERVICE }} --execute "npx prisma migrate deploy"
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+
+      - name: Health check
+        run: |
+          sleep 30
+          if [ "${{ matrix.environment }}" = "production" ]; then
+            HEALTH_URL="${{ secrets.PROD_API_BASE_URL }}/health"
+          else
+            HEALTH_URL="${{ secrets.STAGING_API_BASE_URL }}/health"
+          fi
+          
+          for i in {1..10}; do
+            if curl -f $HEALTH_URL; then
+              echo "Health check passed!"
+              exit 0
+            fi
+            echo "Health check attempt $i failed, retrying..."
+            sleep 10
+          done
+          echo "Health check failed after 10 attempts"
+          exit 1
+
+  # Load Testing (Production only)
+  load-test:
+    name: Load Testing
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: matrix.environment == 'production' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    strategy:
+      matrix:
+        environment: [production]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Artillery
+        run: npm install -g artillery@latest
+
+      - name: Run load tests
+        run: |
+          artillery run --target ${{ secrets.PROD_API_BASE_URL }} .github/load-tests/basic-load.yml
+        continue-on-error: true
+
+      - name: Upload load test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-results-${{ github.sha }}
+          path: artillery-report.html
+
+  # Notify Job
+  notify:
+    name: Notify Status
+    runs-on: ubuntu-latest
+    needs: [test, security, deploy]
+    if: always()
+    steps:
+      - name: Notify Slack on Success
+        if: needs.test.result == 'success' && needs.deploy.result == 'success'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          channel: '#ci-cd'
+          message: |
+            ✅ **Backend Deployment Successful**
+            
+            **Branch:** ${{ github.ref_name }}
+            **Commit:** ${{ github.sha }}
+            **Author:** ${{ github.actor }}
+            **Environment:** ${{ github.event.inputs.environment || 'staging' }}
+            **Service Health:** ✅ All systems operational
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify Slack on Failure
+        if: needs.test.result == 'failure' || needs.deploy.result == 'failure'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#ci-cd'
+          message: |
+            ❌ **Backend Deployment Failed**
+            
+            **Branch:** ${{ github.ref_name }}
+            **Commit:** ${{ github.sha }}
+            **Author:** ${{ github.actor }}
+            **Failed Job:** ${{ needs.test.result == 'failure' && 'Testing' || 'Deployment' }}
+            **Environment:** ${{ github.event.inputs.environment || 'staging' }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -1,42 +1,81 @@
 {
-  "name": "@chillconnect/backend",
+  "name": "@chillconnect/root",
   "version": "1.0.0",
-  "description": "Backend API for ChillConnect booking platform",
-  "main": "backend/src/index.js",
+  "description": "ChillConnect - Adult Services Booking Platform",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "start": "node backend/src/index.js",
-    "build": "echo 'Backend build complete - frontend built separately on Netlify'",
-    "postinstall": "cd backend && npm install && npx prisma generate"
+    "install:all": "npm install && npm run install:frontend && npm run install:backend",
+    "install:frontend": "cd frontend && npm install",
+    "install:backend": "cd backend && npm install",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm start",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "test": "npm run test:frontend && npm run test:backend",
+    "test:frontend": "cd frontend && npm run test:ci",
+    "test:backend": "cd backend && npm run test:ci",
+    "test:e2e": "playwright test",
+    "lint": "npm run lint:frontend && npm run lint:backend",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:backend": "cd backend && npm run lint",
+    "lint:fix": "npm run lint:fix:frontend && npm run lint:fix:backend",
+    "lint:fix:frontend": "cd frontend && npm run lint:fix",
+    "lint:fix:backend": "cd backend && npm run lint:fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky install",
+    "clean": "npm run clean:frontend && npm run clean:backend && rm -rf node_modules",
+    "clean:frontend": "cd frontend && rm -rf dist node_modules",
+    "clean:backend": "cd backend && rm -rf node_modules coverage",
+    "security:check": "npm audit && cd frontend && npm audit && cd ../backend && npm audit",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "concurrently": "^8.2.0",
+    "eslint-plugin-jest": "^29.0.1",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-security": "^3.0.1",
+    "eslint-plugin-testing-library": "^7.6.6",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.0.0",
+    "prettier": "^3.0.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
   },
-  "dependencies": {
-    "@prisma/client": "^5.6.0",
-    "aws-sdk": "^2.1491.0",
-    "axios": "^1.11.0",
-    "bcryptjs": "^2.4.3",
-    "compression": "^1.7.4",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "express-rate-limit": "^7.1.5",
-    "express-validator": "^7.0.1",
-    "helmet": "^7.1.0",
-    "http-proxy-middleware": "^3.0.5",
-    "jsonwebtoken": "^9.0.2",
-    "morgan": "^1.10.0",
-    "multer": "^1.4.5-lts.1",
-    "multer-s3": "^3.0.1",
-    "node-fetch": "^3.3.2",
-    "nodemailer": "^6.9.7",
-    "paypal-rest-sdk": "^1.8.1",
-    "prisma": "^5.6.0",
-    "puppeteer": "^24.16.0",
-    "react-hook-form": "^7.62.0",
-    "socket.io": "^4.7.4",
-    "twilio": "^4.23.0",
-    "uuid": "^9.0.1",
-    "winston": "^3.11.0"
-  }
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SenTheOpsGuy/ChillConnect.git"
+  },
+  "keywords": [
+    "booking-platform",
+    "adult-services",
+    "token-economy",
+    "real-time-chat",
+    "secure-payments"
+  ],
+  "author": "ChillConnect Team",
+  "license": "UNLICENSED"
 }

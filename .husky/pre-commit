@@ -1,0 +1,30 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+
+# Run lint-staged
+npx lint-staged
+
+# Run type checking for frontend if TypeScript is used
+if [ -f "frontend/tsconfig.json" ]; then
+  echo "🔧 Type checking frontend..."
+  cd frontend && npx tsc --noEmit && cd ..
+fi
+
+# Run type checking for backend if TypeScript is used
+if [ -f "backend/tsconfig.json" ]; then
+  echo "🔧 Type checking backend..."
+  cd backend && npx tsc --noEmit && cd ..
+fi
+
+# Run security checks
+echo "🔒 Running security checks..."
+npm run security:check
+
+# Run quick tests (unit tests only)
+echo "🧪 Running unit tests..."
+npm run test:frontend
+npm run test:backend
+
+echo "✅ Pre-commit checks completed!"

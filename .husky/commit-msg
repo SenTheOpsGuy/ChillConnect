@@ -1,0 +1,30 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Conventional commit format validation
+# Format: type(scope): subject
+# Examples:
+# feat(auth): add OAuth login
+# fix(api): resolve token validation issue
+# docs(readme): update installation instructions
+
+commit_regex='^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: .{1,50}'
+
+if ! grep -qE "$commit_regex" "$1"; then
+    echo "❌ Invalid commit message format!"
+    echo ""
+    echo "Commit message must follow conventional commit format:"
+    echo "type(scope): subject"
+    echo ""
+    echo "Types: feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert"
+    echo "Subject must be 1-50 characters"
+    echo ""
+    echo "Examples:"
+    echo "feat(auth): add OAuth login"
+    echo "fix(api): resolve token validation issue"
+    echo "docs(readme): update installation instructions"
+    echo ""
+    exit 1
+fi
+
+echo "✅ Commit message format is valid!"

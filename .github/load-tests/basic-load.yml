@@ -1,0 +1,92 @@
+config:
+  target: 'http://localhost:5001'
+  phases:
+    - duration: 60
+      arrivalRate: 10
+      name: "Warm up"
+    - duration: 120
+      arrivalRate: 25
+      name: "Ramp up load"
+    - duration: 300
+      arrivalRate: 50
+      name: "Sustained load"
+  defaults:
+    headers:
+      User-Agent: 'Artillery Load Test'
+      Accept: 'application/json'
+      Content-Type: 'application/json'
+  processor: "./load-test-functions.js"
+
+scenarios:
+  - name: "Health Check"
+    weight: 20
+    flow:
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: 200
+
+  - name: "Authentication Flow"
+    weight: 30
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "loadtest@example.com"
+            password: "password123"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/api/auth/me"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+
+  - name: "User Profile Operations"
+    weight: 25
+    flow:
+      - function: "generateAuthToken"
+      - get:
+          url: "/api/users/profile"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+      - put:
+          url: "/api/users/profile"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            firstName: "Load"
+            lastName: "Test"
+          expect:
+            - statusCode: 200
+
+  - name: "Provider Search"
+    weight: 15
+    flow:
+      - function: "generateAuthToken"
+      - get:
+          url: "/api/users/providers"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          qs:
+            location: "New York"
+            serviceType: "INCALL"
+          expect:
+            - statusCode: 200
+
+  - name: "Booking Operations"
+    weight: 10
+    flow:
+      - function: "generateAuthToken"
+      - get:
+          url: "/api/bookings"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200

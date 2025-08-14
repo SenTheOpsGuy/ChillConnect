@@ -1,0 +1,50 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🚀 Running pre-push checks..."
+
+# Get current branch
+protected_branch='main'
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$current_branch" = "$protected_branch" ]; then
+    echo "⚠️ Pushing to main branch detected!"
+    echo "Running comprehensive checks..."
+    
+    # Run full test suite
+    echo "🧪 Running full test suite..."
+    npm run test
+    
+    # Run E2E tests if available
+    if [ -f "playwright.config.js" ]; then
+        echo "🎭 Running E2E tests..."
+        npm run test:e2e
+    fi
+    
+    # Run security audit
+    echo "🔒 Running security audit..."
+    npm run security:check
+    
+    # Check for secrets in code
+    echo "🔍 Scanning for secrets..."
+    if command -v trufflehog >/dev/null 2>&1; then
+        trufflehog filesystem . --exclude-paths .trufflehog-exclude
+    else
+        echo "⚠️ TruffleHog not installed, skipping secret scanning"
+    fi
+    
+    # Build check
+    echo "🏗️ Running build check..."
+    npm run build
+    
+    echo "✅ All pre-push checks passed for main branch!"
+else
+    echo "🌿 Pushing to feature branch: $current_branch"
+    echo "Running basic checks..."
+    
+    # Run unit tests only for feature branches
+    npm run test:frontend
+    npm run test:backend
+    
+    echo "✅ Basic pre-push checks passed!"
+fi
