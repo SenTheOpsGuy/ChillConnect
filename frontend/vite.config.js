@@ -18,5 +18,16 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
+    chunkSizeWarningLimit: 1000, // Increase limit to 1MB
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          ui: ['react-icons'],
+          redux: ['@reduxjs/toolkit', 'react-redux'],
+        },
+      },
+    },
   },
 })
