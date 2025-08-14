@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { FiCamera, FiImage, FiUpload } from 'react-icons/fi'
+import { FiCamera, FiUpload } from 'react-icons/fi'
+import toast from 'react-hot-toast'
 import mobileService from '../../services/mobileService'
 
 const MobilePhotoUpload = ({ onPhotoTaken, className = '', buttonText = 'Take Photo' }) => {
@@ -18,7 +19,7 @@ const MobilePhotoUpload = ({ onPhotoTaken, className = '', buttonText = 'Take Ph
       mobileService.vibrate(50)
     } catch (error) {
       console.error('Photo capture error:', error)
-      alert('Failed to take photo: ' + error.message)
+      toast.error(`Failed to take photo: ${error.message}`)
     } finally {
       setIsLoading(false)
     }

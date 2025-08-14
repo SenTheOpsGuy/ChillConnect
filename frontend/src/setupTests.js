@@ -1,34 +1,38 @@
 import '@testing-library/jest-dom'
+import { vi } from 'vitest'
 
 // Mock import.meta.env for Vite
 global.import = {
   meta: {
     env: {
       VITE_API_BASE_URL: 'http://localhost:5000/api',
-      NODE_ENV: 'test'
-    }
-  }
+      NODE_ENV: 'test',
+    },
+  },
 }
 
 // Mock react-hot-toast to avoid issues in tests
-jest.mock('react-hot-toast', () => ({
-  success: jest.fn(),
-  error: jest.fn(),
-  loading: jest.fn(),
-  dismiss: jest.fn()
+vi.mock('react-hot-toast', () => ({
+  success: vi.fn(),
+  error: vi.fn(),
+  loading: vi.fn(),
+  dismiss: vi.fn(),
 }))
 
 // Mock react-router-dom hooks
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
-  useLocation: () => ({
-    pathname: '/',
-    search: '',
-    hash: '',
-    state: null
-  })
-}))
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom')
+  return {
+    ...actual,
+    useNavigate: () => vi.fn(),
+    useLocation: () => ({
+      pathname: '/',
+      search: '',
+      hash: '',
+      state: null,
+    }),
+  }
+})
 
 // Mock environment variables
 process.env.REACT_APP_API_URL = 'http://localhost:5000'

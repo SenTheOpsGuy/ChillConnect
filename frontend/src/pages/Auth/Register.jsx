@@ -21,7 +21,7 @@ const Register = () => {
     phone: '',
     role: 'SEEKER',
     ageConfirmed: false,
-    consentGiven: false
+    consentGiven: false,
   })
   
   // Verification states
@@ -68,7 +68,7 @@ const Register = () => {
 
     if (!formData.phone.trim()) {
       errors.phone = 'Phone number is required'
-    } else if (!/^\+?[\d\s\-\(\)]{10,}$/.test(formData.phone)) {
+    } else if (!/^\+?[\d\s\-()]{10,}$/.test(formData.phone)) {
       errors.phone = 'Please enter a valid phone number'
     }
 
@@ -181,7 +181,7 @@ const Register = () => {
     }
     
     try {
-      const response = await authService.verifyEmailOTP(formData.email, emailOTP)
+      await authService.verifyEmailOTP(formData.email, emailOTP)
       setEmailVerified(true)
       toast.success('Email verified successfully!')
       setVerificationStep('phone-verify')
@@ -201,7 +201,7 @@ const Register = () => {
     }
     
     try {
-      const response = await authService.verifyPhoneOTP(formData.phone, phoneOTP)
+      await authService.verifyPhoneOTP(formData.phone, phoneOTP)
       setPhoneVerified(true)
       toast.success('Phone verified successfully!')
       setVerificationStep('complete')
@@ -232,7 +232,7 @@ const Register = () => {
       const registrationData = {
         ...formData,
         emailVerified: true,
-        phoneVerified: true
+        phoneVerified: true,
       }
       
       await dispatch(register(registrationData)).unwrap()
@@ -247,7 +247,7 @@ const Register = () => {
     const { name, value, type, checked } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }))
   }
 
@@ -256,7 +256,7 @@ const Register = () => {
       <div className="flex items-center space-x-4">
         <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
           verificationStep === 'form' ? 'bg-blue-600 text-white' : 
-          emailVerified ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-600'
+            emailVerified ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-600'
         }`}>
           {emailVerified ? <FiCheck className="w-4 h-4" /> : '1'}
         </div>
@@ -266,7 +266,7 @@ const Register = () => {
         
         <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
           verificationStep === 'email-verify' ? 'bg-blue-600 text-white' : 
-          emailVerified ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-600'
+            emailVerified ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-600'
         }`}>
           {emailVerified ? <FiCheck className="w-4 h-4" /> : <FiMail className="w-4 h-4" />}
         </div>
@@ -276,7 +276,7 @@ const Register = () => {
         
         <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
           verificationStep === 'phone-verify' ? 'bg-blue-600 text-white' : 
-          phoneVerified ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-600'
+            phoneVerified ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-600'
         }`}>
           {phoneVerified ? <FiCheck className="w-4 h-4" /> : <FiPhone className="w-4 h-4" />}
         </div>
@@ -312,11 +312,11 @@ const Register = () => {
         {renderStepIndicator()}
       </div>
 
-        <div className="auth-form" style={{ marginTop: '32px' }}>
+      <div className="auth-form" style={{ marginTop: '32px' }}>
           
-          {/* Step 1: Registration Form */}
-          {verificationStep === 'form' && (
-            <form className="space-y-6" onSubmit={handleFormSubmit}>
+        {/* Step 1: Registration Form */}
+        {verificationStep === 'form' && (
+          <form className="space-y-6" onSubmit={handleFormSubmit}>
             {/* Role Selection */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -555,164 +555,164 @@ const Register = () => {
                 {loading ? 'Processing...' : 'Continue to Verification'}
               </button>
             </div>
-            </form>
-          )}
+          </form>
+        )}
 
-          {/* Step 2: Email Verification */}
-          {verificationStep === 'email-verify' && (
-            <div className="space-y-6">
-              <div className="text-center">
-                <FiMail className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Verify Your Email</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  We've sent a verification code to <strong>{formData.email}</strong>
-                </p>
-              </div>
-
-              <div>
-                <label htmlFor="emailOTP" className="block text-sm font-medium text-gray-700 mb-2">
-                  Enter 6-digit verification code
-                </label>
-                <input
-                  id="emailOTP"
-                  type="text"
-                  value={emailOTP}
-                  onChange={(e) => setEmailOTP(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  className="w-full text-center text-2xl tracking-widest border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="000000"
-                  maxLength="6"
-                />
-              </div>
-
-              <div className="flex space-x-3">
-                <button
-                  onClick={verifyEmailOTP}
-                  disabled={emailOTP.length !== 6}
-                  className="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Verify Email
-                </button>
-                <button
-                  onClick={sendEmailVerification}
-                  disabled={resendCooldown.email}
-                  className="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
-                >
-                  {resendCooldown.email ? (
-                    <>
-                      <FiClock className="w-4 h-4 inline mr-1" />
-                      {otpTimers.email}s
-                    </>
-                  ) : (
-                    'Resend'
-                  )}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 3: Phone Verification */}
-          {verificationStep === 'phone-verify' && (
-            <div className="space-y-6">
-              <div className="text-center">
-                <FiPhone className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Verify Your Phone</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  We've sent a verification code to <strong>{formData.phone}</strong>
-                </p>
-              </div>
-
-              <div>
-                <label htmlFor="phoneOTP" className="block text-sm font-medium text-gray-700 mb-2">
-                  Enter 6-digit verification code
-                </label>
-                <input
-                  id="phoneOTP"
-                  type="text"
-                  value={phoneOTP}
-                  onChange={(e) => setPhoneOTP(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  className="w-full text-center text-2xl tracking-widest border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="000000"
-                  maxLength="6"
-                />
-              </div>
-
-              <div className="flex space-x-3">
-                <button
-                  onClick={verifyPhoneOTP}
-                  disabled={phoneOTP.length !== 6}
-                  className="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Verify Phone
-                </button>
-                <button
-                  onClick={sendPhoneVerification}
-                  disabled={resendCooldown.phone}
-                  className="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
-                >
-                  {resendCooldown.phone ? (
-                    <>
-                      <FiClock className="w-4 h-4 inline mr-1" />
-                      {otpTimers.phone}s
-                    </>
-                  ) : (
-                    'Resend'
-                  )}
-                </button>
-              </div>
-
-              <button
-                onClick={() => setVerificationStep('email-verify')}
-                className="w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-              >
-                Back to Email Verification
-              </button>
-            </div>
-          )}
-
-          {/* Step 4: Complete Registration */}
-          {verificationStep === 'complete' && (
-            <div className="space-y-6">
-              <div className="text-center">
-                <FiCheckCircle className="w-12 h-12 text-green-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Verification Complete!</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Both your email and phone have been verified successfully.
-                </p>
-              </div>
-
-              <div className="bg-green-50 p-4 rounded-md">
-                <div className="flex items-center space-x-3 mb-2">
-                  <FiCheckCircle className="w-5 h-5 text-green-600" />
-                  <span className="text-sm text-green-800">Email verified: {formData.email}</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <FiCheckCircle className="w-5 h-5 text-green-600" />
-                  <span className="text-sm text-green-800">Phone verified: {formData.phone}</span>
-                </div>
-              </div>
-
-              <button
-                onClick={handleFinalSubmit}
-                disabled={loading}
-                className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Creating Account...' : 'Create Account'}
-              </button>
-            </div>
-          )}
-
-          {/* Login Link */}
-          {verificationStep === 'form' && (
-            <div className="auth-footer">
-              <p>
-                Already have an account?{' '}
-                <Link to="/login" className="auth-link">
-                  Sign in here
-                </Link>
+        {/* Step 2: Email Verification */}
+        {verificationStep === 'email-verify' && (
+          <div className="space-y-6">
+            <div className="text-center">
+              <FiMail className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Verify Your Email</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                  We&apos;ve sent a verification code to <strong>{formData.email}</strong>
               </p>
             </div>
-          )}
-        </div>
+
+            <div>
+              <label htmlFor="emailOTP" className="block text-sm font-medium text-gray-700 mb-2">
+                  Enter 6-digit verification code
+              </label>
+              <input
+                id="emailOTP"
+                type="text"
+                value={emailOTP}
+                onChange={(e) => setEmailOTP(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                className="w-full text-center text-2xl tracking-widest border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                placeholder="000000"
+                maxLength="6"
+              />
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={verifyEmailOTP}
+                disabled={emailOTP.length !== 6}
+                className="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                  Verify Email
+              </button>
+              <button
+                onClick={sendEmailVerification}
+                disabled={resendCooldown.email}
+                className="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+              >
+                {resendCooldown.email ? (
+                  <>
+                    <FiClock className="w-4 h-4 inline mr-1" />
+                    {otpTimers.email}s
+                  </>
+                ) : (
+                  'Resend'
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Phone Verification */}
+        {verificationStep === 'phone-verify' && (
+          <div className="space-y-6">
+            <div className="text-center">
+              <FiPhone className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Verify Your Phone</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                  We&apos;ve sent a verification code to <strong>{formData.phone}</strong>
+              </p>
+            </div>
+
+            <div>
+              <label htmlFor="phoneOTP" className="block text-sm font-medium text-gray-700 mb-2">
+                  Enter 6-digit verification code
+              </label>
+              <input
+                id="phoneOTP"
+                type="text"
+                value={phoneOTP}
+                onChange={(e) => setPhoneOTP(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                className="w-full text-center text-2xl tracking-widest border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                placeholder="000000"
+                maxLength="6"
+              />
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={verifyPhoneOTP}
+                disabled={phoneOTP.length !== 6}
+                className="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                  Verify Phone
+              </button>
+              <button
+                onClick={sendPhoneVerification}
+                disabled={resendCooldown.phone}
+                className="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+              >
+                {resendCooldown.phone ? (
+                  <>
+                    <FiClock className="w-4 h-4 inline mr-1" />
+                    {otpTimers.phone}s
+                  </>
+                ) : (
+                  'Resend'
+                )}
+              </button>
+            </div>
+
+            <button
+              onClick={() => setVerificationStep('email-verify')}
+              className="w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            >
+                Back to Email Verification
+            </button>
+          </div>
+        )}
+
+        {/* Step 4: Complete Registration */}
+        {verificationStep === 'complete' && (
+          <div className="space-y-6">
+            <div className="text-center">
+              <FiCheckCircle className="w-12 h-12 text-green-600 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Verification Complete!</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                  Both your email and phone have been verified successfully.
+              </p>
+            </div>
+
+            <div className="bg-green-50 p-4 rounded-md">
+              <div className="flex items-center space-x-3 mb-2">
+                <FiCheckCircle className="w-5 h-5 text-green-600" />
+                <span className="text-sm text-green-800">Email verified: {formData.email}</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <FiCheckCircle className="w-5 h-5 text-green-600" />
+                <span className="text-sm text-green-800">Phone verified: {formData.phone}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={handleFinalSubmit}
+              disabled={loading}
+              className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Creating Account...' : 'Create Account'}
+            </button>
+          </div>
+        )}
+
+        {/* Login Link */}
+        {verificationStep === 'form' && (
+          <div className="auth-footer">
+            <p>
+                Already have an account?{' '}
+              <Link to="/login" className="auth-link">
+                  Sign in here
+              </Link>
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

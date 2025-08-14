@@ -4,7 +4,7 @@ const API_BASE_URL = 'http://localhost:5001/api'
 
 export const handlers = [
   // Auth endpoints
-  http.post(`${API_BASE_URL}/auth/login`, ({ request }) => {
+  http.post(`${API_BASE_URL}/auth/login`, () => {
     return HttpResponse.json({
       success: true,
       user: global.testUser,
@@ -104,7 +104,7 @@ export const handlers = [
           tokenAmount: 500,
           provider: global.testProvider,
           seeker: global.testUser,
-        }
+        },
       ],
       total: 1,
     })
@@ -142,7 +142,7 @@ export const handlers = [
   }),
 
   // Chat endpoints
-  http.get(`${API_BASE_URL}/chat/messages/:bookingId`, ({ params }) => {
+  http.get(`${API_BASE_URL}/chat/messages/:bookingId`, () => {
     return HttpResponse.json({
       success: true,
       messages: [
@@ -153,7 +153,7 @@ export const handlers = [
           receiverId: global.testProvider.id,
           createdAt: new Date().toISOString(),
           isRead: false,
-        }
+        },
       ],
     })
   }),
@@ -217,7 +217,7 @@ export const handlers = [
           user: global.testProvider,
           status: 'PENDING',
           submittedAt: new Date().toISOString(),
-        }
+        },
       ],
       total: 1,
     })
@@ -250,7 +250,7 @@ export const handlers = [
   http.get(`${API_BASE_URL}/test/unauthorized`, () => {
     return HttpResponse.json(
       { error: 'Unauthorized' },
-      { status: 401 }
+      { status: 401 },
     )
   }),
 ]

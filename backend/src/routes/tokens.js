@@ -302,23 +302,23 @@ router.post('/webhook', async (req, res, next) => {
 
     // Handle different webhook events
     switch (event_type) {
-      case 'PAYMENT.SALE.COMPLETED':
-        // Payment completed successfully
-        await handlePaymentCompleted(resource);
-        break;
+    case 'PAYMENT.SALE.COMPLETED':
+      // Payment completed successfully
+      await handlePaymentCompleted(resource);
+      break;
       
-      case 'PAYMENT.SALE.DENIED':
-        // Payment denied
-        await handlePaymentDenied(resource);
-        break;
+    case 'PAYMENT.SALE.DENIED':
+      // Payment denied
+      await handlePaymentDenied(resource);
+      break;
       
-      case 'PAYMENT.SALE.REFUNDED':
-        // Payment refunded
-        await handlePaymentRefunded(resource);
-        break;
+    case 'PAYMENT.SALE.REFUNDED':
+      // Payment refunded
+      await handlePaymentRefunded(resource);
+      break;
       
-      default:
-        logger.info(`Unhandled webhook event: ${event_type}`);
+    default:
+      logger.info(`Unhandled webhook event: ${event_type}`);
     }
 
     res.json({ success: true });

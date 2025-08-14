@@ -19,7 +19,7 @@ export const register = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.error || error.message || 'Registration failed')
     }
-  }
+  },
 )
 
 export const login = createAsyncThunk(
@@ -31,7 +31,7 @@ export const login = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.error || error.message || 'Login failed')
     }
-  }
+  },
 )
 
 export const loadUser = createAsyncThunk(
@@ -43,7 +43,7 @@ export const loadUser = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.error || error.message || 'Failed to load user')
     }
-  }
+  },
 )
 
 export const verifyEmail = createAsyncThunk(
@@ -55,7 +55,7 @@ export const verifyEmail = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.error || error.message || 'Email verification failed')
     }
-  }
+  },
 )
 
 export const sendPhoneOTP = createAsyncThunk(
@@ -67,7 +67,7 @@ export const sendPhoneOTP = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.error || error.message || 'Failed to send OTP')
     }
-  }
+  },
 )
 
 export const verifyPhone = createAsyncThunk(
@@ -79,7 +79,7 @@ export const verifyPhone = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.error || error.message || 'Phone verification failed')
     }
-  }
+  },
 )
 
 export const requestLoginOTP = createAsyncThunk(
@@ -91,7 +91,7 @@ export const requestLoginOTP = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.error || error.message || 'Failed to send OTP')
     }
-  }
+  },
 )
 
 export const verifyLoginOTP = createAsyncThunk(
@@ -103,19 +103,19 @@ export const verifyLoginOTP = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.error || error.message || 'OTP verification failed')
     }
-  }
+  },
 )
 
 export const logout = createAsyncThunk(
   'auth/logout',
-  async (_, { rejectWithValue }) => {
+  (_, { rejectWithValue }) => {
     try {
       authService.logout()
       return null
     } catch (error) {
       return rejectWithValue(error.error || error.message || 'Logout failed')
     }
-  }
+  },
 )
 
 const authSlice = createSlice({

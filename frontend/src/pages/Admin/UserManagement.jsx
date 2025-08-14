@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { 
-  FiSearch, FiFilter, FiMoreVertical, FiUser, FiShield, 
-  FiMail, FiPhone, FiCalendar, FiEdit, FiTrash2 
+  FiSearch, FiShield, FiMail, FiPhone, FiEdit, FiTrash2, 
 } from 'react-icons/fi'
 import { fetchUsers, updateUserRole, suspendUser } from '../../store/slices/adminSlice'
 
@@ -16,7 +15,7 @@ const UserManagement = () => {
     role: '',
     verified: '',
     page: 1,
-    limit: 20
+    limit: 20,
   })
   const [selectedUser, setSelectedUser] = useState(null)
   const [showRoleModal, setShowRoleModal] = useState(false)
@@ -58,7 +57,7 @@ const UserManagement = () => {
       'EMPLOYEE': 'bg-purple-100 text-purple-800',
       'MANAGER': 'bg-orange-100 text-orange-800',
       'ADMIN': 'bg-red-100 text-red-800',
-      'SUPER_ADMIN': 'bg-gray-100 text-gray-800'
+      'SUPER_ADMIN': 'bg-gray-100 text-gray-800',
     }
     return colors[role] || 'bg-gray-100 text-gray-800'
   }

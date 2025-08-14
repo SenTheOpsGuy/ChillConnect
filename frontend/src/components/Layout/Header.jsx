@@ -1,14 +1,4 @@
-import { useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { logout } from '../../store/slices/authSlice'
-
-const Header = ({ sidebarOpen, setSidebarOpen, user }) => {
-  const dispatch = useDispatch()
-  const [dropdownOpen, setDropdownOpen] = useState(false)
-
-  const handleLogout = () => {
-    dispatch(logout())
-  }
+const Header = () => {
 
   return (
     <div className="top-bar">

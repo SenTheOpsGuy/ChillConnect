@@ -13,7 +13,7 @@ const authService = {
         phone: userData.phone,
         date_of_birth: userData.dateOfBirth,
         age_confirmed: userData.ageConfirmed,
-        consent_given: userData.consentGiven
+        consent_given: userData.consentGiven,
       }
       
       const response = await api.post('/auth/register', transformedData)
@@ -177,7 +177,7 @@ const authService = {
     try {
       const response = await api.put('/change-password', { 
         currentPassword, 
-        newPassword 
+        newPassword, 
       })
       return response.data
     } catch (error) {
@@ -200,8 +200,8 @@ const authService = {
     try {
       const response = await api.post('/upload-photo', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       })
       return response.data
     } catch (error) {
@@ -214,8 +214,8 @@ const authService = {
     try {
       const response = await api.post('/verify-document', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       })
       return response.data
     } catch (error) {
@@ -250,7 +250,7 @@ const authService = {
     if (token) {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`
     }
-  }
+  },
 }
 
 export default authService

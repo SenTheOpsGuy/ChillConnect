@@ -7,7 +7,7 @@ import toast from 'react-hot-toast'
 
 // Helper function to determine redirect path based on user role
 const getRedirectPath = (user) => {
-  if (!user) return '/dashboard'
+  if (!user) {return '/dashboard'}
   
   switch (user.role) {
     case 'SEEKER':
@@ -32,7 +32,7 @@ const Login = () => {
   
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
   })
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
@@ -76,7 +76,7 @@ const Login = () => {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     })
   }
 

@@ -13,11 +13,11 @@ const ChatMediaUpload = ({ bookingId, onMediaUpload, disabled = false }) => {
     'image/jpeg': 'jpg',
     'image/png': 'png',
     'image/gif': 'gif',
-    'image/webp': 'webp'
+    'image/webp': 'webp',
   }
 
   const handleFileSelect = (file) => {
-    if (!file) return
+    if (!file) {return}
 
     // Validate file type
     if (!allowedTypes[file.type]) {
@@ -44,7 +44,7 @@ const ChatMediaUpload = ({ bookingId, onMediaUpload, disabled = false }) => {
   }
 
   const handleUpload = async () => {
-    if (!selectedFile) return
+    if (!selectedFile) {return}
 
     setUploading(true)
 
@@ -55,8 +55,8 @@ const ChatMediaUpload = ({ bookingId, onMediaUpload, disabled = false }) => {
 
       const response = await api.post('/upload/chat', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       })
 
       if (response.data.success) {
@@ -96,11 +96,11 @@ const ChatMediaUpload = ({ bookingId, onMediaUpload, disabled = false }) => {
   }
 
   const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes'
+    if (bytes === 0) {return '0 Bytes'}
     const k = 1024
     const sizes = ['Bytes', 'KB', 'MB', 'GB']
     const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
   }
 
   return (

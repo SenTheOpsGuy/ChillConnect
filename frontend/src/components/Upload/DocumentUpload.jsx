@@ -1,29 +1,30 @@
 import { useState, useRef } from 'react'
 import { 
   FiUpload, FiFile, FiX, FiCheck, FiAlertCircle, 
-  FiImage, FiFileText 
+  FiImage, FiFileText, 
 } from 'react-icons/fi'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
 
 const DocumentUpload = ({ 
-  documentType = 'ID', 
+  documentType: initialDocumentType = 'ID', 
   onUploadComplete, 
   maxFiles = 5,
-  existingDocuments = []
+  existingDocuments = [],
 }) => {
   const fileInputRef = useRef(null)
   const [uploading, setUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState([])
   const [previews, setPreviews] = useState([])
+  const [documentType, setDocumentType] = useState(initialDocumentType)
 
   const allowedTypes = {
     'image/jpeg': 'jpg',
     'image/png': 'png',
     'image/gif': 'gif',
     'image/webp': 'webp',
-    'application/pdf': 'pdf'
+    'application/pdf': 'pdf',
   }
 
   const getFileIcon = (type) => {
@@ -80,17 +81,17 @@ const DocumentUpload = ({
         const reader = new FileReader()
         reader.onload = (e) => {
           setPreviews(prev => [...prev, {
-            file: file,
+            file,
             preview: e.target.result,
-            type: 'image'
+            type: 'image',
           }])
         }
         reader.readAsDataURL(file)
       } else {
         setPreviews(prev => [...prev, {
-          file: file,
+          file,
           preview: null,
-          type: 'document'
+          type: 'document',
         }])
       }
     })
@@ -118,8 +119,8 @@ const DocumentUpload = ({
 
       const response = await api.post('/upload/verification', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       })
 
       if (response.data.success) {
@@ -177,11 +178,11 @@ const DocumentUpload = ({
   }
 
   const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes'
+    if (bytes === 0) {return '0 Bytes'}
     const k = 1024
     const sizes = ['Bytes', 'KB', 'MB', 'GB']
     const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
   }
 
   return (
@@ -199,7 +200,7 @@ const DocumentUpload = ({
         >
           <option value="ID">Government ID</option>
           <option value="Passport">Passport</option>
-          <option value="Driver License">Driver's License</option>
+          <option value="Driver License">Driver&apos;s License</option>
           <option value="Other">Other</option>
         </select>
       </div>

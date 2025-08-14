@@ -1,20 +1,20 @@
-const { PrismaClient } = require('@prisma/client')
-const { execSync } = require('child_process')
+const { PrismaClient } = require('@prisma/client');
+const { execSync } = require('child_process');
 
 // Test database setup
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/chillconnect_test'
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/chillconnect_test';
 
 // Mock external services
 jest.mock('../services/brevoService', () => ({
   sendWelcomeEmail: jest.fn().mockResolvedValue({ success: true }),
   sendOTPEmail: jest.fn().mockResolvedValue({ success: true }),
   sendPasswordResetEmail: jest.fn().mockResolvedValue({ success: true }),
-}))
+}));
 
 jest.mock('../services/twilioService', () => ({
   sendOTP: jest.fn().mockResolvedValue({ success: true, sid: 'mock-sid' }),
   verifyOTP: jest.fn().mockResolvedValue({ success: true, valid: true }),
-}))
+}));
 
 jest.mock('../services/paypalService', () => ({
   createPayment: jest.fn().mockResolvedValue({
@@ -25,7 +25,7 @@ jest.mock('../services/paypalService', () => ({
     id: 'mock-payment-id',
     state: 'approved',
   }),
-}))
+}));
 
 jest.mock('aws-sdk', () => ({
   S3: jest.fn(() => ({
@@ -39,7 +39,7 @@ jest.mock('aws-sdk', () => ({
       promise: jest.fn().mockResolvedValue({}),
     })),
   })),
-}))
+}));
 
 // Mock winston logger
 jest.mock('../utils/logger', () => ({
@@ -47,7 +47,7 @@ jest.mock('../utils/logger', () => ({
   error: jest.fn(),
   warn: jest.fn(),
   debug: jest.fn(),
-}))
+}));
 
 // Mock socket.io
 jest.mock('socket.io', () => ({
@@ -59,27 +59,27 @@ jest.mock('socket.io', () => ({
     })),
     use: jest.fn(),
   })),
-}))
+}));
 
 // Global test database instance
-let prisma
+let prisma;
 
 // Setup before all tests
 beforeAll(async () => {
   // Set test environment
-  process.env.NODE_ENV = 'test'
-  process.env.DATABASE_URL = DATABASE_URL
-  process.env.JWT_SECRET = 'test-jwt-secret-key-for-testing-only'
-  process.env.ADMIN_CHANGE_PASSWORD = 'test-admin-password-123'
+  process.env.NODE_ENV = 'test';
+  process.env.DATABASE_URL = DATABASE_URL;
+  process.env.JWT_SECRET = 'test-jwt-secret-key-for-testing-only';
+  process.env.ADMIN_CHANGE_PASSWORD = 'test-admin-password-123';
 
   // Reset database
   try {
     execSync('npx prisma migrate reset --force --skip-generate', {
       env: { ...process.env, DATABASE_URL },
       stdio: 'inherit',
-    })
+    });
   } catch (error) {
-    console.error('Error resetting database:', error.message)
+    console.error('Error resetting database:', error.message);
   }
 
   // Initialize Prisma client
@@ -89,36 +89,36 @@ beforeAll(async () => {
         url: DATABASE_URL,
       },
     },
-  })
+  });
 
   // Make prisma available globally for tests
-  global.prisma = prisma
-})
+  global.prisma = prisma;
+});
 
 // Cleanup after each test
 afterEach(async () => {
   if (prisma) {
     // Clean up test data
-    const tablenames = await prisma.$queryRaw`SELECT tablename FROM pg_tables WHERE schemaname='public'`
+    const tablenames = await prisma.$queryRaw`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
     
     for (const { tablename } of tablenames) {
       if (tablename !== '_prisma_migrations') {
         try {
-          await prisma.$executeRawUnsafe(`TRUNCATE TABLE "public"."${tablename}" CASCADE;`)
+          await prisma.$executeRawUnsafe(`TRUNCATE TABLE "public"."${tablename}" CASCADE;`);
         } catch (error) {
-          console.log(`Error truncating ${tablename}:`, error.message)
+          console.log(`Error truncating ${tablename}:`, error.message);
         }
       }
     }
   }
-})
+});
 
 // Cleanup after all tests
 afterAll(async () => {
   if (prisma) {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   }
-})
+});
 
 // Test utilities
 global.testUser = {
@@ -130,7 +130,7 @@ global.testUser = {
   isPhoneVerified: false,
   isAgeVerified: true,
   consentGiven: true,
-}
+};
 
 global.testProvider = {
   email: 'provider@example.com',
@@ -141,7 +141,7 @@ global.testProvider = {
   isPhoneVerified: true,
   isAgeVerified: true,
   consentGiven: true,
-}
+};
 
 global.testAdmin = {
   email: 'admin@example.com',
@@ -152,7 +152,7 @@ global.testAdmin = {
   isPhoneVerified: true,
   isAgeVerified: true,
   consentGiven: true,
-}
+};
 
 // Helper functions
 global.createTestUser = async (userData = {}) => {
@@ -161,7 +161,7 @@ global.createTestUser = async (userData = {}) => {
       ...global.testUser,
       ...userData,
     },
-  })
+  });
 
   await prisma.userProfile.create({
     data: {
@@ -171,7 +171,7 @@ global.createTestUser = async (userData = {}) => {
       displayName: 'Test User',
       ...userData.profile,
     },
-  })
+  });
 
   await prisma.tokenWallet.create({
     data: {
@@ -180,10 +180,10 @@ global.createTestUser = async (userData = {}) => {
       totalEarned: 2000,
       totalSpent: 1000,
     },
-  })
+  });
 
-  return user
-}
+  return user;
+};
 
 global.createTestProvider = async (providerData = {}) => {
   const provider = await prisma.user.create({
@@ -191,7 +191,7 @@ global.createTestProvider = async (providerData = {}) => {
       ...global.testProvider,
       ...providerData,
     },
-  })
+  });
 
   await prisma.userProfile.create({
     data: {
@@ -204,7 +204,7 @@ global.createTestProvider = async (providerData = {}) => {
       hourlyRate: 500,
       ...providerData.profile,
     },
-  })
+  });
 
   await prisma.tokenWallet.create({
     data: {
@@ -213,10 +213,10 @@ global.createTestProvider = async (providerData = {}) => {
       totalEarned: 5000,
       totalSpent: 4500,
     },
-  })
+  });
 
-  return provider
-}
+  return provider;
+};
 
 global.createTestBooking = async (seekerId, providerId, bookingData = {}) => {
   return await prisma.booking.create({
@@ -230,14 +230,14 @@ global.createTestBooking = async (seekerId, providerId, bookingData = {}) => {
       tokenAmount: 500,
       ...bookingData,
     },
-  })
-}
+  });
+};
 
 global.generateJWT = (userId, role = 'USER') => {
-  const jwt = require('jsonwebtoken')
+  const jwt = require('jsonwebtoken');
   return jwt.sign(
     { userId, role },
     process.env.JWT_SECRET,
     { expiresIn: '24h' }
-  )
-}
+  );
+};

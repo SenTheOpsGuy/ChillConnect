@@ -1,75 +1,75 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 
 const BookingDetails = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { user } = useSelector((state) => state.auth);
-  const [booking, setBooking] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(false);
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const { user } = useSelector((state) => state.auth)
+  const [booking, setBooking] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [actionLoading, setActionLoading] = useState(false)
 
   useEffect(() => {
-    fetchBookingDetails();
-  }, [id]);
+    fetchBookingDetails()
+  }, [id])
 
   const fetchBookingDetails = async () => {
     try {
       const response = await fetch(`/api/bookings/${id}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
       
       if (response.ok) {
-        const data = await response.json();
-        setBooking(data.booking);
+        const data = await response.json()
+        setBooking(data.booking)
       } else {
-        console.error('Failed to fetch booking details');
-        navigate('/dashboard');
+        console.error('Failed to fetch booking details')
+        navigate('/dashboard')
       }
     } catch (error) {
-      console.error('Error fetching booking details:', error);
-      navigate('/dashboard');
+      console.error('Error fetching booking details:', error)
+      navigate('/dashboard')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleAction = async (action) => {
-    setActionLoading(true);
+    setActionLoading(true)
     try {
       const response = await fetch(`/api/bookings/${id}/${action}`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
 
       if (response.ok) {
-        await fetchBookingDetails(); // Refresh booking details
+        await fetchBookingDetails() // Refresh booking details
       } else {
-        const error = await response.json();
-        alert(error.message || `Failed to ${action} booking`);
+        const error = await response.json()
+        alert(error.message || `Failed to ${action} booking`)
       }
     } catch (error) {
-      console.error(`Error ${action} booking:`, error);
-      alert(`Failed to ${action} booking`);
+      console.error(`Error ${action} booking:`, error)
+      alert(`Failed to ${action} booking`)
     } finally {
-      setActionLoading(false);
+      setActionLoading(false)
     }
-  };
+  }
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'pending': return 'text-yellow-600 bg-yellow-100';
-      case 'confirmed': return 'text-green-600 bg-green-100';
-      case 'completed': return 'text-blue-600 bg-blue-100';
-      case 'cancelled': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'pending': return 'text-yellow-600 bg-yellow-100'
+      case 'confirmed': return 'text-green-600 bg-green-100'
+      case 'completed': return 'text-blue-600 bg-blue-100'
+      case 'cancelled': return 'text-red-600 bg-red-100'
+      default: return 'text-gray-600 bg-gray-100'
     }
-  };
+  }
 
   if (loading) {
     return (
@@ -79,7 +79,7 @@ const BookingDetails = () => {
           <p className="mt-4 text-gray-600">Loading booking details...</p>
         </div>
       </div>
-    );
+    )
   }
 
   if (!booking) {
@@ -95,12 +95,12 @@ const BookingDetails = () => {
           </button>
         </div>
       </div>
-    );
+    )
   }
 
-  const canConfirm = booking.status === 'pending' && user.role === 'PROVIDER';
-  const canCancel = ['pending', 'confirmed'].includes(booking.status);
-  const canComplete = booking.status === 'confirmed' && user.role === 'PROVIDER';
+  const canConfirm = booking.status === 'pending' && user.role === 'PROVIDER'
+  const canCancel = ['pending', 'confirmed'].includes(booking.status)
+  const canComplete = booking.status === 'confirmed' && user.role === 'PROVIDER'
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -249,7 +249,7 @@ const BookingDetails = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default BookingDetails;
+export default BookingDetails

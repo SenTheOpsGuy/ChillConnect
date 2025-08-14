@@ -7,7 +7,7 @@ const Search = () => {
     location: '',
     service: '',
     minRating: 0,
-    maxRate: 1000
+    maxRate: 1000,
   })
   const [providers, setProviders] = useState([])
   const [loading, setLoading] = useState(true)
@@ -41,7 +41,7 @@ const Search = () => {
               platformFee: 15,
               services: ['Companion', 'Massage'],
               profilePhoto: null,
-              availability: 'Available'
+              availability: 'Available',
             },
             {
               id: 'provider-2',
@@ -54,8 +54,8 @@ const Search = () => {
               platformFee: 23,
               services: ['Companion', 'Escort'],
               profilePhoto: null,
-              availability: 'Available'
-            }
+              availability: 'Available',
+            },
           ]
           setProviders(mockProviders)
         }
@@ -75,7 +75,7 @@ const Search = () => {
             platformFee: 15,
             services: ['Companion', 'Massage'],
             profilePhoto: null,
-            availability: 'Available'
+            availability: 'Available',
           },
           {
             id: 'provider-2',
@@ -88,8 +88,8 @@ const Search = () => {
             platformFee: 23,
             services: ['Companion', 'Escort'],
             profilePhoto: null,
-            availability: 'Available'
-          }
+            availability: 'Available',
+          },
         ]
         setProviders(mockProviders)
       } finally {
@@ -128,7 +128,7 @@ const Search = () => {
             <FiMapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <select
               value={filters.location}
-              onChange={(e) => setFilters({...filters, location: e.target.value})}
+              onChange={(e) => setFilters({ ...filters, location: e.target.value })}
               className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
               <option value="">All Locations</option>
@@ -143,7 +143,7 @@ const Search = () => {
           <div className="relative">
             <select
               value={filters.service}
-              onChange={(e) => setFilters({...filters, service: e.target.value})}
+              onChange={(e) => setFilters({ ...filters, service: e.target.value })}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
               <option value="">All Services</option>
@@ -179,79 +179,79 @@ const Search = () => {
       {!loading && !error && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {providers.map((provider) => (
-          <div key={provider.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center mb-4">
-              <div className="avatar avatar-md mr-4 flex-shrink-0">
-                {provider.profilePhoto ? (
-                  <img
-                    src={provider.profilePhoto}
-                    alt={provider.name}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                ) : (
-                  <span className="text-lg font-medium">
-                    {provider.name.split(' ').map(n => n.charAt(0)).join('')}
-                  </span>
-                )}
+            <div key={provider.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+              <div className="flex items-center mb-4">
+                <div className="avatar avatar-md mr-4 flex-shrink-0">
+                  {provider.profilePhoto ? (
+                    <img
+                      src={provider.profilePhoto}
+                      alt={provider.name}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-lg font-medium">
+                      {provider.name.split(' ').map(n => n.charAt(0)).join('')}
+                    </span>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-gray-900 truncate">{provider.name}</h3>
+                  <p className="text-sm text-gray-500 flex items-center">
+                    <FiMapPin className="w-3 h-3 mr-1 flex-shrink-0" />
+                    <span className="truncate">{provider.location}</span>
+                  </p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-gray-900 truncate">{provider.name}</h3>
-                <p className="text-sm text-gray-500 flex items-center">
-                  <FiMapPin className="w-3 h-3 mr-1 flex-shrink-0" />
-                  <span className="truncate">{provider.location}</span>
-                </p>
-              </div>
-            </div>
 
-            <div className="flex items-center mb-3">
-              <div className="flex items-center text-yellow-400 mr-2">
-                <FiStar className="w-4 h-4 fill-current" />
-                <span className="text-sm font-medium text-gray-900 ml-1">
-                  {provider.rating}
-                </span>
-              </div>
-              <span className="text-sm text-gray-500">
+              <div className="flex items-center mb-3">
+                <div className="flex items-center text-yellow-400 mr-2">
+                  <FiStar className="w-4 h-4 fill-current" />
+                  <span className="text-sm font-medium text-gray-900 ml-1">
+                    {provider.rating}
+                  </span>
+                </div>
+                <span className="text-sm text-gray-500">
                 ({provider.reviewCount} reviews)
-              </span>
-            </div>
-
-            <div className="mb-4">
-              <div className="flex flex-wrap gap-1">
-                {provider.services.map((service, index) => (
-                  <span
-                    key={index}
-                    className="px-2 py-1 bg-primary-50 text-primary-700 text-xs rounded-full"
-                  >
-                    {service}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between gap-4">
-              <div className="text-sm text-gray-600 flex-1">
-                <span className="font-medium text-gray-900 block">
-                  {provider.seekerRate || provider.hourlyRate} tokens/hour
                 </span>
-                {provider.baseRate && provider.seekerRate && (
-                  <div className="text-xs text-gray-500 mt-1">
-                    Base: {provider.baseRate} + Platform fee: {provider.platformFee || Math.round(provider.baseRate * 0.3)}
-                  </div>
-                )}
               </div>
-              <div className="flex items-center text-sm text-green-600 flex-shrink-0">
-                <FiClock className="w-3 h-3 mr-1" />
-                <span className="truncate">{provider.availability}</span>
-              </div>
-            </div>
 
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <button className="w-full btn btn-primary btn-sm">
+              <div className="mb-4">
+                <div className="flex flex-wrap gap-1">
+                  {provider.services.map((service, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-1 bg-primary-50 text-primary-700 text-xs rounded-full"
+                    >
+                      {service}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-4">
+                <div className="text-sm text-gray-600 flex-1">
+                  <span className="font-medium text-gray-900 block">
+                    {provider.seekerRate || provider.hourlyRate} tokens/hour
+                  </span>
+                  {provider.baseRate && provider.seekerRate && (
+                    <div className="text-xs text-gray-500 mt-1">
+                    Base: {provider.baseRate} + Platform fee: {provider.platformFee || Math.round(provider.baseRate * 0.3)}
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center text-sm text-green-600 flex-shrink-0">
+                  <FiClock className="w-3 h-3 mr-1" />
+                  <span className="truncate">{provider.availability}</span>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <button className="w-full btn btn-primary btn-sm">
                 View Profile
-              </button>
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
         </div>
       )}
 

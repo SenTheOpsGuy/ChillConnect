@@ -8,14 +8,14 @@ const Contact = () => {
     name: '',
     email: '',
     subject: '',
-    message: ''
+    message: '',
   })
   const [isLoading, setIsLoading] = useState(false)
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     })
   }
 
@@ -56,7 +56,7 @@ const Contact = () => {
             Contact Us
           </h1>
           <p className="text-xl text-white/80 max-w-2xl mx-auto">
-            Have questions or need support? We're here to help. Reach out to us anytime.
+            Have questions or need support? We&apos;re here to help. Reach out to us anytime.
           </p>
         </div>
 

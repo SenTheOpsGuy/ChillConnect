@@ -31,7 +31,7 @@ const ForgotPassword = () => {
         status: error.status,
         response: error.response,
         responseData: error.response?.data,
-        stack: error.stack
+        stack: error.stack,
       })
       toast.error(error.response?.data?.message || error.message || 'Failed to send reset email')
     } finally {

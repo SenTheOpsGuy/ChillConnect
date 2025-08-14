@@ -8,7 +8,7 @@ const initialState = {
   loading: false,
   error: null,
   typing: {},
-  onlineUsers: []
+  onlineUsers: [],
 }
 
 // Async thunks
@@ -21,7 +21,7 @@ export const fetchConversations = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to fetch conversations')
     }
-  }
+  },
 )
 
 export const fetchMessages = createAsyncThunk(
@@ -29,13 +29,13 @@ export const fetchMessages = createAsyncThunk(
   async ({ bookingId, page = 1, limit = 50 }, { rejectWithValue }) => {
     try {
       const response = await api.get(`/chat/${bookingId}/messages`, { 
-        params: { page, limit } 
+        params: { page, limit }, 
       })
       return response.data
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to fetch messages')
     }
-  }
+  },
 )
 
 export const sendMessage = createAsyncThunk(
@@ -44,25 +44,25 @@ export const sendMessage = createAsyncThunk(
     try {
       const response = await api.post(`/chat/${bookingId}/messages`, { 
         content, 
-        mediaUrl 
+        mediaUrl, 
       })
       return response.data
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to send message')
     }
-  }
+  },
 )
 
 export const flagMessage = createAsyncThunk(
   'chat/flagMessage',
   async ({ messageId, reason }, { rejectWithValue }) => {
     try {
-      const response = await api.put(`/chat/messages/${messageId}/flag`, { reason })
+      await api.put(`/chat/messages/${messageId}/flag`, { reason })
       return { messageId, reason }
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to flag message')
     }
-  }
+  },
 )
 
 const chatSlice = createSlice({
@@ -106,7 +106,7 @@ const chatSlice = createSlice({
     },
     clearMessages: (state) => {
       state.messages = []
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -143,7 +143,7 @@ const chatSlice = createSlice({
       .addCase(sendMessage.pending, (state) => {
         state.error = null
       })
-      .addCase(sendMessage.fulfilled, (state, action) => {
+      .addCase(sendMessage.fulfilled, () => {
         // Message will be added via socket, no need to add here
       })
       .addCase(sendMessage.rejected, (state, action) => {
@@ -164,7 +164,7 @@ const chatSlice = createSlice({
       .addCase(flagMessage.rejected, (state, action) => {
         state.error = action.payload
       })
-  }
+  },
 })
 
 export const { 
@@ -174,7 +174,7 @@ export const {
   updateMessage, 
   setTyping, 
   setOnlineUsers, 
-  clearMessages 
+  clearMessages, 
 } = chatSlice.actions
 
 export default chatSlice.reducer

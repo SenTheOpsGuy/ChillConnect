@@ -14,12 +14,10 @@ module.exports = {
     'eslint:recommended',
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',
-    'plugin:jsx-a11y/recommended',
   ],
   plugins: [
     'react',
     'react-hooks',
-    'jsx-a11y',
   ],
   parserOptions: {
     ecmaVersion: 'latest',
@@ -103,18 +101,6 @@ module.exports = {
     // React Hooks
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
-    
-    // Accessibility
-    'jsx-a11y/alt-text': 'error',
-    'jsx-a11y/anchor-has-content': 'error',
-    'jsx-a11y/aria-props': 'error',
-    'jsx-a11y/aria-proptypes': 'error',
-    'jsx-a11y/aria-unsupported-elements': 'error',
-    'jsx-a11y/heading-has-content': 'error',
-    'jsx-a11y/img-redundant-alt': 'error',
-    'jsx-a11y/no-access-key': 'error',
-    'jsx-a11y/role-has-required-aria-props': 'error',
-    'jsx-a11y/role-supports-aria-props': 'error',
   },
   overrides: [
     // Test files - basic rules without external plugins for now

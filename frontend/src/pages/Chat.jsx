@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { 
   FiSend, FiPaperclip, FiMoreVertical, FiArrowLeft, 
-  FiUser, FiPhone, FiVideo, FiInfo, FiAlertTriangle 
+  FiUser, FiPhone, FiVideo, FiInfo, FiAlertTriangle, 
 } from 'react-icons/fi'
 import { useSocket } from '../contexts/SocketContext'
 import api from '../services/api'
@@ -49,7 +49,7 @@ const Chat = () => {
 
   // Socket event listeners
   useEffect(() => {
-    if (!socket) return
+    if (!socket) {return}
 
     const handleNewMessage = (message) => {
       setMessages(prev => [...prev, message])
@@ -74,7 +74,7 @@ const Chat = () => {
       setMessages(prev => prev.map(msg => 
         msg.tempId === data.tempId 
           ? { ...msg, id: data.id, createdAt: data.createdAt }
-          : msg
+          : msg,
       ))
       setSending(false)
     }
@@ -130,14 +130,14 @@ const Chat = () => {
   const handleSendMessage = async (e) => {
     e.preventDefault()
     
-    if (!newMessage.trim() || sending) return
+    if (!newMessage.trim() || sending) {return}
 
     const tempId = Date.now().toString()
     const messageData = {
       tempId,
       bookingId,
       content: newMessage.trim(),
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     }
 
     // Optimistically add message to UI
@@ -147,10 +147,10 @@ const Chat = () => {
       senderId: user.id,
       sender: {
         id: user.id,
-        profile: user.profile
+        profile: user.profile,
       },
       isSystemMessage: false,
-      isFlagged: false
+      isFlagged: false,
     }
 
     setMessages(prev => [...prev, optimisticMessage])
@@ -171,14 +171,14 @@ const Chat = () => {
   }
 
   const getOtherUser = () => {
-    if (!booking) return null
+    if (!booking) {return null}
     return booking.seekerId === user.id ? booking.provider : booking.seeker
   }
 
   const formatTime = (timestamp) => {
     return new Date(timestamp).toLocaleTimeString([], { 
       hour: '2-digit', 
-      minute: '2-digit' 
+      minute: '2-digit', 
     })
   }
 
@@ -290,8 +290,8 @@ const Chat = () => {
                   message.isSystemMessage
                     ? 'bg-blue-100 text-blue-800 text-center text-sm'
                     : isOwnMessage
-                    ? 'bg-primary-500 text-white'
-                    : 'bg-white text-gray-900 shadow-sm'
+                      ? 'bg-primary-500 text-white'
+                      : 'bg-white text-gray-900 shadow-sm'
                 }`}>
                   {message.isFlagged && (
                     <div className="text-xs text-red-500 mb-1 flex items-center">

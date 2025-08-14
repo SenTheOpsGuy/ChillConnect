@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import { FiMessageCircle, FiUser, FiClock, FiSearch, FiCalendar } from 'react-icons/fi'
+import { FiMessageCircle, FiUser, FiSearch, FiCalendar } from 'react-icons/fi'
 import { useSocket } from '../contexts/SocketContext'
 import api from '../services/api'
 import toast from 'react-hot-toast'
 
 const Messages = () => {
   const navigate = useNavigate()
-  const { socket, connected } = useSocket()
+  const { socket } = useSocket()
   const { user } = useSelector((state) => state.auth)
   
   const [conversations, setConversations] = useState([])
@@ -38,7 +38,7 @@ const Messages = () => {
           provider: booking.provider,
           status: booking.status,
           lastMessage: booking.lastMessage || null,
-          unreadCount: booking.unreadCount || 0
+          unreadCount: booking.unreadCount || 0,
         }))
         
         console.log('Transformed conversations:', conversations)
@@ -58,25 +58,25 @@ const Messages = () => {
               profile: {
                 firstName: 'John',
                 lastName: 'Doe',
-                profilePhoto: null
-              }
+                profilePhoto: null,
+              },
             },
             provider: {
               id: 'provider-1',
               profile: {
                 firstName: 'Sarah',
                 lastName: 'Johnson',
-                profilePhoto: null
-              }
+                profilePhoto: null,
+              },
             },
             status: 'CONFIRMED',
             lastMessage: {
               content: 'Hello! Looking forward to our session.',
               createdAt: new Date().toISOString(),
-              senderId: user?.id === 'seeker-1' ? 'provider-1' : 'seeker-1'
+              senderId: user?.id === 'seeker-1' ? 'provider-1' : 'seeker-1',
             },
-            unreadCount: 1
-          }
+            unreadCount: 1,
+          },
         ]
         
         setConversations(mockConversations)
@@ -95,22 +95,22 @@ const Messages = () => {
 
   // Socket event listeners
   useEffect(() => {
-    if (!socket) return
+    if (!socket) {return}
 
     const handleNewMessage = (message) => {
       // Update conversation with new message
       setConversations(prev => prev.map(conv => 
         conv.bookingId === message.bookingId 
           ? {
-              ...conv,
-              lastMessage: {
-                content: message.content,
-                createdAt: message.createdAt,
-                senderId: message.senderId
-              },
-              unreadCount: message.senderId !== user.id ? conv.unreadCount + 1 : conv.unreadCount
-            }
-          : conv
+            ...conv,
+            lastMessage: {
+              content: message.content,
+              createdAt: message.createdAt,
+              senderId: message.senderId,
+            },
+            unreadCount: message.senderId !== user.id ? conv.unreadCount + 1 : conv.unreadCount,
+          }
+          : conv,
       ))
     }
 
@@ -126,18 +126,6 @@ const Messages = () => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffTime = now - date
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
-    
-    if (diffDays === 0) return 'Today'
-    if (diffDays === 1) return 'Yesterday'
-    if (diffDays < 7) return `${diffDays} days ago`
-    
-    return date.toLocaleDateString()
-  }
 
   const getOtherUser = (conversation) => {
     return conversation.seekerId === user.id ? conversation.provider : conversation.seeker
@@ -145,7 +133,7 @@ const Messages = () => {
 
   const filteredConversations = conversations.filter(conv => {
     const otherUser = getOtherUser(conv)
-    if (!otherUser || !otherUser.profile) return false
+    if (!otherUser || !otherUser.profile) {return false}
     
     const matchesSearch = searchTerm === '' || 
       `${otherUser.profile.firstName || ''} ${otherUser.profile.lastName || ''}`.toLowerCase().includes(searchTerm.toLowerCase())
@@ -163,7 +151,7 @@ const Messages = () => {
       'CONFIRMED': 'success',
       'IN_PROGRESS': 'info',
       'COMPLETED': 'success',
-      'CANCELLED': 'error'
+      'CANCELLED': 'error',
     }
     return colors[status] || 'secondary'
   }
@@ -195,12 +183,6 @@ const Messages = () => {
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Messages</h1>
         <p className="text-gray-600">Chat with your bookings</p>
-        {error && (
-          <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center">
-            <FiAlertCircle className="w-5 h-5 text-yellow-600 mr-2" />
-            <span className="text-sm text-yellow-800">{error}</span>
-          </div>
-        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
@@ -261,51 +243,51 @@ const Messages = () => {
               {filteredConversations.map((conversation) => {
                 const otherUser = getOtherUser(conversation)
                 return (
-                <div
-                  key={conversation.id}
-                  onClick={() => navigate(`/chat/${conversation.bookingId || conversation.id}`)}
-                  className="p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 border border-gray-100"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="avatar avatar-sm">
-                      {otherUser.profile?.profilePhoto ? (
-                        <img
-                          src={otherUser.profile.profilePhoto}
-                          alt={`${otherUser.profile.firstName} ${otherUser.profile.lastName}`}
-                          className="w-8 h-8 rounded-full"
-                        />
-                      ) : (
-                        <span className="text-sm">
-                          {otherUser.profile?.firstName?.charAt(0) || 'U'}
-                          {otherUser.profile?.lastName?.charAt(0) || ''}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {otherUser.profile?.firstName} {otherUser.profile?.lastName}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {conversation.lastMessage ? formatTime(conversation.lastMessage.createdAt) : ''}
-                        </p>
-                      </div>
-                      <p className="text-sm text-gray-500 truncate">
-                        {conversation.lastMessage?.content || 'No messages yet'}
-                      </p>
-                      <div className="flex items-center justify-between mt-1">
-                        <span className={`badge badge-${getStatusColor(conversation.status)} text-xs`}>
-                          {conversation.status?.toLowerCase()}
-                        </span>
-                        {conversation.unreadCount > 0 && (
-                          <span className="bg-primary-500 text-white text-xs rounded-full px-2 py-1">
-                            {conversation.unreadCount}
+                  <div
+                    key={conversation.id}
+                    onClick={() => navigate(`/chat/${conversation.bookingId || conversation.id}`)}
+                    className="p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 border border-gray-100"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="avatar avatar-sm">
+                        {otherUser.profile?.profilePhoto ? (
+                          <img
+                            src={otherUser.profile.profilePhoto}
+                            alt={`${otherUser.profile.firstName} ${otherUser.profile.lastName}`}
+                            className="w-8 h-8 rounded-full"
+                          />
+                        ) : (
+                          <span className="text-sm">
+                            {otherUser.profile?.firstName?.charAt(0) || 'U'}
+                            {otherUser.profile?.lastName?.charAt(0) || ''}
                           </span>
                         )}
                       </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {otherUser.profile?.firstName} {otherUser.profile?.lastName}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {conversation.lastMessage ? formatTime(conversation.lastMessage.createdAt) : ''}
+                          </p>
+                        </div>
+                        <p className="text-sm text-gray-500 truncate">
+                          {conversation.lastMessage?.content || 'No messages yet'}
+                        </p>
+                        <div className="flex items-center justify-between mt-1">
+                          <span className={`badge badge-${getStatusColor(conversation.status)} text-xs`}>
+                            {conversation.status?.toLowerCase()}
+                          </span>
+                          {conversation.unreadCount > 0 && (
+                            <span className="bg-primary-500 text-white text-xs rounded-full px-2 py-1">
+                              {conversation.unreadCount}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
                 )})}
               
               {filteredConversations.length === 0 && (

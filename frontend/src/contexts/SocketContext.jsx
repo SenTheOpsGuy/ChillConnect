@@ -23,9 +23,9 @@ export const SocketProvider = ({ children }) => {
     if (isAuthenticated && token) {
       const newSocket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000', {
         auth: {
-          token: token
+          token,
         },
-        autoConnect: true
+        autoConnect: true,
       })
 
       newSocket.on('connect', () => {
@@ -58,7 +58,7 @@ export const SocketProvider = ({ children }) => {
 
   const value = {
     socket,
-    connected
+    connected,
   }
 
   return (

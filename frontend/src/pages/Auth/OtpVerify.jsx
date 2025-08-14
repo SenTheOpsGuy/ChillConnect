@@ -7,7 +7,7 @@ import toast from 'react-hot-toast'
 
 // Helper function to determine redirect path based on user role
 const getRedirectPath = (user) => {
-  if (!user) return '/dashboard'
+  if (!user) {return '/dashboard'}
   
   switch (user.role) {
     case 'SEEKER':
@@ -42,7 +42,7 @@ const OtpVerify = () => {
     if (!identifier || !userId) {
       toast.error('Please request OTP first')
       navigate('/login-otp')
-      return
+      
     }
   }, [identifier, userId, navigate])
 
@@ -86,7 +86,7 @@ const OtpVerify = () => {
         identifier, 
         otp, 
         type: loginType, 
-        userId 
+        userId, 
       })).unwrap()
       
       toast.success('Login successful!')
@@ -98,12 +98,12 @@ const OtpVerify = () => {
   }
 
   const handleResendOTP = async () => {
-    if (countdown > 0) return
+    if (countdown > 0) {return}
     
     try {
       const result = await dispatch(requestLoginOTP({ 
         identifier, 
-        type: loginType 
+        type: loginType, 
       })).unwrap()
       
       setCountdown(60)
@@ -115,9 +115,9 @@ const OtpVerify = () => {
           identifier,
           loginType,
           userId: result.userId,
-          developmentOtp: result.otp 
+          developmentOtp: result.otp, 
         },
-        replace: true 
+        replace: true, 
       })
       
     } catch (error) {

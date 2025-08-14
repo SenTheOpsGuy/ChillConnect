@@ -63,7 +63,7 @@ vi.mock('socket.io-client', () => ({
     connect: vi.fn(),
     disconnect: vi.fn(),
     connected: true,
-  }))
+  })),
 }))
 
 // Mock Capacitor
@@ -71,7 +71,7 @@ vi.mock('@capacitor/core', () => ({
   Capacitor: {
     isNativePlatform: vi.fn(() => false),
     getPlatform: vi.fn(() => 'web'),
-  }
+  },
 }))
 
 vi.mock('@capacitor/app', () => ({
@@ -79,7 +79,7 @@ vi.mock('@capacitor/app', () => ({
     addListener: vi.fn(),
     removeAllListeners: vi.fn(),
     exitApp: vi.fn(),
-  }
+  },
 }))
 
 // Mock react-router-dom
@@ -110,8 +110,8 @@ global.testUser = {
   profile: {
     firstName: 'Test',
     lastName: 'User',
-    displayName: 'Test User'
-  }
+    displayName: 'Test User',
+  },
 }
 
 global.testProvider = {
@@ -128,6 +128,6 @@ global.testProvider = {
     displayName: 'Test Provider',
     isProvider: true,
     verificationStatus: 'APPROVED',
-    hourlyRate: 500
-  }
+    hourlyRate: 500,
+  },
 }

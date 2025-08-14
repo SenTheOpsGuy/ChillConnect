@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { 
   FiCalendar, FiMapPin, FiClock, FiDollarSign, FiUser, 
-  FiMessageSquare, FiEye, FiAlertTriangle, FiCheck, FiX,
-  FiFilter, FiSearch, FiPhone, FiMail
+  FiEye, FiAlertTriangle, FiCheck, FiX, FiSearch,
 } from 'react-icons/fi'
 import { fetchBookings, updateBookingStatus } from '../../store/slices/adminSlice'
 
@@ -18,7 +17,7 @@ const BookingMonitoring = () => {
     search: '',
     dateRange: '7d',
     page: 1,
-    limit: 20
+    limit: 20,
   })
   const [selectedBooking, setSelectedBooking] = useState(null)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
@@ -49,7 +48,7 @@ const BookingMonitoring = () => {
       'IN_PROGRESS': 'bg-purple-100 text-purple-800 border-purple-200',
       'COMPLETED': 'bg-green-100 text-green-800 border-green-200',
       'CANCELLED': 'bg-red-100 text-red-800 border-red-200',
-      'DISPUTED': 'bg-orange-100 text-orange-800 border-orange-200'
+      'DISPUTED': 'bg-orange-100 text-orange-800 border-orange-200',
     }
     return colors[status] || 'bg-gray-100 text-gray-800 border-gray-200'
   }
@@ -57,7 +56,7 @@ const BookingMonitoring = () => {
   const getTypeColor = (type) => {
     const colors = {
       'INCALL': 'bg-blue-50 text-blue-700',
-      'OUTCALL': 'bg-green-50 text-green-700'
+      'OUTCALL': 'bg-green-50 text-green-700',
     }
     return colors[type] || 'bg-gray-50 text-gray-700'
   }
@@ -66,7 +65,7 @@ const BookingMonitoring = () => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount)
   }
 

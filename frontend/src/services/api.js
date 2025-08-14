@@ -5,9 +5,9 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
 
 console.log('🔍 API Configuration:', {
   VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
-  API_BASE_URL: API_BASE_URL,
+  API_BASE_URL,
   NODE_ENV: import.meta.env.NODE_ENV,
-  MODE: import.meta.env.MODE
+  MODE: import.meta.env.MODE,
 })
 
 // Create axios instance
@@ -30,7 +30,7 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error)
-  }
+  },
 )
 
 // Response interceptor to handle common errors
@@ -70,7 +70,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error)
-  }
+  },
 )
 
 export default api

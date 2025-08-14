@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { FiCamera, FiUpload, FiX, FiCheck } from 'react-icons/fi'
+import { FiCamera, FiUpload, FiX } from 'react-icons/fi'
 import { updateUser } from '../../store/slices/authSlice'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
@@ -18,11 +18,11 @@ const ProfilePhotoUpload = ({ currentPhoto, onPhotoUpdate, size = 'lg' }) => {
     sm: 'w-16 h-16',
     md: 'w-24 h-24',
     lg: 'w-32 h-32',
-    xl: 'w-48 h-48'
+    xl: 'w-48 h-48',
   }
 
   const handleFileSelect = (file) => {
-    if (!file) return
+    if (!file) {return}
 
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
@@ -57,8 +57,8 @@ const ProfilePhotoUpload = ({ currentPhoto, onPhotoUpdate, size = 'lg' }) => {
 
       const response = await api.post('/upload/profile', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       })
 
       if (response.data.success) {
@@ -68,8 +68,8 @@ const ProfilePhotoUpload = ({ currentPhoto, onPhotoUpdate, size = 'lg' }) => {
         dispatch(updateUser({
           profile: {
             ...user.profile,
-            profilePhoto: photoUrl
-          }
+            profilePhoto: photoUrl,
+          },
         }))
 
         // Notify parent component
@@ -130,7 +130,7 @@ const ProfilePhotoUpload = ({ currentPhoto, onPhotoUpdate, size = 'lg' }) => {
   }
 
   const getInitials = () => {
-    if (!user?.profile?.firstName && !user?.profile?.lastName) return 'U'
+    if (!user?.profile?.firstName && !user?.profile?.lastName) {return 'U'}
     return `${user.profile.firstName?.charAt(0) || ''}${user.profile.lastName?.charAt(0) || ''}`
   }
 

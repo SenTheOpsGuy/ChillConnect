@@ -16,7 +16,7 @@ const Bookings = () => {
       time: '10:00 AM',
       status: 'confirmed',
       location: 'Downtown Gym',
-      price: 500
+      price: 500,
     },
     {
       id: 2,
@@ -27,8 +27,8 @@ const Bookings = () => {
       time: '2:00 PM',
       status: 'pending',
       location: 'Central Park',
-      price: 1200
-    }
+      price: 1200,
+    },
   ]
 
   const getStatusColor = (status) => {

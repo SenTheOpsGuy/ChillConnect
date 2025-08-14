@@ -2,11 +2,8 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import authReducer, {
   login,
   logout,
-  loadUser,
   clearError,
   updateUser,
-  register,
-  verifyEmail,
 } from '../authSlice'
 
 describe('authSlice', () => {
@@ -26,7 +23,7 @@ describe('authSlice', () => {
     it('should handle initial state', () => {
       expect(authReducer(undefined, { type: 'unknown' })).toEqual({
         ...initialState,
-        token: null // Remove localStorage token for tests
+        token: null, // Remove localStorage token for tests
       })
     })
 

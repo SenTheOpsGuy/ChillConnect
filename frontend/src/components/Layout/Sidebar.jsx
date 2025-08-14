@@ -45,7 +45,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, user }) => {
   const navigationItems = getNavigationItems()
 
   const isActive = (href) => {
-    return location.pathname === href || location.pathname.startsWith(href + '/')
+    return location.pathname === href || location.pathname.startsWith(`${href}/`)
   }
 
   return (
@@ -58,7 +58,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, user }) => {
       </div>
       
       <div className="nav-menu">
-        {navigationItems.map((item, index) => {
+        {navigationItems.map((item) => {
           const active = isActive(item.href)
           return (
             <div key={item.name} className={`nav-item ${active ? 'active' : ''}`}>

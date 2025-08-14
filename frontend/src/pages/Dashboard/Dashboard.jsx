@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { 
   FiUsers, FiCalendar, FiMessageSquare, FiDollarSign, 
-  FiSettings, FiHeart, FiTrendingUp, FiClock 
+  FiSettings, FiHeart, FiTrendingUp, FiClock, 
 } from 'react-icons/fi'
 import { loadUser } from '../../store/slices/authSlice'
 
@@ -22,14 +22,14 @@ const Dashboard = () => {
     totalConnections: 12,
     activeBookings: 3,
     messages: 28,
-    earnings: 2450
+    earnings: 2450,
   }
 
   const recentActivity = [
     { id: 1, type: 'booking', message: 'New booking request from Sarah', time: '2 hours ago' },
     { id: 2, type: 'message', message: 'Message from Alex', time: '4 hours ago' },
     { id: 3, type: 'earning', message: 'Payment received: ₹500', time: '1 day ago' },
-    { id: 4, type: 'booking', message: 'Booking completed with Mike', time: '2 days ago' }
+    { id: 4, type: 'booking', message: 'Booking completed with Mike', time: '2 days ago' },
   ]
 
   const getActivityIcon = (type) => {

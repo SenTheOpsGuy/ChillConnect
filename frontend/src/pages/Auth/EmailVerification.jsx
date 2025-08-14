@@ -19,9 +19,10 @@ const EmailVerification = () => {
     }
   }, [token])
 
-  const verifyEmail = async (token) => {
+  const verifyEmail = (verificationToken) => {
     try {
       // Implementation will be added later
+      console.log('Verifying with token:', verificationToken)
       setStatus('success')
       setMessage('Email verified successfully!')
     } catch (error) {

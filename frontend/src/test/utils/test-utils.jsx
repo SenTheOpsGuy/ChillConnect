@@ -51,9 +51,8 @@ export function renderWithProviders(
     preloadedState = {},
     store = createTestStore(preloadedState),
     queryClient = createTestQueryClient(),
-    initialEntries = ['/'],
     ...renderOptions
-  } = {}
+  } = {},
 ) {
   function Wrapper({ children }) {
     return (
@@ -71,7 +70,7 @@ export function renderWithProviders(
   return {
     store,
     queryClient,
-    ...render(ui, { wrapper: Wrapper, ...renderOptions })
+    ...render(ui, { wrapper: Wrapper, ...renderOptions }),
   }
 }
 
@@ -124,7 +123,7 @@ export const mockBookingState = {
         tokenAmount: 500,
         provider: global.testProvider,
         seeker: global.testUser,
-      }
+      },
     ],
     currentBooking: null,
     loading: false,

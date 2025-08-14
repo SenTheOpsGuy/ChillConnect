@@ -14,14 +14,14 @@ const LocationPicker = ({ onLocationSelected, className = '' }) => {
       const location = {
         latitude: position.latitude,
         longitude: position.longitude,
-        address: `${position.latitude.toFixed(6)}, ${position.longitude.toFixed(6)}`
+        address: `${position.latitude.toFixed(6)}, ${position.longitude.toFixed(6)}`,
       }
       setCurrentLocation(location)
       
       // Reverse geocode to get human-readable address
       try {
         const response = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${position.longitude},${position.latitude}.json?access_token=${process.env.VITE_MAPBOX_TOKEN}&types=address`
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${position.longitude},${position.latitude}.json?access_token=${process.env.VITE_MAPBOX_TOKEN}&types=address`,
         )
         if (response.ok) {
           const data = await response.json()
@@ -42,7 +42,7 @@ const LocationPicker = ({ onLocationSelected, className = '' }) => {
       mobileService.vibrate(50)
     } catch (error) {
       console.error('Location error:', error)
-      alert('Failed to get location: ' + error.message)
+      console.error(`Failed to get location: ${error.message}`)
     } finally {
       setIsLoading(false)
     }
@@ -54,7 +54,7 @@ const LocationPicker = ({ onLocationSelected, className = '' }) => {
         address: manualAddress.trim(),
         latitude: null,
         longitude: null,
-        manual: true
+        manual: true,
       }
       if (onLocationSelected) {
         onLocationSelected(location)

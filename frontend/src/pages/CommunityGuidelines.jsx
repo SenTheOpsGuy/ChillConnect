@@ -191,7 +191,7 @@ const CommunityGuidelines = () => {
                 </div>
                 <div className="flex items-start space-x-3">
                   <span className="text-blue-400 font-semibold">4.</span>
-                  <span className="text-white/80">If you're in immediate danger, contact local emergency services</span>
+                  <span className="text-white/80">If you&apos;re in immediate danger, contact local emergency services</span>
                 </div>
               </div>
             </div>

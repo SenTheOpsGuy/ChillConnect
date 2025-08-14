@@ -9,7 +9,7 @@ const Wallet = () => {
     balance: 120,
     escrowBalance: 30,
     totalEarned: 500,
-    totalSpent: 380
+    totalSpent: 380,
   }
 
   const mockTransactions = [
@@ -19,7 +19,7 @@ const Wallet = () => {
       amount: 50,
       description: 'Token purchase via PayPal',
       date: '2023-12-01',
-      status: 'completed'
+      status: 'completed',
     },
     {
       id: 2,
@@ -27,7 +27,7 @@ const Wallet = () => {
       amount: -25,
       description: 'Booking payment for Sarah Johnson',
       date: '2023-11-30',
-      status: 'completed'
+      status: 'completed',
     },
     {
       id: 3,
@@ -35,8 +35,8 @@ const Wallet = () => {
       amount: -30,
       description: 'Escrow hold for booking #12345',
       date: '2023-11-29',
-      status: 'pending'
-    }
+      status: 'pending',
+    },
   ]
 
   const tokenPackages = [
@@ -45,7 +45,7 @@ const Wallet = () => {
     { tokens: 50, price: 5000, popular: true },
     { tokens: 100, price: 10000, popular: false },
     { tokens: 250, price: 25000, popular: false },
-    { tokens: 500, price: 50000, popular: false }
+    { tokens: 500, price: 50000, popular: false },
   ]
 
   return (

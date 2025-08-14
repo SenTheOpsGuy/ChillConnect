@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchDashboard } from '../../store/slices/adminSlice'
 
@@ -7,7 +7,7 @@ const Dashboard = () => {
   const { dashboard, loading, user } = useSelector((state) => ({
     dashboard: state.admin?.dashboard || {},
     loading: state.admin?.loading || false,
-    user: state.auth?.user || {}
+    user: state.auth?.user || {},
   }))
   
   useEffect(() => {
@@ -15,9 +15,6 @@ const Dashboard = () => {
   }, [dispatch])
 
   const stats = dashboard.stats || {}
-  const userRoleStats = dashboard.userRoleStats || []
-  const bookingStatusStats = dashboard.bookingStatusStats || []
-  const recentActivities = dashboard.recentActivities || {}
 
   // Mock data to match the HTML template design
   const metrics = [
@@ -25,26 +22,26 @@ const Dashboard = () => {
       title: 'Connections',
       value: stats.totalUsers || 12,
       icon: '👥',
-      iconClass: 'connections'
+      iconClass: 'connections',
     },
     {
       title: 'Active Bookings',
       value: stats.activeBookings || 3,
       icon: '📅',
-      iconClass: 'bookings'
+      iconClass: 'bookings',
     },
     {
       title: 'Messages',
       value: stats.totalMessages || 28,
       icon: '💬',
-      iconClass: 'messages'
+      iconClass: 'messages',
     },
     {
       title: 'Spent',
       value: `₹${(stats.revenue || 2450).toLocaleString()}`,
       icon: '💰',
-      iconClass: 'earnings'
-    }
+      iconClass: 'earnings',
+    },
   ]
 
   const activities = [
@@ -52,26 +49,26 @@ const Dashboard = () => {
       title: 'New booking request from Sarah',
       time: '2 hours ago',
       icon: '📅',
-      type: 'booking'
+      type: 'booking',
     },
     {
       title: 'Message from Alex',
       time: '4 hours ago',
       icon: '💬',
-      type: 'message'
+      type: 'message',
     },
     {
       title: 'Payment received: ₹500',
       time: '1 day ago',
       icon: '💰',
-      type: 'payment'
+      type: 'payment',
     },
     {
       title: 'Booking completed with Mike',
       time: '2 days ago',
       icon: '📅',
-      type: 'booking'
-    }
+      type: 'booking',
+    },
   ]
 
   const quickActions = [
@@ -79,7 +76,7 @@ const Dashboard = () => {
     { icon: '🔍', text: 'Browse Services' },
     { icon: '📅', text: 'My Bookings' },
     { icon: '❤️', text: 'Favorites' },
-    { icon: '💰', text: 'Wallet' }
+    { icon: '💰', text: 'Wallet' },
   ]
 
   if (loading) {

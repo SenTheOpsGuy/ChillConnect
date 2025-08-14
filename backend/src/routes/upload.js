@@ -49,22 +49,22 @@ if (process.env.AWS_S3_BUCKET && process.env.AWS_ACCESS_KEY_ID && process.env.AW
         const filename = `${folder}/${uuidv4()}.${fileExtension}`;
         cb(null, filename);
       },
-    metadata: function (req, file, cb) {
-      cb(null, {
-        fieldName: file.fieldname,
-        originalName: file.originalname,
-        uploadedBy: req.user.id,
-        uploadedAt: new Date().toISOString()
-      });
-    },
-    contentType: multerS3.AUTO_CONTENT_TYPE
-  }),
-  fileFilter: fileFilter,
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
-    files: 5 // Max 5 files per request
-  }
-});
+      metadata: function (req, file, cb) {
+        cb(null, {
+          fieldName: file.fieldname,
+          originalName: file.originalname,
+          uploadedBy: req.user.id,
+          uploadedAt: new Date().toISOString()
+        });
+      },
+      contentType: multerS3.AUTO_CONTENT_TYPE
+    }),
+    fileFilter: fileFilter,
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB limit
+      files: 5 // Max 5 files per request
+    }
+  });
 } else {
   // Local file storage fallback when S3 is not configured
   const fs = require('fs');
@@ -105,14 +105,14 @@ if (process.env.AWS_S3_BUCKET && process.env.AWS_ACCESS_KEY_ID && process.env.AW
 // Get upload folder based on upload type
 const getUploadFolder = (uploadType) => {
   switch (uploadType) {
-    case 'profile':
-      return 'profiles';
-    case 'verification':
-      return 'verification-documents';
-    case 'chat':
-      return 'chat-media';
-    default:
-      return 'misc';
+  case 'profile':
+    return 'profiles';
+  case 'verification':
+    return 'verification-documents';
+  case 'chat':
+    return 'chat-media';
+  default:
+    return 'misc';
   }
 };
 

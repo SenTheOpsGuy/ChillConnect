@@ -1,16 +1,15 @@
-import { useState, useEffect } from 'react'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { 
-  FiUser, FiFileText, FiCheck, FiX, FiEye, FiClock, 
-  FiAlertCircle, FiDownload 
+  FiFileText, FiCheck, FiX, FiEye, FiClock, 
+  FiAlertCircle, FiDownload, 
 } from 'react-icons/fi'
 import { fetchVerificationQueue, updateVerification } from '../../store/slices/adminSlice'
 
 const VerificationQueue = () => {
   const dispatch = useDispatch()
   const { verificationQueue, loading } = useSelector((state) => state.admin)
-  const { user: currentUser } = useSelector((state) => state.auth)
+  // User state available if needed
   
   const [selectedVerification, setSelectedVerification] = useState(null)
   const [showModal, setShowModal] = useState(false)
@@ -18,7 +17,7 @@ const VerificationQueue = () => {
   const [filters, setFilters] = useState({
     status: 'PENDING',
     page: 1,
-    limit: 20
+    limit: 20,
   })
 
   useEffect(() => {
@@ -30,7 +29,7 @@ const VerificationQueue = () => {
       await dispatch(updateVerification({ 
         verificationId, 
         status: 'APPROVED', 
-        notes: reviewNotes 
+        notes: reviewNotes, 
       })).unwrap()
       setShowModal(false)
       setSelectedVerification(null)
@@ -45,7 +44,7 @@ const VerificationQueue = () => {
       await dispatch(updateVerification({ 
         verificationId, 
         status: 'REJECTED', 
-        notes: reviewNotes 
+        notes: reviewNotes, 
       })).unwrap()
       setShowModal(false)
       setSelectedVerification(null)
@@ -60,7 +59,7 @@ const VerificationQueue = () => {
       'PENDING': 'bg-yellow-100 text-yellow-800',
       'IN_PROGRESS': 'bg-blue-100 text-blue-800',
       'APPROVED': 'bg-green-100 text-green-800',
-      'REJECTED': 'bg-red-100 text-red-800'
+      'REJECTED': 'bg-red-100 text-red-800',
     }
     return colors[status] || 'bg-gray-100 text-gray-800'
   }
@@ -70,13 +69,13 @@ const VerificationQueue = () => {
       'PENDING': FiClock,
       'IN_PROGRESS': FiAlertCircle,
       'APPROVED': FiCheck,
-      'REJECTED': FiX
+      'REJECTED': FiX,
     }
     return icons[status] || FiClock
   }
 
   const calculateAge = (dateOfBirth) => {
-    if (!dateOfBirth) return 'N/A'
+    if (!dateOfBirth) {return 'N/A'}
     const age = Math.floor((Date.now() - new Date(dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
     return age
   }

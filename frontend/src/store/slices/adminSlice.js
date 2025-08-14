@@ -6,7 +6,7 @@ const initialState = {
     stats: {},
     userRoleStats: [],
     bookingStatusStats: [],
-    recentActivities: {}
+    recentActivities: {},
   },
   users: [],
   verificationQueue: [],
@@ -14,7 +14,7 @@ const initialState = {
   flaggedMessages: [],
   assignments: [],
   loading: false,
-  error: null
+  error: null,
 }
 
 // Async thunks
@@ -23,13 +23,13 @@ export const fetchDashboard = createAsyncThunk(
   async (timeframe = '24h', { rejectWithValue }) => {
     try {
       const response = await api.get('/admin/dashboard', { 
-        params: { timeframe } 
+        params: { timeframe }, 
       })
       return response.data
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to fetch dashboard')
     }
-  }
+  },
 )
 
 export const fetchUsers = createAsyncThunk(
@@ -41,7 +41,7 @@ export const fetchUsers = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to fetch users')
     }
-  }
+  },
 )
 
 export const fetchVerificationQueue = createAsyncThunk(
@@ -53,22 +53,22 @@ export const fetchVerificationQueue = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to fetch verification queue')
     }
-  }
+  },
 )
 
 export const updateVerification = createAsyncThunk(
   'admin/updateVerification',
   async ({ verificationId, status, notes }, { rejectWithValue }) => {
     try {
-      const response = await api.put(`/admin/verification/${verificationId}`, { 
+      await api.put(`/admin/verification/${verificationId}`, { 
         status, 
-        notes 
+        notes, 
       })
       return { verificationId, status, notes }
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to update verification')
     }
-  }
+  },
 )
 
 export const fetchBookings = createAsyncThunk(
@@ -80,22 +80,22 @@ export const fetchBookings = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to fetch bookings')
     }
-  }
+  },
 )
 
 export const updateBookingStatus = createAsyncThunk(
   'admin/updateBookingStatus',
   async ({ bookingId, status, note }, { rejectWithValue }) => {
     try {
-      const response = await api.put(`/admin/bookings/${bookingId}/status`, { 
+      await api.put(`/admin/bookings/${bookingId}/status`, { 
         status, 
-        note 
+        note, 
       })
       return { bookingId, status, note }
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to update booking status')
     }
-  }
+  },
 )
 
 export const fetchFlaggedMessages = createAsyncThunk(
@@ -107,7 +107,7 @@ export const fetchFlaggedMessages = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to fetch flagged messages')
     }
-  }
+  },
 )
 
 export const fetchAssignments = createAsyncThunk(
@@ -119,22 +119,22 @@ export const fetchAssignments = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to fetch assignments')
     }
-  }
+  },
 )
 
 export const reassignTask = createAsyncThunk(
   'admin/reassignTask',
   async ({ assignmentId, newEmployeeId }, { rejectWithValue }) => {
     try {
-      const response = await api.post('/admin/assignments/reassign', { 
+      await api.post('/admin/assignments/reassign', { 
         assignmentId, 
-        newEmployeeId 
+        newEmployeeId, 
       })
       return { assignmentId, newEmployeeId }
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to reassign task')
     }
-  }
+  },
 )
 
 export const fetchMyQueue = createAsyncThunk(
@@ -146,34 +146,34 @@ export const fetchMyQueue = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to fetch my queue')
     }
-  }
+  },
 )
 
 export const updateUserRole = createAsyncThunk(
   'admin/updateUserRole',
   async ({ userId, role }, { rejectWithValue }) => {
     try {
-      const response = await api.put(`/admin/users/${userId}/role`, { role })
+      await api.put(`/admin/users/${userId}/role`, { role })
       return { userId, role }
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to update user role')
     }
-  }
+  },
 )
 
 export const suspendUser = createAsyncThunk(
   'admin/suspendUser',
   async ({ userId, suspended, reason }, { rejectWithValue }) => {
     try {
-      const response = await api.post(`/admin/users/${userId}/suspend`, { 
+      await api.post(`/admin/users/${userId}/suspend`, { 
         suspended, 
-        reason 
+        reason, 
       })
       return { userId, suspended, reason }
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to suspend user')
     }
-  }
+  },
 )
 
 const adminSlice = createSlice({
@@ -191,7 +191,7 @@ const adminSlice = createSlice({
         state.dashboard.recentActivities.users.unshift(action.payload)
         state.dashboard.recentActivities.users = state.dashboard.recentActivities.users.slice(0, 5)
       }
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -322,7 +322,7 @@ const adminSlice = createSlice({
         state.loading = true
         state.error = null
       })
-      .addCase(reassignTask.fulfilled, (state, action) => {
+      .addCase(reassignTask.fulfilled, (state) => {
         state.loading = false
         // Update assignment in the list
       })
@@ -378,7 +378,7 @@ const adminSlice = createSlice({
         state.loading = false
         state.error = action.payload
       })
-  }
+  },
 })
 
 export const { clearError, updateDashboardStats, addRecentActivity } = adminSlice.actions

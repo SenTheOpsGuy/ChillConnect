@@ -10,7 +10,7 @@ const initialState = {
   tokenPackages: [],
   loading: false,
   error: null,
-  paymentLoading: false
+  paymentLoading: false,
 }
 
 // Async thunks
@@ -23,7 +23,7 @@ export const fetchTokenPackages = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to fetch token packages')
     }
-  }
+  },
 )
 
 export const fetchBalance = createAsyncThunk(
@@ -35,7 +35,7 @@ export const fetchBalance = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to fetch balance')
     }
-  }
+  },
 )
 
 export const purchaseTokens = createAsyncThunk(
@@ -47,7 +47,7 @@ export const purchaseTokens = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Token purchase failed')
     }
-  }
+  },
 )
 
 export const executePayment = createAsyncThunk(
@@ -59,7 +59,7 @@ export const executePayment = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Payment execution failed')
     }
-  }
+  },
 )
 
 export const fetchTransactions = createAsyncThunk(
@@ -67,13 +67,13 @@ export const fetchTransactions = createAsyncThunk(
   async ({ page = 1, limit = 20 }, { rejectWithValue }) => {
     try {
       const response = await api.get('/tokens/transactions', { 
-        params: { page, limit } 
+        params: { page, limit }, 
       })
       return response.data
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to fetch transactions')
     }
-  }
+  },
 )
 
 const walletSlice = createSlice({
@@ -91,7 +91,7 @@ const walletSlice = createSlice({
     },
     addTransaction: (state, action) => {
       state.transactions.unshift(action.payload)
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -131,7 +131,7 @@ const walletSlice = createSlice({
         state.paymentLoading = true
         state.error = null
       })
-      .addCase(purchaseTokens.fulfilled, (state, action) => {
+      .addCase(purchaseTokens.fulfilled, (state) => {
         state.paymentLoading = false
         // Payment URL will be handled by the component
       })
@@ -154,7 +154,7 @@ const walletSlice = createSlice({
           type: 'PURCHASE',
           amount: action.payload.tokenAmount,
           description: `Token purchase - ${action.payload.tokenAmount} tokens`,
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
         })
       })
       .addCase(executePayment.rejected, (state, action) => {
@@ -175,7 +175,7 @@ const walletSlice = createSlice({
         state.loading = false
         state.error = action.payload
       })
-  }
+  },
 })
 
 export const { clearError, updateBalance, addTransaction } = walletSlice.actions

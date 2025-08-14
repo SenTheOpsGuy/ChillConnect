@@ -1105,7 +1105,7 @@ router.post('/verify-phone', [
 router.post('/send-email-verification', [
   body('email')
     .isEmail()
-        .withMessage('Valid email address is required')
+    .withMessage('Valid email address is required')
 ], async (req, res, next) => {
   try {
     const errors = validationResult(req);

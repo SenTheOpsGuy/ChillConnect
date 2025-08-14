@@ -101,9 +101,9 @@ describe('Login Component', () => {
       http.post('http://localhost:5001/api/auth/login', () => {
         return HttpResponse.json(
           { error: 'Invalid credentials' },
-          { status: 401 }
+          { status: 401 },
         )
-      })
+      }),
     )
     
     render(<Login />)
@@ -185,9 +185,9 @@ describe('Login Component', () => {
       http.post('http://localhost:5001/api/auth/login', () => {
         return HttpResponse.json(
           { error: 'Invalid credentials' },
-          { status: 401 }
+          { status: 401 },
         )
-      })
+      }),
     )
     
     render(<Login />)

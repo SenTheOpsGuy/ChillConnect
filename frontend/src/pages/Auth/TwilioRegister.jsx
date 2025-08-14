@@ -8,9 +8,9 @@ const TwilioRegister = () => {
   const [currentStep, setCurrentStep] = useState('role') // role, details, verify-phone, verify-email
   const [userRole, setUserRole] = useState('SEEKER')
   const [registrationData, setRegistrationData] = useState({})
-  const [verificationSent, setVerificationSent] = useState({ phone: false, email: false })
+  // Verification state removed as not used
 
-  const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm()
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm()
 
   // Handle role selection
   const handleRoleSelection = (role) => {
@@ -24,7 +24,7 @@ const TwilioRegister = () => {
     const userData = {
       ...data,
       role: userRole,
-      phoneNumber: `+91${data.phoneNumber}` // Add +91 prefix for Indian numbers
+      phoneNumber: `+91${data.phoneNumber}`, // Add +91 prefix for Indian numbers
     }
     
     setRegistrationData(userData)
@@ -42,11 +42,11 @@ const TwilioRegister = () => {
   const sendPhoneVerification = async (phoneNumber) => {
     try {
       const response = await axios.post('/api/auth/send-phone-verification', {
-        phoneNumber
+        phoneNumber,
       })
       
       if (response.data.success) {
-        setVerificationSent(prev => ({ ...prev, phone: true }))
+        // Phone verification sent state tracking removed
         toast.success('Verification code sent to your phone!')
       }
     } catch (error) {
@@ -58,11 +58,11 @@ const TwilioRegister = () => {
   const sendEmailVerification = async (email) => {
     try {
       const response = await axios.post('/api/auth/send-email-verification', {
-        email
+        email,
       })
       
       if (response.data.success) {
-        setVerificationSent(prev => ({ ...prev, email: true }))
+        // Email verification sent state tracking removed
         toast.success('Verification email sent!')
       }
     } catch (error) {
@@ -75,7 +75,7 @@ const TwilioRegister = () => {
     try {
       const response = await axios.post('/api/auth/verify-phone', {
         phoneNumber: registrationData.phoneNumber,
-        otp
+        otp,
       })
       
       if (response.data.success) {
@@ -89,47 +89,9 @@ const TwilioRegister = () => {
     }
   }
 
-  // Verify email
-  const verifyEmail = async (token) => {
-    try {
-      const response = await axios.post('/api/auth/verify-email', {
-        email: registrationData.email,
-        token
-      })
-      
-      if (response.data.success) {
-        // Complete registration
-        await completeRegistration()
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Email verification failed')
-    }
-  }
+  // Email verification function removed as it's not used
 
-  // Complete user registration
-  const completeRegistration = async () => {
-    try {
-      const registrationPayload = {
-        ...registrationData,
-        ageConfirmed: 'true',
-        consentGiven: 'true'
-      }
-      
-      const response = await axios.post('/api/auth/twilio-register', registrationPayload)
-      
-      if (response.data.success) {
-        // Store token and user data
-        localStorage.setItem('token', response.data.data.token)
-        localStorage.setItem('user', JSON.stringify(response.data.data.user))
-        
-        toast.success('Registration completed successfully!')
-        // Redirect to dashboard
-        window.location.href = '/dashboard'
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Registration failed')
-    }
-  }
+  // Complete registration function removed as it's not used
 
   return (
     <div className="auth-page">
@@ -261,8 +223,8 @@ const TwilioRegister = () => {
                       required: 'Email is required',
                       pattern: {
                         value: /^\S+@\S+$/i,
-                        message: 'Invalid email address'
-                      }
+                        message: 'Invalid email address',
+                      },
                     })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Enter your email address"
@@ -287,8 +249,8 @@ const TwilioRegister = () => {
                         required: 'Phone number is required',
                         pattern: {
                           value: /^[6-9]\d{9}$/,
-                          message: 'Enter a valid 10-digit Indian mobile number'
-                        }
+                          message: 'Enter a valid 10-digit Indian mobile number',
+                        },
                       })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-r-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="9876543210"
@@ -314,8 +276,8 @@ const TwilioRegister = () => {
                       required: 'Password is required',
                       minLength: {
                         value: 8,
-                        message: 'Password must be at least 8 characters'
-                      }
+                        message: 'Password must be at least 8 characters',
+                      },
                     })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Create a strong password"

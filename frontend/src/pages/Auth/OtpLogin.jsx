@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { requestLoginOTP, verifyLoginOTP, clearError } from '../../store/slices/authSlice'
-import { FiPhone, FiMail, FiArrowLeft } from 'react-icons/fi'
+import { FiMail, FiArrowLeft } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 
 // Helper function to determine redirect path based on user role
 const getRedirectPath = (user) => {
-  if (!user) return '/dashboard'
+  if (!user) {return '/dashboard'}
   
   switch (user.role) {
     case 'SEEKER':
@@ -32,7 +32,7 @@ const OtpLogin = () => {
   
   // Use string-based step state instead of boolean
   const [currentStep, setCurrentStep] = useState('email')
-  const [loginType, setLoginType] = useState('email') // Default to email
+  // Fixed to email login only
   const [identifier, setIdentifier] = useState('')
   const [otp, setOtp] = useState('')
   const [userId, setUserId] = useState('')
@@ -75,24 +75,21 @@ const OtpLogin = () => {
     e.preventDefault()
     
     if (!identifier) {
-      toast.error(`Please enter your ${loginType === 'phone' ? 'phone number' : 'email address'}`)
+      toast.error(`Please enter your ${'email address'}`)
       return
     }
 
     // Basic validation
-    if (loginType === 'phone' && !identifier.match(/^\+?[1-9]\d{1,14}$/)) {
-      toast.error('Please enter a valid phone number')
-      return
-    }
+    // Phone validation removed - email only
     
-    if (loginType === 'email' && !identifier.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+    if (!identifier.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
       toast.error('Please enter a valid email address')
       return
     }
 
     try {
-      console.log('Requesting OTP for:', { identifier, type: loginType })
-      const result = await dispatch(requestLoginOTP({ identifier, type: loginType })).unwrap()
+      console.log('Requesting OTP for:', { identifier, type: 'email' })
+      const result = await dispatch(requestLoginOTP({ identifier, type: 'email' })).unwrap()
       console.log('OTP request result:', result)
       
       // Set states and show OTP input
@@ -100,7 +97,7 @@ const OtpLogin = () => {
       setCountdown(60)
       setCurrentStep('otp')
       
-      toast.success(result.message || `OTP sent to your ${loginType}`)
+      toast.success(result.message || 'OTP sent to your email')
       
       // In development, show and store OTP
       if (result.otp) {
@@ -111,8 +108,8 @@ const OtpLogin = () => {
             background: '#10B981',
             color: 'white',
             fontSize: '16px',
-            fontWeight: 'bold'
-          }
+            fontWeight: 'bold',
+          },
         })
       }
     } catch (error) {
@@ -133,8 +130,8 @@ const OtpLogin = () => {
       const result = await dispatch(verifyLoginOTP({ 
         identifier, 
         otp, 
-        type: loginType, 
-        userId 
+        type: 'email', 
+        userId, 
       })).unwrap()
       
       toast.success('Login successful!')
@@ -149,10 +146,10 @@ const OtpLogin = () => {
   }
 
   const handleResendOTP = async () => {
-    if (countdown > 0) return
+    if (countdown > 0) {return}
     
     try {
-      const result = await dispatch(requestLoginOTP({ identifier, type: loginType })).unwrap()
+      const result = await dispatch(requestLoginOTP({ identifier, type: 'email' })).unwrap()
       setCountdown(60)
       toast.success('OTP resent successfully')
       
@@ -165,8 +162,8 @@ const OtpLogin = () => {
             background: '#10B981',
             color: 'white',
             fontSize: '16px',
-            fontWeight: 'bold'
-          }
+            fontWeight: 'bold',
+          },
         })
       }
     } catch (error) {
@@ -205,7 +202,7 @@ const OtpLogin = () => {
         <p className="mt-2 text-center text-gray-600">
           {currentStep === 'email'
             ? 'Enter your email address to receive an OTP'
-            : `We've sent a 6-digit code to your ${loginType}`
+            : 'We\'ve sent a 6-digit code to your email'
           }
         </p>
       </div>

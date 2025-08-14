@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { updateUser } from '../store/slices/authSlice';
+import { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { updateUser } from '../store/slices/authSlice'
 
 const Settings = () => {
-  const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
-  const [activeTab, setActiveTab] = useState('profile');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const dispatch = useDispatch()
+  const { user } = useSelector((state) => state.auth)
+  const [activeTab, setActiveTab] = useState('profile')
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState('')
 
   const [profileData, setProfileData] = useState({
     firstName: '',
@@ -15,8 +15,8 @@ const Settings = () => {
     email: '',
     phone: '',
     location: '',
-    bio: ''
-  });
+    bio: '',
+  })
 
   const [notificationSettings, setNotificationSettings] = useState({
     emailNotifications: true,
@@ -24,15 +24,15 @@ const Settings = () => {
     pushNotifications: true,
     bookingUpdates: true,
     messageNotifications: true,
-    marketingEmails: false
-  });
+    marketingEmails: false,
+  })
 
   const [privacySettings, setPrivacySettings] = useState({
     profileVisibility: 'public',
     showLocation: true,
     showOnlineStatus: true,
-    allowDirectMessages: true
-  });
+    allowDirectMessages: true,
+  })
 
   useEffect(() => {
     if (user) {
@@ -42,76 +42,76 @@ const Settings = () => {
         email: user.email || '',
         phone: user.phone || '',
         location: user.location || '',
-        bio: user.bio || ''
-      });
+        bio: user.bio || '',
+      })
     }
-  }, [user]);
+  }, [user])
 
   const handleProfileSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
+    e.preventDefault()
+    setLoading(true)
+    setMessage('')
 
     try {
       const response = await fetch('/api/users/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
-        body: JSON.stringify(profileData)
-      });
+        body: JSON.stringify(profileData),
+      })
 
       if (response.ok) {
-        const updatedUser = await response.json();
-        dispatch(updateUser(updatedUser.user));
-        setMessage('Profile updated successfully!');
+        const updatedUser = await response.json()
+        dispatch(updateUser(updatedUser.user))
+        setMessage('Profile updated successfully!')
       } else {
-        const error = await response.json();
-        setMessage(error.message || 'Failed to update profile');
+        const error = await response.json()
+        setMessage(error.message || 'Failed to update profile')
       }
     } catch (error) {
-      console.error('Profile update error:', error);
-      setMessage('Failed to update profile');
+      console.error('Profile update error:', error)
+      setMessage('Failed to update profile')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleNotificationSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
+    e.preventDefault()
+    setLoading(true)
+    setMessage('')
 
     try {
       const response = await fetch('/api/users/notifications', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
-        body: JSON.stringify(notificationSettings)
-      });
+        body: JSON.stringify(notificationSettings),
+      })
 
       if (response.ok) {
-        setMessage('Notification settings updated successfully!');
+        setMessage('Notification settings updated successfully!')
       } else {
-        setMessage('Failed to update notification settings');
+        setMessage('Failed to update notification settings')
       }
     } catch (error) {
-      console.error('Notification settings error:', error);
-      setMessage('Failed to update notification settings');
+      console.error('Notification settings error:', error)
+      setMessage('Failed to update notification settings')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const tabs = [
     { id: 'profile', name: 'Profile', icon: '👤' },
     { id: 'notifications', name: 'Notifications', icon: '🔔' },
     { id: 'privacy', name: 'Privacy', icon: '🔒' },
-    { id: 'security', name: 'Security', icon: '🛡️' }
-  ];
+    { id: 'security', name: 'Security', icon: '🛡️' },
+  ]
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -169,7 +169,7 @@ const Settings = () => {
                         <input
                           type="text"
                           value={profileData.firstName}
-                          onChange={(e) => setProfileData({...profileData, firstName: e.target.value})}
+                          onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
                         />
                       </div>
@@ -180,7 +180,7 @@ const Settings = () => {
                         <input
                           type="text"
                           value={profileData.lastName}
-                          onChange={(e) => setProfileData({...profileData, lastName: e.target.value})}
+                          onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
                         />
                       </div>
@@ -193,7 +193,7 @@ const Settings = () => {
                       <input
                         type="email"
                         value={profileData.email}
-                        onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                        onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
                       />
                     </div>
@@ -205,7 +205,7 @@ const Settings = () => {
                       <input
                         type="tel"
                         value={profileData.phone}
-                        onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                        onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
                       />
                     </div>
@@ -217,7 +217,7 @@ const Settings = () => {
                       <input
                         type="text"
                         value={profileData.location}
-                        onChange={(e) => setProfileData({...profileData, location: e.target.value})}
+                        onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
                         placeholder="City, State"
                       />
@@ -229,7 +229,7 @@ const Settings = () => {
                       </label>
                       <textarea
                         value={profileData.bio}
-                        onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
+                        onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
                         rows="4"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
                         placeholder="Tell us about yourself..."
@@ -274,7 +274,7 @@ const Settings = () => {
                               checked={value}
                               onChange={(e) => setNotificationSettings({
                                 ...notificationSettings,
-                                [key]: e.target.checked
+                                [key]: e.target.checked,
                               })}
                               className="sr-only peer"
                             />
@@ -314,7 +314,7 @@ const Settings = () => {
                           value={privacySettings.profileVisibility}
                           onChange={(e) => setPrivacySettings({
                             ...privacySettings,
-                            profileVisibility: e.target.value
+                            profileVisibility: e.target.value,
                           })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
                         >
@@ -337,7 +337,7 @@ const Settings = () => {
                               checked={value}
                               onChange={(e) => setPrivacySettings({
                                 ...privacySettings,
-                                [key]: e.target.checked
+                                [key]: e.target.checked,
                               })}
                               className="sr-only peer"
                             />
@@ -411,7 +411,7 @@ const Settings = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Settings;
+export default Settings

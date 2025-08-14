@@ -12,7 +12,7 @@ const EmployeeLogin = () => {
   
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
   })
   const [isLoading, setIsLoading] = useState(false)
 
@@ -30,7 +30,7 @@ const EmployeeLogin = () => {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     })
   }
 
@@ -46,7 +46,7 @@ const EmployeeLogin = () => {
     try {
       const resultAction = await dispatch(login({
         email: formData.email,
-        password: formData.password
+        password: formData.password,
       }))
       
       if (login.fulfilled.match(resultAction)) {

@@ -1,77 +1,77 @@
-import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 
 const Booking = () => {
-  const navigate = useNavigate();
-  const { user } = useSelector((state) => state.auth);
+  const navigate = useNavigate()
+  const { user } = useSelector((state) => state.auth)
   const [formData, setFormData] = useState({
     providerId: '',
     serviceType: 'incall',
     date: '',
     time: '',
     duration: '60',
-    specialRequests: ''
-  });
-  const [providers, setProviders] = useState([]);
-  const [loading, setLoading] = useState(false);
+    specialRequests: '',
+  })
+  const [providers, setProviders] = useState([])
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     // Load available providers
-    fetchProviders();
-  }, []);
+    fetchProviders()
+  }, [])
 
   const fetchProviders = async () => {
     try {
       const response = await fetch('/api/providers', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
       if (response.ok) {
-        const data = await response.json();
-        setProviders(data.providers || []);
+        const data = await response.json()
+        setProviders(data.providers || [])
       }
     } catch (error) {
-      console.error('Error fetching providers:', error);
+      console.error('Error fetching providers:', error)
     }
-  };
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
 
     try {
       const response = await fetch('/api/bookings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
-        body: JSON.stringify(formData)
-      });
+        body: JSON.stringify(formData),
+      })
 
       if (response.ok) {
-        const booking = await response.json();
-        navigate(`/booking/${booking.id}`);
+        const booking = await response.json()
+        navigate(`/booking/${booking.id}`)
       } else {
-        const error = await response.json();
-        alert(error.message || 'Booking failed');
+        const error = await response.json()
+        alert(error.message || 'Booking failed')
       }
     } catch (error) {
-      console.error('Booking error:', error);
-      alert('Booking failed. Please try again.');
+      console.error('Booking error:', error)
+      alert('Booking failed. Please try again.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+      [e.target.name]: e.target.value,
+    })
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -218,7 +218,7 @@ const Booking = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Booking;
+export default Booking

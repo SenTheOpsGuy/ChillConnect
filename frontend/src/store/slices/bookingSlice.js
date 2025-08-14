@@ -12,8 +12,8 @@ const initialState = {
     service: '',
     date: '',
     page: 1,
-    limit: 20
-  }
+    limit: 20,
+  },
 }
 
 // Async thunks
@@ -26,7 +26,7 @@ export const searchProviders = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Search failed')
     }
-  }
+  },
 )
 
 export const createBooking = createAsyncThunk(
@@ -38,7 +38,7 @@ export const createBooking = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Booking creation failed')
     }
-  }
+  },
 )
 
 export const fetchMyBookings = createAsyncThunk(
@@ -50,7 +50,7 @@ export const fetchMyBookings = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to fetch bookings')
     }
-  }
+  },
 )
 
 export const updateBookingStatus = createAsyncThunk(
@@ -62,7 +62,7 @@ export const updateBookingStatus = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Status update failed')
     }
-  }
+  },
 )
 
 export const fetchBookingDetails = createAsyncThunk(
@@ -74,7 +74,7 @@ export const fetchBookingDetails = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || 'Failed to fetch booking details')
     }
-  }
+  },
 )
 
 const bookingSlice = createSlice({
@@ -92,7 +92,7 @@ const bookingSlice = createSlice({
     },
     clearProviders: (state) => {
       state.providers = []
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -169,7 +169,7 @@ const bookingSlice = createSlice({
         state.loading = false
         state.error = action.payload
       })
-  }
+  },
 })
 
 export const { clearError, updateSearchFilters, clearBookings, clearProviders } = bookingSlice.actions

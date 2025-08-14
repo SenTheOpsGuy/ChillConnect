@@ -345,7 +345,7 @@ const Profile = () => {
   }
 
   const handleVerifyEmailOTP = async () => {
-    if (!otpInputs.email) return
+    if (!otpInputs.email) {return}
     setVerificationLoading(prev => ({ ...prev, email: true }))
     try {
       await authService.verifyEmailOTP(user?.email, otpInputs.email, user?.id)
@@ -361,7 +361,7 @@ const Profile = () => {
   }
 
   const handleSendPhoneVerification = async () => {
-    if (!user?.phone) return
+    if (!user?.phone) {return}
     setVerificationLoading(prev => ({ ...prev, phone: true }))
     try {
       await authService.sendPhoneOTP(user.phone)
@@ -375,7 +375,7 @@ const Profile = () => {
   }
 
   const handleVerifyPhoneOTP = async () => {
-    if (!otpInputs.phone || !user?.phone) return
+    if (!otpInputs.phone || !user?.phone) {return}
     setVerificationLoading(prev => ({ ...prev, phone: true }))
     try {
       await authService.verifyPhoneOTP(user.phone, otpInputs.phone)
@@ -396,7 +396,7 @@ const Profile = () => {
 
   const handleFileUpload = async (event, type) => {
     const file = event.target.files[0]
-    if (!file) return
+    if (!file) {return}
     
     setVerificationLoading(prev => ({ ...prev, [type]: true }))
     try {
@@ -407,12 +407,12 @@ const Profile = () => {
       await authService.submitDocumentVerification(formData)
       setVerificationMessages(prev => ({ 
         ...prev, 
-        [type]: 'Document uploaded successfully! Review may take 1-2 business days.' 
+        [type]: 'Document uploaded successfully! Review may take 1-2 business days.', 
       }))
     } catch (error) {
       setVerificationMessages(prev => ({ 
         ...prev, 
-        [type]: error?.message || 'Failed to upload document' 
+        [type]: error?.message || 'Failed to upload document', 
       }))
     } finally {
       setVerificationLoading(prev => ({ ...prev, [type]: false }))

@@ -171,7 +171,7 @@ const Landing = () => {
             <div className="safety-content">
               <div className="safety-text">
                 <h2>Your Safety is Our Priority</h2>
-                <p>We've built comprehensive safety measures to ensure your security and privacy at every step.</p>
+                <p>We&apos;ve built comprehensive safety measures to ensure your security and privacy at every step.</p>
                 <div className="safety-features">
                   <div className="safety-feature fade-in" style={{ animationDelay: '0.1s' }}>
                     <span className="safety-icon">✓</span>

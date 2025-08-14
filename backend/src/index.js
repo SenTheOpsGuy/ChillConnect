@@ -34,11 +34,11 @@ const io = new Server(server, {
     origin: process.env.NODE_ENV === 'development'
       ? true
       : [
-          process.env.FRONTEND_URL || "http://localhost:3001",
-          "https://chillconnect.in",
-          "https://www.chillconnect.in"
-        ],
-    methods: ["GET", "POST"]
+        process.env.FRONTEND_URL || 'http://localhost:3001',
+        'https://chillconnect.in',
+        'https://www.chillconnect.in'
+      ],
+    methods: ['GET', 'POST']
   }
 });
 
@@ -58,10 +58,10 @@ app.use(cors({
   origin: process.env.NODE_ENV === 'development' 
     ? true // Allow all origins in development
     : [
-        process.env.FRONTEND_URL || "http://localhost:3001",
-        "https://chillconnect.in",
-        "https://www.chillconnect.in"
-      ],
+      process.env.FRONTEND_URL || 'http://localhost:3001',
+      'https://chillconnect.in',
+      'https://www.chillconnect.in'
+    ],
   credentials: true
 }));
 app.use(compression());
@@ -379,7 +379,7 @@ if (process.env.NODE_ENV !== 'test') {
   server.listen(PORT, () => {
     logger.info(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
     logger.info(`📊 Health check available at http://localhost:${PORT}/health`);
-    logger.info(`🔧 Admin setup endpoint available at /api/setup-admin`);
+    logger.info('🔧 Admin setup endpoint available at /api/setup-admin');
   });
 }
 

@@ -794,20 +794,20 @@ const getTokenStatistics = async (prisma, timeframe) => {
   const timeAgo = new Date();
   
   switch (timeframe) {
-    case '1h':
-      timeAgo.setHours(timeAgo.getHours() - 1);
-      break;
-    case '24h':
-      timeAgo.setHours(timeAgo.getHours() - 24);
-      break;
-    case '7d':
-      timeAgo.setDate(timeAgo.getDate() - 7);
-      break;
-    case '30d':
-      timeAgo.setDate(timeAgo.getDate() - 30);
-      break;
-    default:
-      timeAgo.setHours(timeAgo.getHours() - 24);
+  case '1h':
+    timeAgo.setHours(timeAgo.getHours() - 1);
+    break;
+  case '24h':
+    timeAgo.setHours(timeAgo.getHours() - 24);
+    break;
+  case '7d':
+    timeAgo.setDate(timeAgo.getDate() - 7);
+    break;
+  case '30d':
+    timeAgo.setDate(timeAgo.getDate() - 30);
+    break;
+  default:
+    timeAgo.setHours(timeAgo.getHours() - 24);
   }
 
   const [tokensPurchased, tokensSpent, revenue] = await Promise.all([

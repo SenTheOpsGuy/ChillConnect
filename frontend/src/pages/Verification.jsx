@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { 
-  FiCheck, FiClock, FiX, FiAlertCircle, FiShield, 
-  FiUser, FiMail, FiPhone, FiCamera, FiFileText 
+  FiCheck, FiClock, FiShield, 
+  FiMail, FiPhone, FiCamera, FiFileText, 
 } from 'react-icons/fi'
 import ProfilePhotoUpload from '../components/Upload/ProfilePhotoUpload'
 import DocumentUpload from '../components/Upload/DocumentUpload'
@@ -15,7 +15,6 @@ const Verification = () => {
   const navigate = useNavigate()
   
   const [verificationStatus, setVerificationStatus] = useState(null)
-  const [activeStep, setActiveStep] = useState(0)
   const [loading, setLoading] = useState(true)
   const [phoneCode, setPhoneCode] = useState('')
   const [sendingCode, setSendingCode] = useState(false)
@@ -32,15 +31,15 @@ const Verification = () => {
       
       // Determine active step based on verification status
       if (!response.data.isEmailVerified) {
-        setActiveStep(0)
+        // Email verification needed
       } else if (!response.data.isPhoneVerified) {
-        setActiveStep(1)
+        // Phone verification needed
       } else if (!response.data.profile?.profilePhoto) {
-        setActiveStep(2)
+        // Profile photo needed
       } else if (!response.data.isAgeVerified) {
-        setActiveStep(3)
+        // Document verification needed
       } else {
-        setActiveStep(4)
+        // Verification complete
       }
     } catch (error) {
       toast.error('Failed to load verification status')
@@ -86,7 +85,7 @@ const Verification = () => {
       await api.post('/auth/verify-phone-otp', { otp: phoneCode })
       toast.success('Phone verified successfully!')
       setVerificationStatus(prev => ({ ...prev, isPhoneVerified: true }))
-      setActiveStep(2)
+      // Update progress(2)
     } catch (error) {
       toast.error('Invalid verification code')
     } finally {
@@ -95,7 +94,7 @@ const Verification = () => {
   }
 
   const handleProfilePhotoUpdate = () => {
-    setActiveStep(3)
+    // Update progress(3)
     toast.success('Profile photo updated!')
   }
 
@@ -110,13 +109,13 @@ const Verification = () => {
         return verificationStatus?.isEmailVerified ? 'completed' : 'current'
       case 1:
         return verificationStatus?.isPhoneVerified ? 'completed' : 
-               verificationStatus?.isEmailVerified ? 'current' : 'pending'
+          verificationStatus?.isEmailVerified ? 'current' : 'pending'
       case 2:
         return verificationStatus?.profile?.profilePhoto ? 'completed' : 
-               verificationStatus?.isPhoneVerified ? 'current' : 'pending'
+          verificationStatus?.isPhoneVerified ? 'current' : 'pending'
       case 3:
         return verificationStatus?.isAgeVerified ? 'completed' : 
-               verificationStatus?.profile?.profilePhoto ? 'current' : 'pending'
+          verificationStatus?.profile?.profilePhoto ? 'current' : 'pending'
       default:
         return 'pending'
     }
@@ -127,26 +126,26 @@ const Verification = () => {
       title: 'Email Verification',
       description: 'Verify your email address',
       icon: FiMail,
-      status: getStepStatus(0)
+      status: getStepStatus(0),
     },
     {
       title: 'Phone Verification',
       description: 'Verify your phone number',
       icon: FiPhone,
-      status: getStepStatus(1)
+      status: getStepStatus(1),
     },
     {
       title: 'Profile Photo',
       description: 'Upload your profile photo',
       icon: FiCamera,
-      status: getStepStatus(2)
+      status: getStepStatus(2),
     },
     {
       title: 'Identity Verification',
       description: 'Upload government-issued ID',
       icon: FiFileText,
-      status: getStepStatus(3)
-    }
+      status: getStepStatus(3),
+    },
   ]
 
   const getStatusIcon = (status) => {
@@ -269,7 +268,7 @@ const Verification = () => {
             ) : (
               <div className="space-y-4">
                 <p className="text-gray-600">
-                  We've sent a verification email to <strong>{user.email}</strong>
+                  We&apos;ve sent a verification email to <strong>{user.email}</strong>
                 </p>
                 <button
                   onClick={handleEmailVerification}

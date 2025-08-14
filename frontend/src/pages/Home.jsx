@@ -36,26 +36,26 @@ const Home = () => {
       title: 'New booking request from Sarah',
       time: '2 hours ago',
       icon: '📅',
-      type: 'booking'
+      type: 'booking',
     },
     {
       title: 'Message from Alex about cleaning service',
       time: '4 hours ago',
       icon: '💬',
-      type: 'message'
+      type: 'message',
     },
     {
       title: 'Payment of ₹500 received',
       time: '1 day ago',
       icon: '💰',
-      type: 'payment'
+      type: 'payment',
     },
     {
       title: 'Profile verification completed',
       time: '2 days ago',
       icon: '✅',
-      type: 'verification'
-    }
+      type: 'verification',
+    },
   ]
 
   return (

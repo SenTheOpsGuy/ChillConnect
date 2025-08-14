@@ -45,7 +45,7 @@ const OtpRequest = () => {
       console.log('Requesting OTP for:', { identifier, type: loginType })
       const result = await dispatch(requestLoginOTP({ 
         identifier, 
-        type: loginType 
+        type: loginType, 
       })).unwrap()
       
       console.log('OTP request successful:', result)
@@ -57,8 +57,8 @@ const OtpRequest = () => {
           identifier,
           loginType,
           userId: result.userId,
-          developmentOtp: result.otp // For development only
-        } 
+          developmentOtp: result.otp, // For development only
+        }, 
       })
       
     } catch (error) {
