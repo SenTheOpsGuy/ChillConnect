@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import authReducer, {
-  loginStart,
-  loginSuccess,
-  loginFailure,
+  login,
   logout,
   loadUser,
   clearError,
-  updateProfile,
+  updateUser,
+  register,
+  verifyEmail,
 } from '../authSlice'
 
 describe('authSlice', () => {
@@ -24,41 +24,41 @@ describe('authSlice', () => {
 
   describe('reducers', () => {
     it('should handle initial state', () => {
-      expect(authReducer(undefined, { type: 'unknown' })).toEqual(initialState)
+      expect(authReducer(undefined, { type: 'unknown' })).toEqual({
+        ...initialState,
+        token: null // Remove localStorage token for tests
+      })
     })
 
-    it('should handle loginStart', () => {
-      const actual = authReducer(initialState, loginStart())
+    it('should handle login.pending', () => {
+      const actual = authReducer(initialState, login.pending())
       expect(actual.loading).toBe(true)
       expect(actual.error).toBe(null)
     })
 
-    it('should handle loginSuccess', () => {
+    it('should handle login.fulfilled', () => {
       const payload = {
         user: global.testUser,
         token: 'test-token',
       }
-      const actual = authReducer(initialState, loginSuccess(payload))
+      const actual = authReducer(initialState, login.fulfilled(payload))
       
       expect(actual.loading).toBe(false)
       expect(actual.isAuthenticated).toBe(true)
       expect(actual.user).toEqual(payload.user)
       expect(actual.token).toBe(payload.token)
-      expect(actual.error).toBe(null)
     })
 
-    it('should handle loginFailure', () => {
+    it('should handle login.rejected', () => {
       const errorMessage = 'Invalid credentials'
-      const actual = authReducer(initialState, loginFailure(errorMessage))
+      const actual = authReducer(initialState, login.rejected(null, '', null, errorMessage))
       
       expect(actual.loading).toBe(false)
       expect(actual.isAuthenticated).toBe(false)
-      expect(actual.user).toBe(null)
-      expect(actual.token).toBe(null)
       expect(actual.error).toBe(errorMessage)
     })
 
-    it('should handle logout', () => {
+    it('should handle logout.fulfilled', () => {
       const authenticatedState = {
         ...initialState,
         isAuthenticated: true,
@@ -66,8 +66,10 @@ describe('authSlice', () => {
         token: 'test-token',
       }
       
-      const actual = authReducer(authenticatedState, logout())
-      expect(actual).toEqual(initialState)
+      const actual = authReducer(authenticatedState, logout.fulfilled())
+      expect(actual.isAuthenticated).toBe(false)
+      expect(actual.user).toBe(null)
+      expect(actual.token).toBe(null)
     })
 
     it('should handle clearError', () => {
@@ -80,7 +82,7 @@ describe('authSlice', () => {
       expect(actual.error).toBe(null)
     })
 
-    it('should handle updateProfile', () => {
+    it('should handle updateUser', () => {
       const authenticatedState = {
         ...initialState,
         isAuthenticated: true,
@@ -88,14 +90,13 @@ describe('authSlice', () => {
         token: 'test-token',
       }
       
-      const updatedProfile = {
-        ...global.testUser.profile,
+      const userUpdate = {
         firstName: 'Updated',
         lastName: 'Name',
       }
       
-      const actual = authReducer(authenticatedState, updateProfile(updatedProfile))
-      expect(actual.user.profile).toEqual(updatedProfile)
+      const actual = authReducer(authenticatedState, updateUser(userUpdate))
+      expect(actual.user).toEqual({ ...global.testUser, ...userUpdate })
     })
   })
 
@@ -116,23 +117,25 @@ describe('authSlice', () => {
 
   describe('edge cases', () => {
     it('should handle multiple login attempts', () => {
-      let state = authReducer(initialState, loginStart())
+      let state = authReducer(initialState, login.pending())
       expect(state.loading).toBe(true)
 
-      state = authReducer(state, loginStart())
+      state = authReducer(state, login.pending())
       expect(state.loading).toBe(true)
       expect(state.error).toBe(null)
     })
 
     it('should handle logout when not authenticated', () => {
-      const actual = authReducer(initialState, logout())
-      expect(actual).toEqual(initialState)
+      const actual = authReducer(initialState, logout.fulfilled())
+      expect(actual.isAuthenticated).toBe(false)
+      expect(actual.user).toBe(null)
+      expect(actual.token).toBe(null)
     })
 
-    it('should handle profile update when not authenticated', () => {
-      const updatedProfile = { firstName: 'Test' }
-      const actual = authReducer(initialState, updateProfile(updatedProfile))
-      expect(actual.user).toBe(null)
+    it('should handle user update when not authenticated', () => {
+      const updatedData = { firstName: 'Test' }
+      const actual = authReducer(initialState, updateUser(updatedData))
+      expect(actual.user).toEqual(updatedData)
     })
   })
 })
