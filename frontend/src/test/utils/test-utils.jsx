@@ -22,7 +22,7 @@ export function createTestStore(preloadedState = {}) {
       admin: adminSlice,
     },
     preloadedState,
-    middleware: (getDefaultMiddleware) =>
+    middleware: getDefaultMiddleware =>
       getDefaultMiddleware({
         serializableCheck: false,
       }),
@@ -52,15 +52,15 @@ export function renderWithProviders(
     store = createTestStore(preloadedState),
     queryClient = createTestQueryClient(),
     ...renderOptions
-  } = {},
+  } = {}
 ) {
   function Wrapper({ children }) {
     return (
       <Provider store={store}>
         <QueryClientProvider client={queryClient}>
-          <BrowserRouter>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             {children}
-            <Toaster position="top-right" />
+            <Toaster position='top-right' />
           </BrowserRouter>
         </QueryClientProvider>
       </Provider>
@@ -150,7 +150,7 @@ export function waitForLoadingToFinish() {
 
 export function mockLocalStorage() {
   const storage = {}
-  
+
   return {
     getItem: vi.fn(key => storage[key] || null),
     setItem: vi.fn((key, value) => {

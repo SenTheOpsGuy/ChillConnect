@@ -7,12 +7,56 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  SEEKER
+  PROVIDER
+  EMPLOYEE
+  MANAGER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum VerificationStatus {
+  PENDING
+  IN_PROGRESS
+  APPROVED
+  REJECTED
+}
+
+enum BookingType {
+  INCALL
+  OUTCALL
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  DISPUTED
+}
+
+enum TokenTransactionType {
+  PURCHASE
+  BOOKING_PAYMENT
+  BOOKING_REFUND
+  ESCROW_HOLD
+  ESCROW_RELEASE
+  WITHDRAWAL
+}
+
+enum AssignmentType {
+  VERIFICATION
+  BOOKING_MONITORING
+}
+
 model User {
   id              String   @id @default(uuid())
   email           String   @unique
   phone           String?
   passwordHash    String
-  role            String   @default("USER") // "USER", "ADMIN", "EMPLOYEE", "SUPER_ADMIN"
+  role            UserRole @default(SEEKER)
   isVerified      Boolean  @default(false)
   isAgeVerified   Boolean  @default(false)
   isPhoneVerified Boolean  @default(false)
