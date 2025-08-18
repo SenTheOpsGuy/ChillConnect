@@ -173,3 +173,4 @@ storybook-static/
 *.sw?
 # Local Netlify folder
 .netlify
+.vercel

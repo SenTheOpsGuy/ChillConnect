@@ -52,7 +52,7 @@ export function renderWithProviders(
     store = createTestStore(preloadedState),
     queryClient = createTestQueryClient(),
     ...renderOptions
-  } = {}
+  } = {},
 ) {
   function Wrapper({ children }) {
     return (

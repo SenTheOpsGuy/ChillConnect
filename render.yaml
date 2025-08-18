@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: chillconnect-backend
+    runtime: node
+    plan: free
+    rootDir: ./backend
+    buildCommand: npm install && npx prisma generate
+    startCommand: npm run start:prod
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false  # Set this in Render dashboard
+      - key: JWT_SECRET
+        sync: false  # Set this in Render dashboard
+      - key: BREVO_API_KEY
+        sync: false  # Set this in Render dashboard
+      - key: FROM_EMAIL
+        value: noreply@chillconnect.in
+      - key: FROM_NAME
+        value: ChillConnect

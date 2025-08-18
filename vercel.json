@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "chillconnect-backend",
   "builds": [
     {
       "src": "backend/src/index.js",
@@ -10,15 +9,10 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "backend/src/index.js"
+      "dest": "/backend/src/index.js"
     }
   ],
   "env": {
     "NODE_ENV": "production"
-  },
-  "build": {
-    "env": {
-      "NODE_ENV": "production"
-    }
   }
 }
