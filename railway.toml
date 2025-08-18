@@ -6,3 +6,4 @@ startCommand = "cd backend && node src/index.js"
 
 [env]
 NODE_ENV = "production"
+FORCE_REBUILD = "2025-08-17-v2"
