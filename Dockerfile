@@ -26,14 +26,17 @@ RUN npm install
 # Generate Prisma client
 RUN npx prisma generate
 
-# Deploy migrations and create employee user
-RUN if [ -n "$DATABASE_URL" ]; then \
-      npx prisma migrate deploy && \
-      psql $DATABASE_URL -f create-employee-user.sql || true; \
-    fi
+# Deploy migrations and create employee user at runtime
+# RUN if [ -n "$DATABASE_URL" ]; then \
+#       npx prisma migrate deploy && \
+#       psql $DATABASE_URL -f create-employee-user.sql || true; \
+#     fi
 
 # Expose port
 EXPOSE 5000
 
-# Start the application
-CMD ["node", "src/index.js"]
+# Make start script executable
+RUN chmod +x start.sh
+
+# Start the application with setup script
+CMD ["./start.sh"]
