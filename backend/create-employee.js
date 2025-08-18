@@ -14,25 +14,39 @@ async function createEmployee() {
     const password = 'voltas-beko'
     const hashedPassword = await bcrypt.hash(password, 12)
 
-    // Delete existing user if any
-    await prisma.$executeRaw`DELETE FROM users WHERE email = ${email}`
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    })
 
-    // Create the user with raw SQL
-    await prisma.$executeRaw`
-      INSERT INTO users (id, email, "passwordHash", role, "isEmailVerified", "createdAt", "updatedAt")
-      VALUES (gen_random_uuid(), ${email}, ${hashedPassword}, 'EMPLOYEE'::UserRole, true, NOW(), NOW())
-    `
+    if (existingUser) {
+      console.log('Employee user already exists, updating password...')
+      await prisma.user.update({
+        where: { email },
+        data: {
+          passwordHash: hashedPassword,
+          role: 'EMPLOYEE',
+          isEmailVerified: true,
+        },
+      })
+    } else {
+      console.log('Creating new employee user...')
+      await prisma.user.create({
+        data: {
+          email,
+          passwordHash: hashedPassword,
+          role: 'EMPLOYEE',
+          isEmailVerified: true,
+          isAgeVerified: true,
+          consentGiven: true,
+        },
+      })
+    }
 
-    console.log('Employee user created successfully!')
-
-    // Test the query that login uses
-    const users = await prisma.$queryRaw`
-      SELECT id, email, "passwordHash" FROM users WHERE email = ${email} LIMIT 1
-    `
-
-    console.log('User found:', users)
+    console.log('Employee user ready for login!')
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Error creating employee user:', error)
+    console.log('Continuing with startup...')
   } finally {
     await prisma.$disconnect()
   }

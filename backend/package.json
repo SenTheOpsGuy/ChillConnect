@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "build": "npm ci && npx prisma generate && npx prisma migrate deploy && psql $DATABASE_URL -f create-employee-user.sql",
+    "start:prod": "npx prisma migrate deploy && node create-employee.js && node src/index.js",
+    "build": "npx prisma generate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "migrate": "node migrate.js",
