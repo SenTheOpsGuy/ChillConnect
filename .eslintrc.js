@@ -5,9 +5,7 @@ module.exports = {
     es2022: true,
     node: true,
   },
-  extends: [
-    'eslint:recommended',
-  ],
+  extends: ['eslint:recommended'],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
@@ -17,15 +15,18 @@ module.exports = {
     'no-console': 'warn',
     'no-debugger': 'error',
     'no-alert': 'error',
-    'no-unused-vars': ['error', { 
-      vars: 'all', 
-      args: 'after-used', 
-      ignoreRestSiblings: false 
-    }],
+    'no-unused-vars': [
+      'error',
+      {
+        vars: 'all',
+        args: 'after-used',
+        ignoreRestSiblings: false,
+      },
+    ],
     'no-undef': 'error',
     'no-unreachable': 'error',
     'no-duplicate-imports': 'error',
-    
+
     // Code quality
     'prefer-const': 'error',
     'no-var': 'error',
@@ -33,23 +34,26 @@ module.exports = {
     'prefer-arrow-callback': 'error',
     'prefer-template': 'error',
     'template-curly-spacing': ['error', 'never'],
-    
+
     // Style consistency
-    'indent': ['error', 2, { SwitchCase: 1 }],
-    'quotes': ['error', 'single', { avoidEscape: true }],
-    'semi': ['error', 'never'],
+    indent: ['error', 2, { SwitchCase: 1 }],
+    quotes: ['error', 'single', { avoidEscape: true }],
+    semi: ['error', 'never'],
     'comma-dangle': ['error', 'always-multiline'],
     'object-curly-spacing': ['error', 'always'],
     'array-bracket-spacing': ['error', 'never'],
-    'space-before-function-paren': ['error', {
-      anonymous: 'always',
-      named: 'never',
-      asyncArrow: 'always'
-    }],
-    
+    'space-before-function-paren': [
+      'error',
+      {
+        anonymous: 'always',
+        named: 'never',
+        asyncArrow: 'always',
+      },
+    ],
+
     // Best practices
-    'eqeqeq': ['error', 'always'],
-    'curly': ['error', 'all'],
+    eqeqeq: ['error', 'always'],
+    curly: ['error', 'all'],
     'no-eval': 'error',
     'no-implied-eval': 'error',
     'no-new-func': 'error',
@@ -62,10 +66,10 @@ module.exports = {
     'no-useless-call': 'error',
     'no-useless-concat': 'error',
     'no-useless-return': 'error',
-    'radix': 'error',
+    radix: 'error',
     'require-await': 'error',
-    'yoda': 'error',
-    
+    yoda: 'error',
+
     // Security
     'no-new-require': 'error',
     'no-path-concat': 'error',
@@ -84,11 +88,7 @@ module.exports = {
         'plugin:react-hooks/recommended',
         'plugin:jsx-a11y/recommended',
       ],
-      plugins: [
-        'react',
-        'react-hooks',
-        'jsx-a11y',
-      ],
+      plugins: ['react', 'react-hooks', 'jsx-a11y'],
       settings: {
         react: {
           version: 'detect',
@@ -107,11 +107,11 @@ module.exports = {
         'react/no-direct-mutation-state': 'error',
         'react/no-unknown-property': 'error',
         'react/react-in-jsx-scope': 'off', // Not needed with new JSX transform
-        
+
         // React Hooks
         'react-hooks/rules-of-hooks': 'error',
         'react-hooks/exhaustive-deps': 'warn',
-        
+
         // Accessibility
         'jsx-a11y/alt-text': 'error',
         'jsx-a11y/anchor-has-content': 'error',
@@ -132,14 +132,8 @@ module.exports = {
         node: true,
         es2022: true,
       },
-      extends: [
-        'eslint:recommended',
-        'plugin:node/recommended',
-      ],
-      plugins: [
-        'node',
-        'security',
-      ],
+      extends: ['eslint:recommended', 'plugin:node/recommended'],
+      plugins: ['node', 'security'],
       rules: {
         // Node.js specific
         'node/no-unsupported-features/es-syntax': 'off',
@@ -151,7 +145,7 @@ module.exports = {
         'node/prefer-promises/fs': 'error',
         'node/no-new-require': 'error',
         'node/no-path-concat': 'error',
-        
+
         // Security - manually enabled rules
         'security/detect-buffer-noassert': 'error',
         'security/detect-child-process': 'warn',
@@ -172,14 +166,8 @@ module.exports = {
         browser: true,
         node: true,
       },
-      extends: [
-        'plugin:testing-library/react',
-        'plugin:jest/recommended',
-      ],
-      plugins: [
-        'testing-library',
-        'jest',
-      ],
+      extends: ['plugin:testing-library/react', 'plugin:jest/recommended'],
+      plugins: ['testing-library', 'jest'],
       rules: {
         // Jest specific
         'jest/no-disabled-tests': 'warn',
@@ -187,15 +175,28 @@ module.exports = {
         'jest/no-identical-title': 'error',
         'jest/prefer-to-have-length': 'warn',
         'jest/valid-expect': 'error',
-        
+
         // Testing Library
         'testing-library/await-async-query': 'error',
         'testing-library/no-await-sync-query': 'error',
         'testing-library/no-debugging-utils': 'warn',
         'testing-library/no-dom-import': 'error',
-        
+
         // Allow console in tests
         'no-console': 'off',
+      },
+    },
+    // Scripts and utilities - allow console and flexible rules
+    {
+      files: ['scripts/**/*.js', 'test-*.js'],
+      env: {
+        node: true,
+        es2022: true,
+      },
+      rules: {
+        'no-console': 'off',
+        'no-useless-escape': 'off',
+        'require-await': 'off',
       },
     },
   ],

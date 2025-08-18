@@ -18,6 +18,10 @@ if [ -f "backend/tsconfig.json" ]; then
   cd backend && npx tsc --noEmit && cd ..
 fi
 
+# Run secrets scan FIRST - critical security check
+echo "🔍 Scanning for secrets and credentials..."
+npm run security:scan-secrets
+
 # Run security checks
 echo "🔒 Running security checks..."
 npm run security:check
