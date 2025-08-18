@@ -13,7 +13,7 @@ if [ "$current_branch" = "$protected_branch" ]; then
   # Run full test suite
   npm run test
   
-  echo "✅ All tests passed! Ready to push to $protected_branch."
+  echo "✅ Backend tests completed! Ready to push to $protected_branch."
 else
   echo "📋 Running basic checks for feature branch..."
   npm run lint
