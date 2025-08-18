@@ -3,10 +3,6 @@
   "version": "1.0.0",
   "description": "ChillConnect - Adult Services Booking Platform",
   "private": true,
-  "workspaces": [
-    "frontend",
-    "backend"
-  ],
   "scripts": {
     "install:all": "npm install && npm run install:frontend && npm run install:backend",
     "install:frontend": "cd frontend && npm install",
@@ -14,9 +10,8 @@
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm start",
-    "build": "cd backend && npm ci && npx prisma generate && npx prisma migrate deploy && psql $DATABASE_URL -f create-employee-user.sql",
+    "build": "cd backend && npm install && npx prisma generate && npx prisma migrate deploy && psql $DATABASE_URL -f create-employee-user.sql",
     "start": "cd backend && node src/index.js",
-    "postinstall": "cd backend && npm install",
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "cd backend && npm run build",
     "test": "npm run test:frontend && npm run test:backend",
