@@ -206,6 +206,13 @@ app.post('/api/change-user-role', async (req, res) => {
 
 // Debug endpoint for environment variables
 app.get('/api/debug-env', (req, res) => {
+  let gitCommit = 'unknown'
+  try {
+    gitCommit = require('fs').readFileSync('./GIT_COMMIT', 'utf8').trim()
+  } catch (err) {
+    // Ignore if file doesn't exist
+  }
+
   res.json({
     timestamp: new Date().toISOString(),
     nodeEnv: process.env.NODE_ENV,
@@ -213,6 +220,8 @@ app.get('/api/debug-env', (req, res) => {
     adminChangePasswordLength: process.env.ADMIN_CHANGE_PASSWORD?.length || 0,
     port: process.env.PORT,
     hasJwtSecret: !!process.env.JWT_SECRET,
+    gitCommit: gitCommit,
+    deployVersion: '2025-08-17-final-fix',
   })
 })
 
