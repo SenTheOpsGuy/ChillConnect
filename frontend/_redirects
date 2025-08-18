@@ -1,5 +1,5 @@
 # API redirects to Railway backend - must come BEFORE catch-all
-/api/*  https://chillconnect-production.up.railway.app/api/:splat  200
+/api/*  https://chillconnect-backend-production.up.railway.app/api/:splat  200
 
 # SPA fallback - must be last
 /*    /index.html   200
