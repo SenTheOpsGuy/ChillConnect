@@ -1,8 +1,8 @@
 [build]
-buildCommand = "cd backend && npm ci && npm run build"
+buildCommand = "cd backend && npm ci && npx prisma generate"
 
 [deploy]
-startCommand = "cd backend && npm start"
+startCommand = "cd backend && node src/index.js"
 
 [env]
 NODE_ENV = "production"
