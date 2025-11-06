@@ -59,6 +59,58 @@ enum TemplateCategory {
   SYSTEM
 }
 
+enum DisputeType {
+  NO_SHOW
+  SERVICE_QUALITY
+  PAYMENT_ISSUE
+  BEHAVIOR_ISSUE
+  TERMS_VIOLATION
+  OTHER
+}
+
+enum DisputeStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  CLOSED
+  ESCALATED
+}
+
+enum TicketCategory {
+  ACCOUNT
+  BOOKING
+  PAYMENT
+  TECHNICAL
+  VERIFICATION
+  SAFETY
+  OTHER
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_USER
+  RESOLVED
+  CLOSED
+}
+
+enum ArticleCategory {
+  GETTING_STARTED
+  ACCOUNT
+  BOOKINGS
+  PAYMENTS
+  SAFETY
+  PROVIDERS
+  FAQ
+}
+
 model User {
   id              String   @id @default(uuid())
   email           String   @unique
@@ -99,6 +151,19 @@ model User {
   // Ratings
   ratingsGiven    Rating[] @relation("SeekerRatings")
   ratingsReceived Rating[] @relation("ProviderRatings")
+
+  // Disputes
+  disputesFiled    Dispute[] @relation("ReportedDisputes")
+  disputesReceived Dispute[] @relation("ReceivedDisputes")
+  disputesAssigned Dispute[] @relation("AssignedDisputes")
+
+  // Support tickets
+  supportTickets         SupportTicket[] @relation("UserTickets")
+  assignedTickets        SupportTicket[] @relation("AssignedTickets")
+  ticketMessages         TicketMessage[]
+
+  // Help articles
+  createdArticles  HelpArticle[]
 
   @@map("users")
 }
@@ -172,6 +237,9 @@ model Booking {
 
   // Rating for this booking
   rating      Rating?
+
+  // Disputes for this booking
+  disputes    Dispute[]
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -318,4 +386,154 @@ model Rating {
   @@index([providerId])
   @@index([createdAt])
   @@map("ratings")
+}
+
+model Dispute {
+  id              String        @id @default(uuid())
+  bookingId       String
+  booking         Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  // Who filed the dispute
+  reportedBy      String
+  reporter        User          @relation("ReportedDisputes", fields: [reportedBy], references: [id])
+
+  // Against whom
+  reportedAgainst String
+  reportedUser    User          @relation("ReceivedDisputes", fields: [reportedAgainst], references: [id])
+
+  // Dispute details
+  disputeType     DisputeType
+  status          DisputeStatus @default(OPEN)
+  description     String
+  evidence        String[]      // Array of URLs to evidence (screenshots, photos, etc)
+
+  // Resolution
+  assignedTo      String?       // Manager/Admin handling the dispute
+  assignedManager User?         @relation("AssignedDisputes", fields: [assignedTo], references: [id])
+  resolution      String?
+  resolvedAt      DateTime?
+
+  // Outcome
+  refundIssued    Boolean       @default(false)
+  refundAmount    Int?          // tokens refunded
+  actionTaken     String?       // Description of action taken
+
+  // Appeal
+  canAppeal       Boolean       @default(true)
+  appealed        Boolean       @default(false)
+  appealNotes     String?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([bookingId])
+  @@index([reportedBy])
+  @@index([status])
+  @@map("disputes")
+}
+
+model SupportTicket {
+  id          String         @id @default(uuid())
+  ticketNumber Int           @unique @default(autoincrement())
+
+  // User who created the ticket
+  userId      String
+  user        User           @relation("UserTickets", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Ticket details
+  subject     String
+  description String
+  category    TicketCategory
+  priority    TicketPriority @default(MEDIUM)
+  status      TicketStatus   @default(OPEN)
+
+  // Assignment
+  assignedTo  String?
+  assignedUser User?         @relation("AssignedTickets", fields: [assignedTo], references: [id])
+  assignedAt  DateTime?
+
+  // Resolution
+  resolvedAt  DateTime?
+  closedAt    DateTime?
+  resolution  String?
+
+  // Related entities
+  bookingId   String?        // Optional reference to a booking
+
+  // Messages/replies
+  messages    TicketMessage[]
+
+  // Metadata
+  userEmail   String?        // Store user email at time of ticket creation
+  userPhone   String?
+  attachments String[]       // Array of URLs
+
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([category])
+  @@index([ticketNumber])
+  @@map("support_tickets")
+}
+
+model TicketMessage {
+  id        String        @id @default(uuid())
+  ticketId  String
+  ticket    SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  // Message sender
+  senderId  String
+  sender    User          @relation(fields: [senderId], references: [id])
+  isStaff   Boolean       @default(false) // true if sent by support staff
+
+  // Message content
+  message   String
+  attachments String[]    // Array of URLs
+
+  // Internal note (only visible to staff)
+  isInternal Boolean      @default(false)
+
+  createdAt DateTime     @default(now())
+
+  @@index([ticketId])
+  @@map("ticket_messages")
+}
+
+model HelpArticle {
+  id          String          @id @default(uuid())
+  slug        String          @unique
+
+  // Content
+  title       String
+  content     String          // Markdown content
+  excerpt     String?         // Short description
+  category    ArticleCategory
+
+  // Meta
+  featured    Boolean         @default(false)
+  published   Boolean         @default(false)
+  viewCount   Int             @default(0)
+  helpfulCount Int            @default(0)
+
+  // Search optimization
+  tags        String[]        // Array of tags for search
+  searchTerms String?         // Additional search keywords
+
+  // Author
+  authorId    String
+  author      User            @relation(fields: [authorId], references: [id])
+
+  // Related articles
+  relatedArticles String[]     // Array of article IDs
+
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  publishedAt DateTime?
+
+  @@index([category])
+  @@index([published])
+  @@index([slug])
+  @@map("help_articles")
 }
