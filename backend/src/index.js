@@ -20,6 +20,8 @@ const bookingRoutes = require('./routes/bookings')
 const chatRoutes = require('./routes/chat')
 const adminRoutes = require('./routes/admin')
 const uploadRoutes = require('./routes/upload')
+const templateRoutes = require('./routes/templates')
+const ratingRoutes = require('./routes/ratings')
 
 const app = express()
 
@@ -157,6 +159,8 @@ app.use('/api/users', userRoutes)
 app.use('/api/tokens', tokenRoutes)
 app.use('/api/bookings', bookingRoutes)
 app.use('/api/chat', chatRoutes)
+app.use('/api/templates', templateRoutes)
+app.use('/api/ratings', ratingRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/upload', uploadRoutes)
 
