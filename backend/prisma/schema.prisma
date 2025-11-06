@@ -111,6 +111,21 @@ enum ArticleCategory {
   FAQ
 }
 
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  PROCESSING
+  COMPLETED
+  REJECTED
+  CANCELLED
+}
+
+enum PaymentMethodType {
+  PAYPAL
+  BANK_TRANSFER
+  UPI
+}
+
 model User {
   id              String   @id @default(uuid())
   email           String   @unique
@@ -164,6 +179,11 @@ model User {
 
   // Help articles
   createdArticles  HelpArticle[]
+
+  // Withdrawals
+  paymentMethods   PaymentMethod[]
+  withdrawalRequests WithdrawalRequest[]
+  approvedWithdrawals WithdrawalRequest[] @relation("ApprovedWithdrawals")
 
   @@map("users")
 }
@@ -536,4 +556,85 @@ model HelpArticle {
   @@index([published])
   @@index([slug])
   @@map("help_articles")
+}
+
+model PaymentMethod {
+  id          String            @id @default(uuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Payment method details
+  type        PaymentMethodType
+  isDefault   Boolean           @default(false)
+  isVerified  Boolean           @default(false)
+
+  // PayPal
+  paypalEmail String?
+
+  // Bank Transfer
+  accountHolderName String?
+  accountNumber     String?
+  ifscCode          String?
+  bankName          String?
+  branchName        String?
+
+  // UPI
+  upiId       String?
+
+  // Metadata
+  nickname    String?           // e.g., "My PayPal Account", "SBI Savings"
+
+  // Withdrawals using this method
+  withdrawals WithdrawalRequest[]
+
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([userId])
+  @@index([type])
+  @@map("payment_methods")
+}
+
+model WithdrawalRequest {
+  id              String           @id @default(uuid())
+  requestNumber   Int              @unique @default(autoincrement())
+
+  // Provider requesting withdrawal
+  userId          String
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Amount
+  amountTokens    Int              // Amount in tokens
+  amountInr       Int              // Equivalent INR (tokens * 100)
+  processingFee   Int              @default(0) // Platform fee
+  netAmount       Int              // Amount after fee
+
+  // Payment method
+  paymentMethodId String
+  paymentMethod   PaymentMethod    @relation(fields: [paymentMethodId], references: [id])
+
+  // Status
+  status          WithdrawalStatus @default(PENDING)
+
+  // Admin approval
+  approvedBy      String?
+  approvedByUser  User?            @relation("ApprovedWithdrawals", fields: [approvedBy], references: [id])
+  approvedAt      DateTime?
+  rejectionReason String?
+
+  // Processing
+  processedAt     DateTime?
+  transactionId   String?          // External payment ID (PayPal, bank reference, etc.)
+
+  // Notes
+  providerNotes   String?
+  adminNotes      String?
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([requestNumber])
+  @@map("withdrawal_requests")
 }
