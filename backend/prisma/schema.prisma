@@ -51,6 +51,14 @@ enum AssignmentType {
   BOOKING_MONITORING
 }
 
+enum TemplateCategory {
+  BOOKING_COORDINATION
+  SERVICE_DISCUSSION
+  LOGISTICS
+  SUPPORT
+  SYSTEM
+}
+
 model User {
   id              String   @id @default(uuid())
   email           String   @unique
@@ -84,7 +92,14 @@ model User {
   
   // Token transactions
   tokenTransactions TokenTransaction[]
-  
+
+  // Chat templates created by admin
+  createdTemplates ChatTemplate[]
+
+  // Ratings
+  ratingsGiven    Rating[] @relation("SeekerRatings")
+  ratingsReceived Rating[] @relation("ProviderRatings")
+
   @@map("users")
 }
 
@@ -108,10 +123,15 @@ model UserProfile {
   services         String? // JSON string of services
   hourlyRate       Int?     // in tokens
   availability     String?  // JSON availability schedule
-  
+
+  // Rating fields (for providers)
+  averageRating    Float?   @default(0)
+  totalRatings     Int      @default(0)
+  ratingBreakdown  String?  // JSON with breakdown: {"5": 10, "4": 5, "3": 2, "2": 0, "1": 0}
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   @@map("profiles")
 }
 
@@ -149,10 +169,13 @@ model Booking {
   // Chat for this booking
   chatId      String?       @unique
   chat        Chat?         @relation(fields: [chatId], references: [id])
-  
+
+  // Rating for this booking
+  rating      Rating?
+
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
-  
+
   @@map("bookings")
 }
 
@@ -178,21 +201,26 @@ model Message {
   id         String      @id @default(uuid())
   chatId     String
   chat       Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  
+
   senderId   String
   receiverId String
   sender     User        @relation("SentMessages", fields: [senderId], references: [id])
   receiver   User        @relation("ReceivedMessages", fields: [receiverId], references: [id])
-  
+
   content    String
-  type       String @default("TEXT") // "TEXT", "IMAGE", "FILE", "SYSTEM"
+  type       String @default("TEXT") // "TEXT", "IMAGE", "FILE", "SYSTEM", "TEMPLATE"
   fileUrl    String?
-  
+
+  // Template-based messaging
+  templateId String?
+  template   ChatTemplate? @relation(fields: [templateId], references: [id])
+  templateVariables String? // JSON object with variable values
+
   isRead     Boolean     @default(false)
   readAt     DateTime?
-  
+
   createdAt  DateTime    @default(now())
-  
+
   @@map("messages")
 }
 
@@ -223,13 +251,71 @@ model TokenWallet {
   id           String   @id @default(uuid())
   userId       String   @unique
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   balance      Int      @default(0)
   totalEarned  Int      @default(0)
   totalSpent   Int      @default(0)
-  
+
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  
+
   @@map("token_wallets")
+}
+
+model ChatTemplate {
+  id          String           @id @default(uuid())
+  category    TemplateCategory
+  templateText String
+  description String?          // What this template is for
+  variables   String[]         // Array of variable names like ["time", "location", "rate"]
+  isActive    Boolean          @default(true)
+
+  // Template management
+  createdBy   String
+  creator     User             @relation(fields: [createdBy], references: [id])
+
+  // Usage tracking
+  usageCount  Int              @default(0)
+
+  // Messages using this template
+  messages    Message[]
+
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("chat_templates")
+}
+
+model Rating {
+  id          String   @id @default(uuid())
+  bookingId   String   @unique
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  // Who rated
+  seekerId    String
+  seeker      User     @relation("SeekerRatings", fields: [seekerId], references: [id])
+
+  // Who was rated
+  providerId  String
+  provider    User     @relation("ProviderRatings", fields: [providerId], references: [id])
+
+  // Rating details
+  rating      Int      // 1-5 stars
+  review      String?  // Optional text review (max 500 chars)
+  anonymous   Boolean  @default(false)
+
+  // Provider response
+  response    String?
+  respondedAt DateTime?
+
+  // Moderation
+  isFlagged   Boolean  @default(false)
+  flagReason  String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([providerId])
+  @@index([createdAt])
+  @@map("ratings")
 }
