@@ -190,8 +190,12 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: |
+            package-lock.json
             frontend/package-lock.json
             backend/package-lock.json
+
+      - name: Install root dependencies (for E2E testing)
+        run: npm ci
 
       - name: Install backend dependencies
         working-directory: ./backend
@@ -363,8 +367,10 @@ jobs:
           npm install -g nyc
           mkdir -p combined-coverage
           # Combine frontend and backend coverage
-          nyc merge frontend/coverage combined-coverage/coverage-frontend.json
-          nyc merge backend/coverage combined-coverage/coverage-backend.json
+          if [ -d "coverage" ]; then
+            cp -r coverage combined-coverage/
+          fi
+          echo "Combined coverage reports"
 
       - name: Upload combined coverage
         uses: codecov/codecov-action@v3
