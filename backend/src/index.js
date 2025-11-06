@@ -25,6 +25,7 @@ const ratingRoutes = require('./routes/ratings')
 const disputeRoutes = require('./routes/disputes')
 const supportRoutes = require('./routes/support')
 const helpRoutes = require('./routes/help')
+const withdrawalRoutes = require('./routes/withdrawals')
 
 const app = express()
 
@@ -167,6 +168,7 @@ app.use('/api/ratings', ratingRoutes)
 app.use('/api/disputes', disputeRoutes)
 app.use('/api/support', supportRoutes)
 app.use('/api/help', helpRoutes)
+app.use('/api/withdrawals', withdrawalRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/upload', uploadRoutes)
 
