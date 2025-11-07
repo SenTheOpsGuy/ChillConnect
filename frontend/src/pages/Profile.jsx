@@ -2,13 +2,12 @@ import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { FiEdit, FiCamera, FiShield, FiMail, FiPhone, FiUser, FiSend, FiCheck } from 'react-icons/fi'
 import LoadingSpinner from '../components/UI/LoadingSpinner'
-import authService from '../services/authService'
 
 const Profile = () => {
   const { user, loading } = useSelector((state) => state.auth)
   const [editing, setEditing] = useState(false)
-  const [verificationLoading, setVerificationLoading] = useState({})
-  const [verificationMessages, setVerificationMessages] = useState({})
+  const [verificationLoading] = useState({})
+  const [verificationMessages] = useState({})
   const [otpInputs, setOtpInputs] = useState({})
 
   // Show loading spinner while user data is being fetched
