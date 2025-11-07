@@ -1,207 +1,207 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
+import React, { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
 import {
   FiDollarSign,
   FiCheckCircle,
   FiXCircle,
   FiClock,
-  FiTrendingUp
-} from 'react-icons/fi';
+  FiTrendingUp,
+} from 'react-icons/fi'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const WithdrawalManagement = () => {
-  const { token } = useSelector((state) => state.auth);
-  const [withdrawals, setWithdrawals] = useState([]);
-  const [statistics, setStatistics] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState(null);
-  const [statusFilter, setStatusFilter] = useState('');
-  const [selectedWithdrawal, setSelectedWithdrawal] = useState(null);
-  const [actionType, setActionType] = useState(''); // 'approve', 'reject', 'complete'
+  const { token } = useSelector((state) => state.auth)
+  const [withdrawals, setWithdrawals] = useState([])
+  const [statistics, setStatistics] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [pagination, setPagination] = useState(null)
+  const [statusFilter, setStatusFilter] = useState('')
+  const [selectedWithdrawal, setSelectedWithdrawal] = useState(null)
+  const [actionType, setActionType] = useState('') // 'approve', 'reject', 'complete'
   const [formData, setFormData] = useState({
     rejectionReason: '',
     adminNotes: '',
-    transactionId: ''
-  });
-  const [submitting, setSubmitting] = useState(false);
+    transactionId: '',
+  })
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    fetchWithdrawals();
-    fetchStatistics();
-  }, [page, statusFilter]);
+    fetchWithdrawals()
+    fetchStatistics()
+  }, [page, statusFilter])
 
   const fetchWithdrawals = async () => {
     try {
-      setLoading(true);
-      const params = { page, limit: 20 };
+      setLoading(true)
+      const params = { page, limit: 20 }
       if (statusFilter) {
-        params.status = statusFilter;
+        params.status = statusFilter
       }
 
       const response = await axios.get(`${API_URL}/api/withdrawals/admin/all`, {
         params,
-        headers: { Authorization: `Bearer ${token}` }
-      });
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
-      setWithdrawals(response.data.data.requests);
-      setPagination(response.data.data.pagination);
+      setWithdrawals(response.data.data.requests)
+      setPagination(response.data.data.pagination)
     } catch (error) {
-      console.error('Error fetching withdrawals:', error);
-      toast.error('Failed to load withdrawals');
+      console.error('Error fetching withdrawals:', error)
+      toast.error('Failed to load withdrawals')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const fetchStatistics = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/withdrawals/admin/statistics`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setStatistics(response.data.data.statistics);
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setStatistics(response.data.data.statistics)
     } catch (error) {
-      console.error('Error fetching statistics:', error);
+      console.error('Error fetching statistics:', error)
     }
-  };
+  }
 
   const handleApprove = async () => {
     try {
-      setSubmitting(true);
+      setSubmitting(true)
       await axios.put(
         `${API_URL}/api/withdrawals/admin/${selectedWithdrawal.id}/approve`,
         { adminNotes: formData.adminNotes.trim() || null },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
 
-      toast.success('Withdrawal approved successfully');
-      fetchWithdrawals();
-      fetchStatistics();
-      closeModal();
+      toast.success('Withdrawal approved successfully')
+      fetchWithdrawals()
+      fetchStatistics()
+      closeModal()
     } catch (error) {
-      console.error('Error approving withdrawal:', error);
-      toast.error(error.response?.data?.error || 'Failed to approve withdrawal');
+      console.error('Error approving withdrawal:', error)
+      toast.error(error.response?.data?.error || 'Failed to approve withdrawal')
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   const handleReject = async () => {
     if (!formData.rejectionReason.trim()) {
-      toast.error('Please provide a rejection reason');
-      return;
+      toast.error('Please provide a rejection reason')
+      return
     }
 
     try {
-      setSubmitting(true);
+      setSubmitting(true)
       await axios.put(
         `${API_URL}/api/withdrawals/admin/${selectedWithdrawal.id}/reject`,
         {
           rejectionReason: formData.rejectionReason.trim(),
-          adminNotes: formData.adminNotes.trim() || null
+          adminNotes: formData.adminNotes.trim() || null,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
 
-      toast.success('Withdrawal rejected and tokens refunded');
-      fetchWithdrawals();
-      fetchStatistics();
-      closeModal();
+      toast.success('Withdrawal rejected and tokens refunded')
+      fetchWithdrawals()
+      fetchStatistics()
+      closeModal()
     } catch (error) {
-      console.error('Error rejecting withdrawal:', error);
-      toast.error(error.response?.data?.error || 'Failed to reject withdrawal');
+      console.error('Error rejecting withdrawal:', error)
+      toast.error(error.response?.data?.error || 'Failed to reject withdrawal')
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   const handleComplete = async () => {
     if (!formData.transactionId.trim()) {
-      toast.error('Please provide a transaction ID');
-      return;
+      toast.error('Please provide a transaction ID')
+      return
     }
 
     try {
-      setSubmitting(true);
+      setSubmitting(true)
       await axios.put(
         `${API_URL}/api/withdrawals/admin/${selectedWithdrawal.id}/complete`,
         {
           transactionId: formData.transactionId.trim(),
-          adminNotes: formData.adminNotes.trim() || null
+          adminNotes: formData.adminNotes.trim() || null,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
 
-      toast.success('Withdrawal marked as completed');
-      fetchWithdrawals();
-      fetchStatistics();
-      closeModal();
+      toast.success('Withdrawal marked as completed')
+      fetchWithdrawals()
+      fetchStatistics()
+      closeModal()
     } catch (error) {
-      console.error('Error completing withdrawal:', error);
-      toast.error(error.response?.data?.error || 'Failed to complete withdrawal');
+      console.error('Error completing withdrawal:', error)
+      toast.error(error.response?.data?.error || 'Failed to complete withdrawal')
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   const openModal = (withdrawal, type) => {
-    setSelectedWithdrawal(withdrawal);
-    setActionType(type);
-    setFormData({ rejectionReason: '', adminNotes: '', transactionId: '' });
-  };
+    setSelectedWithdrawal(withdrawal)
+    setActionType(type)
+    setFormData({ rejectionReason: '', adminNotes: '', transactionId: '' })
+  }
 
   const closeModal = () => {
-    setSelectedWithdrawal(null);
-    setActionType('');
-    setFormData({ rejectionReason: '', adminNotes: '', transactionId: '' });
-  };
+    setSelectedWithdrawal(null)
+    setActionType('')
+    setFormData({ rejectionReason: '', adminNotes: '', transactionId: '' })
+  }
 
   const getStatusColor = (status) => {
     switch (status) {
       case 'PENDING':
-        return 'bg-yellow-600 bg-opacity-20 text-yellow-500 border-yellow-600';
+        return 'bg-yellow-600 bg-opacity-20 text-yellow-500 border-yellow-600'
       case 'APPROVED':
-        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600';
+        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600'
       case 'PROCESSING':
-        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600';
+        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600'
       case 'COMPLETED':
-        return 'bg-green-600 bg-opacity-20 text-green-500 border-green-600';
+        return 'bg-green-600 bg-opacity-20 text-green-500 border-green-600'
       case 'REJECTED':
-        return 'bg-red-600 bg-opacity-20 text-red-500 border-red-600';
+        return 'bg-red-600 bg-opacity-20 text-red-500 border-red-600'
       case 'CANCELLED':
-        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600';
+        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600'
       default:
-        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600';
+        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600'
     }
-  };
+  }
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+      minute: '2-digit',
+    })
+  }
 
   const getPaymentMethodDisplay = (method) => {
-    if (!method) return 'N/A';
-    if (method.type === 'PAYPAL') return `PayPal: ${method.paypalEmail}`;
-    if (method.type === 'BANK_TRANSFER') return `Bank: ${method.bankName} ****${method.accountNumber?.slice(-4)}`;
-    if (method.type === 'UPI') return `UPI: ${method.upiId}`;
-    return method.type;
-  };
+    if (!method) {return 'N/A'}
+    if (method.type === 'PAYPAL') {return `PayPal: ${method.paypalEmail}`}
+    if (method.type === 'BANK_TRANSFER') {return `Bank: ${method.bankName} ****${method.accountNumber?.slice(-4)}`}
+    if (method.type === 'UPI') {return `UPI: ${method.upiId}`}
+    return method.type
+  }
 
   if (loading && page === 1) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="spinner w-8 h-8"></div>
       </div>
-    );
+    )
   }
 
   return (
@@ -271,8 +271,8 @@ const WithdrawalManagement = () => {
           <button
             key={status || 'all'}
             onClick={() => {
-              setStatusFilter(status);
-              setPage(1);
+              setStatusFilter(status)
+              setPage(1)
             }}
             className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
               statusFilter === status
@@ -502,21 +502,21 @@ const WithdrawalManagement = () => {
                 </button>
                 <button
                   onClick={() => {
-                    if (actionType === 'approve') handleApprove();
-                    if (actionType === 'reject') handleReject();
-                    if (actionType === 'complete') handleComplete();
+                    if (actionType === 'approve') {handleApprove()}
+                    if (actionType === 'reject') {handleReject()}
+                    if (actionType === 'complete') {handleComplete()}
                   }}
                   disabled={submitting}
                   className={`flex-1 px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                     actionType === 'approve' ? 'bg-green-600 hover:bg-green-700 text-white' :
-                    actionType === 'reject' ? 'bg-red-600 hover:bg-red-700 text-white' :
-                    'bg-blue-600 hover:bg-blue-700 text-white'
+                      actionType === 'reject' ? 'bg-red-600 hover:bg-red-700 text-white' :
+                        'bg-blue-600 hover:bg-blue-700 text-white'
                   }`}
                 >
                   {submitting ? 'Processing...' : (
                     actionType === 'approve' ? 'Approve' :
-                    actionType === 'reject' ? 'Reject' :
-                    'Mark Complete'
+                      actionType === 'reject' ? 'Reject' :
+                        'Mark Complete'
                   )}
                 </button>
               </div>
@@ -525,7 +525,7 @@ const WithdrawalManagement = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default WithdrawalManagement;
+export default WithdrawalManagement

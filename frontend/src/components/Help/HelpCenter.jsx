@@ -1,25 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
+import React, { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
 import {
   FiSearch,
   FiBook,
   FiTrendingUp,
   FiChevronRight,
-  FiThumbsUp
-} from 'react-icons/fi';
+  FiThumbsUp,
+} from 'react-icons/fi'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const HelpCenter = () => {
-  const { token } = useSelector((state) => state.auth);
-  const [featuredArticles, setFeaturedArticles] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searching, setSearching] = useState(false);
+  const { token } = useSelector((state) => state.auth)
+  const [featuredArticles, setFeaturedArticles] = useState([])
+  const [categories, setCategories] = useState([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [searching, setSearching] = useState(false)
 
   const categoryInfo = {
     GETTING_STARTED: { label: 'Getting Started', icon: '🚀', color: 'bg-blue-600' },
@@ -28,73 +28,73 @@ const HelpCenter = () => {
     PAYMENTS: { label: 'Payments', icon: '💳', color: 'bg-yellow-600' },
     SAFETY: { label: 'Safety', icon: '🛡️', color: 'bg-red-600' },
     PROVIDERS: { label: 'For Providers', icon: '💼', color: 'bg-indigo-600' },
-    FAQ: { label: 'FAQ', icon: '❓', color: 'bg-pink-600' }
-  };
+    FAQ: { label: 'FAQ', icon: '❓', color: 'bg-pink-600' },
+  }
 
   useEffect(() => {
-    fetchHelpData();
-  }, []);
+    fetchHelpData()
+  }, [])
 
   const fetchHelpData = async () => {
     try {
-      setLoading(true);
+      setLoading(true)
       const [featuredRes, categoriesRes] = await Promise.all([
         axios.get(`${API_URL}/api/help/articles/featured`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         }),
         axios.get(`${API_URL}/api/help/articles/categories`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-      ]);
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ])
 
-      setFeaturedArticles(featuredRes.data.data.articles);
-      setCategories(categoriesRes.data.data.categories);
+      setFeaturedArticles(featuredRes.data.data.articles)
+      setCategories(categoriesRes.data.data.categories)
     } catch (error) {
-      console.error('Error fetching help data:', error);
-      toast.error('Failed to load help articles');
+      console.error('Error fetching help data:', error)
+      toast.error('Failed to load help articles')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSearch = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!searchQuery.trim()) {
-      setSearchResults([]);
-      return;
+      setSearchResults([])
+      return
     }
 
     try {
-      setSearching(true);
+      setSearching(true)
       const response = await axios.get(`${API_URL}/api/help/articles`, {
         params: { search: searchQuery, limit: 20 },
-        headers: { Authorization: `Bearer ${token}` }
-      });
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
-      setSearchResults(response.data.data.articles);
+      setSearchResults(response.data.data.articles)
     } catch (error) {
-      console.error('Error searching articles:', error);
-      toast.error('Failed to search articles');
+      console.error('Error searching articles:', error)
+      toast.error('Failed to search articles')
     } finally {
-      setSearching(false);
+      setSearching(false)
     }
-  };
+  }
 
   const handleArticleClick = (article) => {
-    window.location.href = `/help/article/${article.slug}`;
-  };
+    window.location.href = `/help/article/${article.slug}`
+  }
 
   const handleCategoryClick = (category) => {
-    window.location.href = `/help/category/${category}`;
-  };
+    window.location.href = `/help/category/${category}`
+  }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="spinner w-8 h-8"></div>
       </div>
-    );
+    )
   }
 
   return (
@@ -217,8 +217,8 @@ const HelpCenter = () => {
               const info = categoryInfo[category.category] || {
                 label: category.category,
                 icon: '📄',
-                color: 'bg-gray-600'
-              };
+                color: 'bg-gray-600',
+              }
 
               return (
                 <button
@@ -250,7 +250,7 @@ const HelpCenter = () => {
                     <FiChevronRight className="text-gray-400 group-hover:text-red-500 flex-shrink-0 transition-colors" size={20} />
                   </div>
                 </button>
-              );
+              )
             })}
           </div>
         </div>
@@ -274,7 +274,7 @@ const HelpCenter = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default HelpCenter;
+export default HelpCenter

@@ -1,91 +1,91 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
-import { FiMessageSquare, FiSend } from 'react-icons/fi';
-import RatingStars from './RatingStars';
+import React, { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
+import { FiMessageSquare, FiSend } from 'react-icons/fi'
+import RatingStars from './RatingStars'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const MyRatings = ({ type = 'received' }) => {
-  const { token, user } = useSelector((state) => state.auth);
-  const [ratings, setRatings] = useState([]);
-  const [statistics, setStatistics] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState(null);
-  const [respondingTo, setRespondingTo] = useState(null);
-  const [response, setResponse] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+  const { token, user } = useSelector((state) => state.auth)
+  const [ratings, setRatings] = useState([])
+  const [statistics, setStatistics] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [pagination, setPagination] = useState(null)
+  const [respondingTo, setRespondingTo] = useState(null)
+  const [response, setResponse] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    fetchRatings();
-  }, [type, page]);
+    fetchRatings()
+  }, [type, page])
 
   const fetchRatings = async () => {
     try {
-      setLoading(true);
-      const endpoint = type === 'received' ? '/api/ratings/my-received' : '/api/ratings/my-ratings';
+      setLoading(true)
+      const endpoint = type === 'received' ? '/api/ratings/my-received' : '/api/ratings/my-ratings'
       const response = await axios.get(`${API_URL}${endpoint}`, {
         params: { page, limit: 10 },
-        headers: { Authorization: `Bearer ${token}` }
-      });
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
-      setRatings(response.data.data.ratings);
+      setRatings(response.data.data.ratings)
       if (response.data.data.statistics) {
-        setStatistics(response.data.data.statistics);
+        setStatistics(response.data.data.statistics)
       }
-      setPagination(response.data.data.pagination);
+      setPagination(response.data.data.pagination)
     } catch (error) {
-      console.error('Error fetching ratings:', error);
-      toast.error('Failed to load ratings');
+      console.error('Error fetching ratings:', error)
+      toast.error('Failed to load ratings')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleRespond = async (ratingId) => {
     if (!response.trim()) {
-      toast.error('Please enter a response');
-      return;
+      toast.error('Please enter a response')
+      return
     }
 
     try {
-      setSubmitting(true);
+      setSubmitting(true)
 
       await axios.put(
         `${API_URL}/api/ratings/${ratingId}/response`,
         { response: response.trim() },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
 
-      toast.success('Response submitted successfully');
-      setRespondingTo(null);
-      setResponse('');
-      fetchRatings();
+      toast.success('Response submitted successfully')
+      setRespondingTo(null)
+      setResponse('')
+      fetchRatings()
     } catch (error) {
-      console.error('Error submitting response:', error);
-      toast.error(error.response?.data?.error || 'Failed to submit response');
+      console.error('Error submitting response:', error)
+      toast.error(error.response?.data?.error || 'Failed to submit response')
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
-    });
-  };
+      day: 'numeric',
+    })
+  }
 
   if (loading && page === 1) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="spinner w-8 h-8"></div>
       </div>
-    );
+    )
   }
 
   if (ratings.length === 0) {
@@ -101,7 +101,7 @@ const MyRatings = ({ type = 'received' }) => {
             : 'Rate providers after completing bookings'}
         </p>
       </div>
-    );
+    )
   }
 
   return (
@@ -138,8 +138,8 @@ const MyRatings = ({ type = 'received' }) => {
       {/* Ratings List */}
       <div className="space-y-4">
         {ratings.map((rating) => {
-          const otherUser = type === 'received' ? rating.seeker : rating.provider;
-          const isResponding = respondingTo === rating.id;
+          const otherUser = type === 'received' ? rating.seeker : rating.provider
+          const isResponding = respondingTo === rating.id
 
           return (
             <div key={rating.id} className="card">
@@ -227,8 +227,8 @@ const MyRatings = ({ type = 'received' }) => {
                                 <div className="flex gap-2">
                                   <button
                                     onClick={() => {
-                                      setRespondingTo(null);
-                                      setResponse('');
+                                      setRespondingTo(null)
+                                      setResponse('')
                                     }}
                                     className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg text-sm transition-colors"
                                   >
@@ -262,7 +262,7 @@ const MyRatings = ({ type = 'received' }) => {
                 </div>
               </div>
             </div>
-          );
+          )
         })}
       </div>
 
@@ -289,7 +289,7 @@ const MyRatings = ({ type = 'received' }) => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default MyRatings;
+export default MyRatings

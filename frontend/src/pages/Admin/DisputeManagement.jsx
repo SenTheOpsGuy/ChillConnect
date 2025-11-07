@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
+import React, { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
 import {
   FiAlertTriangle,
   FiEye,
@@ -10,153 +10,153 @@ import {
   FiClock,
   FiXCircle,
   FiTrendingUp,
-  FiActivity
-} from 'react-icons/fi';
+  FiActivity,
+} from 'react-icons/fi'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const DisputeManagement = () => {
-  const { token } = useSelector((state) => state.auth);
-  const [disputes, setDisputes] = useState([]);
-  const [statistics, setStatistics] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState(null);
-  const [statusFilter, setStatusFilter] = useState('ALL');
-  const [selectedDispute, setSelectedDispute] = useState(null);
-  const [managers, setManagers] = useState([]);
-  const [showResolveModal, setShowResolveModal] = useState(false);
+  const { token } = useSelector((state) => state.auth)
+  const [disputes, setDisputes] = useState([])
+  const [statistics, setStatistics] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [pagination, setPagination] = useState(null)
+  const [statusFilter, setStatusFilter] = useState('ALL')
+  const [selectedDispute, setSelectedDispute] = useState(null)
+  const [managers, setManagers] = useState([])
+  const [showResolveModal, setShowResolveModal] = useState(false)
   const [resolveData, setResolveData] = useState({
     resolution: '',
     refundIssued: false,
-    refundAmount: 0
-  });
-  const [submitting, setSubmitting] = useState(false);
+    refundAmount: 0,
+  })
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    fetchDisputes();
-    fetchStatistics();
-    fetchManagers();
-  }, [page, statusFilter]);
+    fetchDisputes()
+    fetchStatistics()
+    fetchManagers()
+  }, [page, statusFilter])
 
   const fetchDisputes = async () => {
     try {
-      setLoading(true);
-      const params = { page, limit: 20 };
+      setLoading(true)
+      const params = { page, limit: 20 }
       if (statusFilter !== 'ALL') {
-        params.status = statusFilter;
+        params.status = statusFilter
       }
 
       const response = await axios.get(`${API_URL}/api/disputes/admin/all`, {
         params,
-        headers: { Authorization: `Bearer ${token}` }
-      });
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
-      setDisputes(response.data.data.disputes);
-      setPagination(response.data.data.pagination);
+      setDisputes(response.data.data.disputes)
+      setPagination(response.data.data.pagination)
     } catch (error) {
-      console.error('Error fetching disputes:', error);
-      toast.error('Failed to load disputes');
+      console.error('Error fetching disputes:', error)
+      toast.error('Failed to load disputes')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const fetchStatistics = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/disputes/admin/statistics`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setStatistics(response.data.data.statistics);
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setStatistics(response.data.data.statistics)
     } catch (error) {
-      console.error('Error fetching statistics:', error);
+      console.error('Error fetching statistics:', error)
     }
-  };
+  }
 
   const fetchManagers = async () => {
     try {
       // Fetch users with MANAGER role or higher
       const response = await axios.get(`${API_URL}/api/admin/users`, {
         params: { role: 'MANAGER' },
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setManagers(response.data.data.users || []);
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setManagers(response.data.data.users || [])
     } catch (error) {
-      console.error('Error fetching managers:', error);
+      console.error('Error fetching managers:', error)
       // Silently fail, not critical
     }
-  };
+  }
 
   const handleAssignManager = async (disputeId, managerId) => {
     try {
       await axios.put(
         `${API_URL}/api/disputes/${disputeId}/assign`,
         { managerId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
 
-      toast.success('Manager assigned successfully');
-      fetchDisputes();
+      toast.success('Manager assigned successfully')
+      fetchDisputes()
     } catch (error) {
-      console.error('Error assigning manager:', error);
-      toast.error(error.response?.data?.error || 'Failed to assign manager');
+      console.error('Error assigning manager:', error)
+      toast.error(error.response?.data?.error || 'Failed to assign manager')
     }
-  };
+  }
 
   const handleResolve = async () => {
     if (!resolveData.resolution.trim()) {
-      toast.error('Please provide a resolution description');
-      return;
+      toast.error('Please provide a resolution description')
+      return
     }
 
     if (resolveData.refundIssued && (!resolveData.refundAmount || resolveData.refundAmount <= 0)) {
-      toast.error('Please specify a valid refund amount');
-      return;
+      toast.error('Please specify a valid refund amount')
+      return
     }
 
     try {
-      setSubmitting(true);
+      setSubmitting(true)
 
       await axios.put(
         `${API_URL}/api/disputes/${selectedDispute.id}/resolve`,
         {
           resolution: resolveData.resolution.trim(),
           refundIssued: resolveData.refundIssued,
-          refundAmount: resolveData.refundIssued ? parseInt(resolveData.refundAmount) : null
+          refundAmount: resolveData.refundIssued ? parseInt(resolveData.refundAmount) : null,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
 
-      toast.success('Dispute resolved successfully');
-      setShowResolveModal(false);
-      setSelectedDispute(null);
-      setResolveData({ resolution: '', refundIssued: false, refundAmount: 0 });
-      fetchDisputes();
-      fetchStatistics();
+      toast.success('Dispute resolved successfully')
+      setShowResolveModal(false)
+      setSelectedDispute(null)
+      setResolveData({ resolution: '', refundIssued: false, refundAmount: 0 })
+      fetchDisputes()
+      fetchStatistics()
     } catch (error) {
-      console.error('Error resolving dispute:', error);
-      toast.error(error.response?.data?.error || 'Failed to resolve dispute');
+      console.error('Error resolving dispute:', error)
+      toast.error(error.response?.data?.error || 'Failed to resolve dispute')
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   const getStatusColor = (status) => {
     switch (status) {
       case 'OPEN':
-        return 'bg-yellow-600 bg-opacity-20 text-yellow-500 border-yellow-600';
+        return 'bg-yellow-600 bg-opacity-20 text-yellow-500 border-yellow-600'
       case 'INVESTIGATING':
-        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600';
+        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600'
       case 'RESOLVED':
-        return 'bg-green-600 bg-opacity-20 text-green-500 border-green-600';
+        return 'bg-green-600 bg-opacity-20 text-green-500 border-green-600'
       case 'CLOSED':
-        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600';
+        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600'
       case 'ESCALATED':
-        return 'bg-red-600 bg-opacity-20 text-red-500 border-red-600';
+        return 'bg-red-600 bg-opacity-20 text-red-500 border-red-600'
       default:
-        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600';
+        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600'
     }
-  };
+  }
 
   const getDisputeTypeLabel = (type) => {
     const labels = {
@@ -165,28 +165,28 @@ const DisputeManagement = () => {
       PAYMENT_ISSUE: 'Payment Issue',
       BEHAVIOR_ISSUE: 'Behavior Issue',
       TERMS_VIOLATION: 'Terms Violation',
-      OTHER: 'Other'
-    };
-    return labels[type] || type;
-  };
+      OTHER: 'Other',
+    }
+    return labels[type] || type
+  }
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+      minute: '2-digit',
+    })
+  }
 
   if (loading && page === 1) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="spinner w-8 h-8"></div>
       </div>
-    );
+    )
   }
 
   return (
@@ -252,8 +252,8 @@ const DisputeManagement = () => {
           <button
             key={status}
             onClick={() => {
-              setStatusFilter(status);
-              setPage(1);
+              setStatusFilter(status)
+              setPage(1)
             }}
             className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
               statusFilter === status
@@ -352,8 +352,8 @@ const DisputeManagement = () => {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => {
-                            setSelectedDispute(dispute);
-                            setShowResolveModal(true);
+                            setSelectedDispute(dispute)
+                            setShowResolveModal(true)
                           }}
                           className="text-sm text-red-500 hover:text-red-400 flex items-center gap-1"
                         >
@@ -363,8 +363,8 @@ const DisputeManagement = () => {
                         {(dispute.status === 'OPEN' || dispute.status === 'INVESTIGATING') && (
                           <button
                             onClick={() => {
-                              setSelectedDispute(dispute);
-                              setShowResolveModal(true);
+                              setSelectedDispute(dispute)
+                              setShowResolveModal(true)
                             }}
                             className="text-sm text-green-500 hover:text-green-400 flex items-center gap-1"
                           >
@@ -421,9 +421,9 @@ const DisputeManagement = () => {
               </div>
               <button
                 onClick={() => {
-                  setShowResolveModal(false);
-                  setSelectedDispute(null);
-                  setResolveData({ resolution: '', refundIssued: false, refundAmount: 0 });
+                  setShowResolveModal(false)
+                  setSelectedDispute(null)
+                  setResolveData({ resolution: '', refundIssued: false, refundAmount: 0 })
                 }}
                 className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
               >
@@ -547,9 +547,9 @@ const DisputeManagement = () => {
               <div className="flex gap-3 pt-4 border-t border-gray-800">
                 <button
                   onClick={() => {
-                    setShowResolveModal(false);
-                    setSelectedDispute(null);
-                    setResolveData({ resolution: '', refundIssued: false, refundAmount: 0 });
+                    setShowResolveModal(false)
+                    setSelectedDispute(null)
+                    setResolveData({ resolution: '', refundIssued: false, refundAmount: 0 })
                   }}
                   className="flex-1 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors"
                 >
@@ -578,7 +578,7 @@ const DisputeManagement = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default DisputeManagement;
+export default DisputeManagement

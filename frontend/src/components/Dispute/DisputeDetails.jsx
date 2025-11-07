@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
+import React, { useState } from 'react'
+import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
 import {
   FiX,
   FiAlertTriangle,
@@ -11,39 +11,39 @@ import {
   FiMessageSquare,
   FiCheckCircle,
   FiClock,
-  FiExternalLink
-} from 'react-icons/fi';
+  FiExternalLink,
+} from 'react-icons/fi'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const DisputeDetails = ({ dispute, onClose, onUpdate }) => {
-  const { token, user } = useSelector((state) => state.auth);
-  const [showAppealForm, setShowAppealForm] = useState(false);
-  const [appealReason, setAppealReason] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+  const { token, user } = useSelector((state) => state.auth)
+  const [showAppealForm, setShowAppealForm] = useState(false)
+  const [appealReason, setAppealReason] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
-  const isReporter = dispute.reportedBy === user.id;
+  const isReporter = dispute.reportedBy === user.id
   const canAppeal =
     dispute.status === 'RESOLVED' &&
     isReporter &&
-    !dispute.appealedAt;
+    !dispute.appealedAt
 
   const getStatusColor = (status) => {
     switch (status) {
       case 'OPEN':
-        return 'bg-yellow-600 bg-opacity-20 text-yellow-500 border-yellow-600';
+        return 'bg-yellow-600 bg-opacity-20 text-yellow-500 border-yellow-600'
       case 'INVESTIGATING':
-        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600';
+        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600'
       case 'RESOLVED':
-        return 'bg-green-600 bg-opacity-20 text-green-500 border-green-600';
+        return 'bg-green-600 bg-opacity-20 text-green-500 border-green-600'
       case 'CLOSED':
-        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600';
+        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600'
       case 'ESCALATED':
-        return 'bg-red-600 bg-opacity-20 text-red-500 border-red-600';
+        return 'bg-red-600 bg-opacity-20 text-red-500 border-red-600'
       default:
-        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600';
+        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600'
     }
-  };
+  }
 
   const getDisputeTypeLabel = (type) => {
     const labels = {
@@ -52,60 +52,60 @@ const DisputeDetails = ({ dispute, onClose, onUpdate }) => {
       PAYMENT_ISSUE: 'Payment Issue',
       BEHAVIOR_ISSUE: 'Behavior Issue',
       TERMS_VIOLATION: 'Terms Violation',
-      OTHER: 'Other'
-    };
-    return labels[type] || type;
-  };
+      OTHER: 'Other',
+    }
+    return labels[type] || type
+  }
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+      minute: '2-digit',
+    })
+  }
 
   const handleAppeal = async () => {
     if (!appealReason.trim()) {
-      toast.error('Please provide a reason for your appeal');
-      return;
+      toast.error('Please provide a reason for your appeal')
+      return
     }
 
     if (appealReason.trim().length < 20) {
-      toast.error('Appeal reason must be at least 20 characters');
-      return;
+      toast.error('Appeal reason must be at least 20 characters')
+      return
     }
 
     try {
-      setSubmitting(true);
+      setSubmitting(true)
 
       await axios.post(
         `${API_URL}/api/disputes/${dispute.id}/appeal`,
         { appealReason: appealReason.trim() },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
 
-      toast.success('Appeal submitted successfully');
-      setShowAppealForm(false);
-      setAppealReason('');
+      toast.success('Appeal submitted successfully')
+      setShowAppealForm(false)
+      setAppealReason('')
 
       if (onUpdate) {
-        onUpdate();
+        onUpdate()
       }
 
       if (onClose) {
-        onClose();
+        onClose()
       }
     } catch (error) {
-      console.error('Error submitting appeal:', error);
-      toast.error(error.response?.data?.error || 'Failed to submit appeal');
+      console.error('Error submitting appeal:', error)
+      toast.error(error.response?.data?.error || 'Failed to submit appeal')
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
@@ -359,8 +359,8 @@ const DisputeDetails = ({ dispute, onClose, onUpdate }) => {
                 <div className="flex gap-2">
                   <button
                     onClick={() => {
-                      setShowAppealForm(false);
-                      setAppealReason('');
+                      setShowAppealForm(false)
+                      setAppealReason('')
                     }}
                     className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
                   >
@@ -387,7 +387,7 @@ const DisputeDetails = ({ dispute, onClose, onUpdate }) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default DisputeDetails;
+export default DisputeDetails

@@ -1,90 +1,90 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
-import { FiSearch, FiSend, FiX } from 'react-icons/fi';
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
+import { FiSearch, FiSend, FiX } from 'react-icons/fi'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const TemplateSelector = ({ token, bookingId, onSend, onClose }) => {
-  const [templates, setTemplates] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const [templateVariables, setTemplateVariables] = useState({});
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [templates, setTemplates] = useState({})
+  const [loading, setLoading] = useState(true)
+  const [selectedTemplate, setSelectedTemplate] = useState(null)
+  const [templateVariables, setTemplateVariables] = useState({})
+  const [selectedCategory, setSelectedCategory] = useState(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
   const categories = [
     { key: 'BOOKING_COORDINATION', label: 'Booking', icon: '📅' },
     { key: 'SERVICE_DISCUSSION', label: 'Services', icon: '💼' },
     { key: 'LOGISTICS', label: 'Logistics', icon: '🚗' },
-    { key: 'SUPPORT', label: 'Support', icon: '🆘' }
-  ];
+    { key: 'SUPPORT', label: 'Support', icon: '🆘' },
+  ]
 
   useEffect(() => {
-    fetchTemplates();
-  }, []);
+    fetchTemplates()
+  }, [])
 
   const fetchTemplates = async () => {
     try {
-      setLoading(true);
+      setLoading(true)
       const response = await axios.get(`${API_URL}/api/templates/categories`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setTemplates(response.data.data.categories);
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setTemplates(response.data.data.categories)
     } catch (error) {
-      console.error('Error fetching templates:', error);
-      toast.error('Failed to load message templates');
+      console.error('Error fetching templates:', error)
+      toast.error('Failed to load message templates')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleTemplateSelect = (template) => {
-    setSelectedTemplate(template);
+    setSelectedTemplate(template)
     // Initialize variables with empty values
     if (template.variables && template.variables.length > 0) {
-      const initialVars = {};
+      const initialVars = {}
       template.variables.forEach(varName => {
-        initialVars[varName] = '';
-      });
-      setTemplateVariables(initialVars);
+        initialVars[varName] = ''
+      })
+      setTemplateVariables(initialVars)
     } else {
-      setTemplateVariables({});
+      setTemplateVariables({})
     }
-  };
+  }
 
   const handleVariableChange = (varName, value) => {
     setTemplateVariables({
       ...templateVariables,
-      [varName]: value
-    });
-  };
+      [varName]: value,
+    })
+  }
 
   const processTemplate = (template, variables) => {
-    let text = template.templateText;
+    let text = template.templateText
     if (variables && Object.keys(variables).length > 0) {
       Object.keys(variables).forEach(key => {
-        const regex = new RegExp(`{{${key}}}`, 'g');
-        text = text.replace(regex, variables[key] || '');
-      });
+        const regex = new RegExp(`{{${key}}}`, 'g')
+        text = text.replace(regex, variables[key] || '')
+      })
     }
-    return text;
-  };
+    return text
+  }
 
   const handleSend = async () => {
     if (!selectedTemplate) {
-      toast.error('Please select a message template');
-      return;
+      toast.error('Please select a message template')
+      return
     }
 
     // Validate required variables
     if (selectedTemplate.variables && selectedTemplate.variables.length > 0) {
       const missingVars = selectedTemplate.variables.filter(
-        varName => !templateVariables[varName] || !templateVariables[varName].trim()
-      );
+        varName => !templateVariables[varName] || !templateVariables[varName].trim(),
+      )
       if (missingVars.length > 0) {
-        toast.error(`Please fill in: ${missingVars.join(', ')}`);
-        return;
+        toast.error(`Please fill in: ${missingVars.join(', ')}`)
+        return
       }
     }
 
@@ -94,46 +94,46 @@ const TemplateSelector = ({ token, bookingId, onSend, onClose }) => {
         {
           bookingId,
           templateId: selectedTemplate.id,
-          variables: templateVariables
+          variables: templateVariables,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
 
       // Call parent callback
       if (onSend) {
-        onSend(processTemplate(selectedTemplate, templateVariables));
+        onSend(processTemplate(selectedTemplate, templateVariables))
       }
 
       // Reset
-      setSelectedTemplate(null);
-      setTemplateVariables({});
+      setSelectedTemplate(null)
+      setTemplateVariables({})
 
-      toast.success('Message sent');
+      toast.success('Message sent')
     } catch (error) {
-      console.error('Error sending message:', error);
-      toast.error(error.response?.data?.error || 'Failed to send message');
+      console.error('Error sending message:', error)
+      toast.error(error.response?.data?.error || 'Failed to send message')
     }
-  };
+  }
 
   const getFilteredTemplates = () => {
-    if (!selectedCategory) return [];
+    if (!selectedCategory) {return []}
 
-    const categoryTemplates = templates[selectedCategory] || [];
+    const categoryTemplates = templates[selectedCategory] || []
 
-    if (!searchQuery.trim()) return categoryTemplates;
+    if (!searchQuery.trim()) {return categoryTemplates}
 
     return categoryTemplates.filter(template =>
       template.templateText.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (template.description && template.description.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
-  };
+      (template.description && template.description.toLowerCase().includes(searchQuery.toLowerCase())),
+    )
+  }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="spinner w-8 h-8"></div>
       </div>
-    );
+    )
   }
 
   return (
@@ -159,7 +159,7 @@ const TemplateSelector = ({ token, bookingId, onSend, onClose }) => {
         <div className="flex-1 overflow-y-auto p-4">
           <div className="grid grid-cols-2 gap-4">
             {categories.map(category => {
-              const count = templates[category.key]?.length || 0;
+              const count = templates[category.key]?.length || 0
               return (
                 <button
                   key={category.key}
@@ -170,7 +170,7 @@ const TemplateSelector = ({ token, bookingId, onSend, onClose }) => {
                   <div className="text-white font-medium mb-1">{category.label}</div>
                   <div className="text-gray-400 text-sm">{count} templates</div>
                 </button>
-              );
+              )
             })}
           </div>
         </div>
@@ -180,9 +180,9 @@ const TemplateSelector = ({ token, bookingId, onSend, onClose }) => {
           <div className="p-4 border-b border-gray-800">
             <button
               onClick={() => {
-                setSelectedCategory(null);
-                setSelectedTemplate(null);
-                setSearchQuery('');
+                setSelectedCategory(null)
+                setSelectedTemplate(null)
+                setSearchQuery('')
               }}
               className="text-red-500 hover:text-red-400 mb-3 flex items-center gap-2"
             >
@@ -281,7 +281,7 @@ const TemplateSelector = ({ token, bookingId, onSend, onClose }) => {
         </>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default TemplateSelector;
+export default TemplateSelector

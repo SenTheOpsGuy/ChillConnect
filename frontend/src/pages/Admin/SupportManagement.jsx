@@ -1,191 +1,191 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
+import React, { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
 import {
   FiMessageSquare,
   FiEye,
   FiCheckCircle,
   FiXCircle,
   FiClock,
-  FiAlertTriangle
-} from 'react-icons/fi';
+  FiAlertTriangle,
+} from 'react-icons/fi'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const SupportManagement = () => {
-  const { token } = useSelector((state) => state.auth);
-  const [tickets, setTickets] = useState([]);
-  const [statistics, setStatistics] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState(null);
+  const { token } = useSelector((state) => state.auth)
+  const [tickets, setTickets] = useState([])
+  const [statistics, setStatistics] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [pagination, setPagination] = useState(null)
   const [filters, setFilters] = useState({
     status: '',
     category: '',
-    priority: ''
-  });
-  const [selectedTicket, setSelectedTicket] = useState(null);
-  const [assigneeId, setAssigneeId] = useState('');
-  const [resolution, setResolution] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+    priority: '',
+  })
+  const [selectedTicket, setSelectedTicket] = useState(null)
+  const [assigneeId, setAssigneeId] = useState('')
+  const [resolution, setResolution] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    fetchTickets();
-    fetchStatistics();
-  }, [page, filters]);
+    fetchTickets()
+    fetchStatistics()
+  }, [page, filters])
 
   const fetchTickets = async () => {
     try {
-      setLoading(true);
-      const params = { page, limit: 20, ...filters };
+      setLoading(true)
+      const params = { page, limit: 20, ...filters }
 
       const response = await axios.get(`${API_URL}/api/support/admin/tickets`, {
         params,
-        headers: { Authorization: `Bearer ${token}` }
-      });
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
-      setTickets(response.data.data.tickets);
-      setPagination(response.data.data.pagination);
+      setTickets(response.data.data.tickets)
+      setPagination(response.data.data.pagination)
     } catch (error) {
-      console.error('Error fetching tickets:', error);
-      toast.error('Failed to load support tickets');
+      console.error('Error fetching tickets:', error)
+      toast.error('Failed to load support tickets')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const fetchStatistics = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/support/admin/statistics`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setStatistics(response.data.data.statistics);
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setStatistics(response.data.data.statistics)
     } catch (error) {
-      console.error('Error fetching statistics:', error);
+      console.error('Error fetching statistics:', error)
     }
-  };
+  }
 
   const handleAssign = async (ticketId) => {
     if (!assigneeId) {
-      toast.error('Please select a staff member');
-      return;
+      toast.error('Please select a staff member')
+      return
     }
 
     try {
-      setSubmitting(true);
+      setSubmitting(true)
       await axios.put(
         `${API_URL}/api/support/admin/tickets/${ticketId}/assign`,
         { assignedTo: assigneeId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
 
-      toast.success('Ticket assigned successfully');
-      fetchTickets();
-      setSelectedTicket(null);
+      toast.success('Ticket assigned successfully')
+      fetchTickets()
+      setSelectedTicket(null)
     } catch (error) {
-      console.error('Error assigning ticket:', error);
-      toast.error(error.response?.data?.error || 'Failed to assign ticket');
+      console.error('Error assigning ticket:', error)
+      toast.error(error.response?.data?.error || 'Failed to assign ticket')
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   const handleResolve = async (ticketId) => {
     if (!resolution.trim()) {
-      toast.error('Please provide a resolution summary');
-      return;
+      toast.error('Please provide a resolution summary')
+      return
     }
 
     try {
-      setSubmitting(true);
+      setSubmitting(true)
       await axios.put(
         `${API_URL}/api/support/admin/tickets/${ticketId}/resolve`,
         { resolution: resolution.trim() },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
 
-      toast.success('Ticket resolved successfully');
-      fetchTickets();
-      fetchStatistics();
-      setSelectedTicket(null);
-      setResolution('');
+      toast.success('Ticket resolved successfully')
+      fetchTickets()
+      fetchStatistics()
+      setSelectedTicket(null)
+      setResolution('')
     } catch (error) {
-      console.error('Error resolving ticket:', error);
-      toast.error(error.response?.data?.error || 'Failed to resolve ticket');
+      console.error('Error resolving ticket:', error)
+      toast.error(error.response?.data?.error || 'Failed to resolve ticket')
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   const handleClose = async (ticketId) => {
-    if (!confirm('Are you sure you want to close this ticket?')) return;
+    if (!confirm('Are you sure you want to close this ticket?')) {return}
 
     try {
       await axios.put(
         `${API_URL}/api/support/admin/tickets/${ticketId}/close`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
 
-      toast.success('Ticket closed successfully');
-      fetchTickets();
-      fetchStatistics();
-      setSelectedTicket(null);
+      toast.success('Ticket closed successfully')
+      fetchTickets()
+      fetchStatistics()
+      setSelectedTicket(null)
     } catch (error) {
-      console.error('Error closing ticket:', error);
-      toast.error(error.response?.data?.error || 'Failed to close ticket');
+      console.error('Error closing ticket:', error)
+      toast.error(error.response?.data?.error || 'Failed to close ticket')
     }
-  };
+  }
 
   const getStatusColor = (status) => {
     switch (status) {
       case 'OPEN':
-        return 'bg-yellow-600 bg-opacity-20 text-yellow-500 border-yellow-600';
+        return 'bg-yellow-600 bg-opacity-20 text-yellow-500 border-yellow-600'
       case 'IN_PROGRESS':
-        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600';
+        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600'
       case 'WAITING_USER':
-        return 'bg-orange-600 bg-opacity-20 text-orange-500 border-orange-600';
+        return 'bg-orange-600 bg-opacity-20 text-orange-500 border-orange-600'
       case 'RESOLVED':
-        return 'bg-green-600 bg-opacity-20 text-green-500 border-green-600';
+        return 'bg-green-600 bg-opacity-20 text-green-500 border-green-600'
       case 'CLOSED':
-        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600';
+        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600'
       default:
-        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600';
+        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600'
     }
-  };
+  }
 
   const getPriorityColor = (priority) => {
     switch (priority) {
       case 'URGENT':
-        return 'text-red-500';
+        return 'text-red-500'
       case 'HIGH':
-        return 'text-yellow-500';
+        return 'text-yellow-500'
       case 'MEDIUM':
-        return 'text-blue-500';
+        return 'text-blue-500'
       case 'LOW':
-        return 'text-gray-500';
+        return 'text-gray-500'
       default:
-        return 'text-gray-500';
+        return 'text-gray-500'
     }
-  };
+  }
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+      minute: '2-digit',
+    })
+  }
 
   if (loading && page === 1) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="spinner w-8 h-8"></div>
       </div>
-    );
+    )
   }
 
   return (
@@ -410,7 +410,7 @@ const SupportManagement = () => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default SupportManagement;
+export default SupportManagement

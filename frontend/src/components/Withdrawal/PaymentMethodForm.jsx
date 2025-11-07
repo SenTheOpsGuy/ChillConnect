@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
-import { FiX, FiSave } from 'react-icons/fi';
+import React, { useState } from 'react'
+import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
+import { FiX, FiSave } from 'react-icons/fi'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const PaymentMethodForm = ({ onClose, onSuccess }) => {
-  const { token } = useSelector((state) => state.auth);
+  const { token } = useSelector((state) => state.auth)
   const [formData, setFormData] = useState({
     type: '',
     nickname: '',
@@ -20,96 +20,96 @@ const PaymentMethodForm = ({ onClose, onSuccess }) => {
     bankName: '',
     branchName: '',
     // UPI
-    upiId: ''
-  });
-  const [submitting, setSubmitting] = useState(false);
+    upiId: '',
+  })
+  const [submitting, setSubmitting] = useState(false)
 
   const paymentTypes = [
     { value: 'PAYPAL', label: 'PayPal', icon: '💳', description: 'Fast international payments' },
     { value: 'BANK_TRANSFER', label: 'Bank Transfer', icon: '🏦', description: 'Direct bank transfer (India)' },
-    { value: 'UPI', label: 'UPI', icon: '📱', description: 'Instant UPI payments' }
-  ];
+    { value: 'UPI', label: 'UPI', icon: '📱', description: 'Instant UPI payments' },
+  ]
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setFormData({
       ...formData,
-      [name]: value
-    });
-  };
+      [name]: value,
+    })
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!formData.type) {
-      toast.error('Please select a payment method type');
-      return;
+      toast.error('Please select a payment method type')
+      return
     }
 
     // Validate based on type
     if (formData.type === 'PAYPAL' && !formData.paypalEmail) {
-      toast.error('PayPal email is required');
-      return;
+      toast.error('PayPal email is required')
+      return
     }
 
     if (formData.type === 'BANK_TRANSFER') {
       if (!formData.accountHolderName || !formData.accountNumber || !formData.ifscCode || !formData.bankName) {
-        toast.error('All bank details are required');
-        return;
+        toast.error('All bank details are required')
+        return
       }
       if (formData.ifscCode.length !== 11) {
-        toast.error('IFSC code must be 11 characters');
-        return;
+        toast.error('IFSC code must be 11 characters')
+        return
       }
     }
 
     if (formData.type === 'UPI' && !formData.upiId) {
-      toast.error('UPI ID is required');
-      return;
+      toast.error('UPI ID is required')
+      return
     }
 
     try {
-      setSubmitting(true);
+      setSubmitting(true)
 
       const payload = {
         type: formData.type,
-        nickname: formData.nickname.trim() || null
-      };
+        nickname: formData.nickname.trim() || null,
+      }
 
       if (formData.type === 'PAYPAL') {
-        payload.paypalEmail = formData.paypalEmail.trim();
+        payload.paypalEmail = formData.paypalEmail.trim()
       } else if (formData.type === 'BANK_TRANSFER') {
-        payload.accountHolderName = formData.accountHolderName.trim();
-        payload.accountNumber = formData.accountNumber.trim();
-        payload.ifscCode = formData.ifscCode.trim().toUpperCase();
-        payload.bankName = formData.bankName.trim();
-        payload.branchName = formData.branchName.trim() || null;
+        payload.accountHolderName = formData.accountHolderName.trim()
+        payload.accountNumber = formData.accountNumber.trim()
+        payload.ifscCode = formData.ifscCode.trim().toUpperCase()
+        payload.bankName = formData.bankName.trim()
+        payload.branchName = formData.branchName.trim() || null
       } else if (formData.type === 'UPI') {
-        payload.upiId = formData.upiId.trim();
+        payload.upiId = formData.upiId.trim()
       }
 
       await axios.post(
         `${API_URL}/api/withdrawals/payment-methods`,
         payload,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
 
-      toast.success('Payment method added successfully');
+      toast.success('Payment method added successfully')
 
       if (onSuccess) {
-        onSuccess();
+        onSuccess()
       }
 
       if (onClose) {
-        onClose();
+        onClose()
       }
     } catch (error) {
-      console.error('Error adding payment method:', error);
-      toast.error(error.response?.data?.error || 'Failed to add payment method');
+      console.error('Error adding payment method:', error)
+      toast.error(error.response?.data?.error || 'Failed to add payment method')
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
@@ -341,7 +341,7 @@ const PaymentMethodForm = ({ onClose, onSuccess }) => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default PaymentMethodForm;
+export default PaymentMethodForm

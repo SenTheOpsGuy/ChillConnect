@@ -1,137 +1,137 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
+import React, { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
 import {
   FiDollarSign,
   FiPlus,
   FiClock,
   FiCheckCircle,
   FiXCircle,
-  FiAlertTriangle
-} from 'react-icons/fi';
-import WithdrawalRequestForm from './WithdrawalRequestForm';
+  FiAlertTriangle,
+} from 'react-icons/fi'
+import WithdrawalRequestForm from './WithdrawalRequestForm'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const MyWithdrawals = () => {
-  const { token } = useSelector((state) => state.auth);
-  const [withdrawals, setWithdrawals] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState(null);
-  const [statusFilter, setStatusFilter] = useState('ALL');
-  const [showRequestForm, setShowRequestForm] = useState(false);
+  const { token } = useSelector((state) => state.auth)
+  const [withdrawals, setWithdrawals] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [pagination, setPagination] = useState(null)
+  const [statusFilter, setStatusFilter] = useState('ALL')
+  const [showRequestForm, setShowRequestForm] = useState(false)
 
   useEffect(() => {
-    fetchWithdrawals();
-  }, [page, statusFilter]);
+    fetchWithdrawals()
+  }, [page, statusFilter])
 
   const fetchWithdrawals = async () => {
     try {
-      setLoading(true);
-      const params = { page, limit: 10 };
+      setLoading(true)
+      const params = { page, limit: 10 }
       if (statusFilter !== 'ALL') {
-        params.status = statusFilter;
+        params.status = statusFilter
       }
 
       const response = await axios.get(`${API_URL}/api/withdrawals/my-requests`, {
         params,
-        headers: { Authorization: `Bearer ${token}` }
-      });
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
-      setWithdrawals(response.data.data.requests);
-      setPagination(response.data.data.pagination);
+      setWithdrawals(response.data.data.requests)
+      setPagination(response.data.data.pagination)
     } catch (error) {
-      console.error('Error fetching withdrawals:', error);
-      toast.error('Failed to load withdrawals');
+      console.error('Error fetching withdrawals:', error)
+      toast.error('Failed to load withdrawals')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleCancel = async (withdrawalId) => {
     if (!confirm('Are you sure you want to cancel this withdrawal? Tokens will be refunded.')) {
-      return;
+      return
     }
 
     try {
       await axios.put(
         `${API_URL}/api/withdrawals/${withdrawalId}/cancel`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
 
-      toast.success('Withdrawal cancelled and tokens refunded');
-      fetchWithdrawals();
+      toast.success('Withdrawal cancelled and tokens refunded')
+      fetchWithdrawals()
     } catch (error) {
-      console.error('Error cancelling withdrawal:', error);
-      toast.error(error.response?.data?.error || 'Failed to cancel withdrawal');
+      console.error('Error cancelling withdrawal:', error)
+      toast.error(error.response?.data?.error || 'Failed to cancel withdrawal')
     }
-  };
+  }
 
   const getStatusIcon = (status) => {
     switch (status) {
       case 'PENDING':
-        return <FiClock className="text-yellow-500" />;
+        return <FiClock className="text-yellow-500" />
       case 'APPROVED':
-        return <FiCheckCircle className="text-blue-500" />;
+        return <FiCheckCircle className="text-blue-500" />
       case 'PROCESSING':
-        return <FiClock className="text-blue-500" />;
+        return <FiClock className="text-blue-500" />
       case 'COMPLETED':
-        return <FiCheckCircle className="text-green-500" />;
+        return <FiCheckCircle className="text-green-500" />
       case 'REJECTED':
-        return <FiXCircle className="text-red-500" />;
+        return <FiXCircle className="text-red-500" />
       case 'CANCELLED':
-        return <FiXCircle className="text-gray-500" />;
+        return <FiXCircle className="text-gray-500" />
       default:
-        return <FiAlertTriangle className="text-gray-500" />;
+        return <FiAlertTriangle className="text-gray-500" />
     }
-  };
+  }
 
   const getStatusColor = (status) => {
     switch (status) {
       case 'PENDING':
-        return 'bg-yellow-600 bg-opacity-20 text-yellow-500 border-yellow-600';
+        return 'bg-yellow-600 bg-opacity-20 text-yellow-500 border-yellow-600'
       case 'APPROVED':
-        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600';
+        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600'
       case 'PROCESSING':
-        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600';
+        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600'
       case 'COMPLETED':
-        return 'bg-green-600 bg-opacity-20 text-green-500 border-green-600';
+        return 'bg-green-600 bg-opacity-20 text-green-500 border-green-600'
       case 'REJECTED':
-        return 'bg-red-600 bg-opacity-20 text-red-500 border-red-600';
+        return 'bg-red-600 bg-opacity-20 text-red-500 border-red-600'
       case 'CANCELLED':
-        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600';
+        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600'
       default:
-        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600';
+        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600'
     }
-  };
+  }
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
-    });
-  };
+      day: 'numeric',
+    })
+  }
 
   const getPaymentMethodDisplay = (method) => {
-    if (!method) return 'N/A';
-    if (method.nickname) return method.nickname;
-    if (method.type === 'PAYPAL') return method.paypalEmail;
-    if (method.type === 'BANK_TRANSFER') return `${method.bankName} ****${method.accountNumber?.slice(-4)}`;
-    if (method.type === 'UPI') return method.upiId;
-    return method.type;
-  };
+    if (!method) {return 'N/A'}
+    if (method.nickname) {return method.nickname}
+    if (method.type === 'PAYPAL') {return method.paypalEmail}
+    if (method.type === 'BANK_TRANSFER') {return `${method.bankName} ****${method.accountNumber?.slice(-4)}`}
+    if (method.type === 'UPI') {return method.upiId}
+    return method.type
+  }
 
   if (loading && page === 1) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="spinner w-8 h-8"></div>
       </div>
-    );
+    )
   }
 
   return (
@@ -159,8 +159,8 @@ const MyWithdrawals = () => {
             <button
               key={status}
               onClick={() => {
-                setStatusFilter(status);
-                setPage(1);
+                setStatusFilter(status)
+                setPage(1)
               }}
               className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
                 statusFilter === status
@@ -331,13 +331,13 @@ const MyWithdrawals = () => {
         <WithdrawalRequestForm
           onClose={() => setShowRequestForm(false)}
           onSuccess={() => {
-            setShowRequestForm(false);
-            fetchWithdrawals();
+            setShowRequestForm(false)
+            fetchWithdrawals()
           }}
         />
       )}
     </>
-  );
-};
+  )
+}
 
-export default MyWithdrawals;
+export default MyWithdrawals
