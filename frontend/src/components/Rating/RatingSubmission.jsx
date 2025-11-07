@@ -126,7 +126,7 @@ const RatingSubmission = ({ booking, onClose, onSubmitted }) => {
             <label htmlFor="anonymous" className="text-sm text-gray-300 cursor-pointer flex-1">
               <span className="font-medium">Submit anonymously</span>
               <p className="text-xs text-gray-500 mt-1">
-                Your name won't be shown with this rating
+                Your name won&apos;t be shown with this rating
               </p>
             </label>
           </div>

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { 
   FiSend, FiPaperclip, FiMoreVertical, FiArrowLeft, 
-  FiUser, FiPhone, FiVideo, FiInfo, FiAlertTriangle, 
+  FiPhone, FiVideo, FiInfo, FiAlertTriangle, 
 } from 'react-icons/fi'
 import { useSocket } from '../contexts/SocketContext'
 import api from '../services/api'
@@ -127,7 +127,7 @@ const Chat = () => {
     }, 1000)
   }
 
-  const handleSendMessage = async (e) => {
+  const handleSendMessage = (e) => {
     e.preventDefault()
     
     if (!newMessage.trim() || sending) {return}

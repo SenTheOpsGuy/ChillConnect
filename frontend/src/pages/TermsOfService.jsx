@@ -38,9 +38,9 @@ const TermsOfService = () => {
               </div>
               <div className="space-y-4 text-gray-300 leading-relaxed">
                 <p>
-                  Welcome to ChillConnect ("we," "our," or "us"). These Terms of Service ("Terms") 
+                  Welcome to ChillConnect (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;). These Terms of Service (&ldquo;Terms&rdquo;) 
                   govern your use of our adult services booking platform and any related services 
-                  (collectively, the "Service").
+                  (collectively, the &ldquo;Service&rdquo;).
                 </p>
                 <p>
                   By accessing or using our Service, you agree to be bound by these Terms. 
@@ -225,7 +225,7 @@ const TermsOfService = () => {
                   <li>We do not verify the accuracy of user-provided information</li>
                   <li>We are not liable for user actions or interactions</li>
                   <li>You use the platform at your own risk</li>
-                  <li>We provide the platform "as is" without warranties</li>
+                  <li>We provide the platform &ldquo;as is&rdquo; without warranties</li>
                 </ul>
               </div>
             </section>

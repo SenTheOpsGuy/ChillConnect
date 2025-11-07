@@ -54,7 +54,7 @@ const WithdrawalRequestForm = ({ onClose, onSuccess }) => {
   }
 
   const calculateAmounts = () => {
-    const tokens = parseInt(formData.amountTokens) || 0
+    const tokens = parseInt(formData.amountTokens, 10) || 0
     const amountInr = tokens * 100
     const fee = Math.floor(amountInr * (PLATFORM_FEE_PERCENT / 100))
     const netAmount = amountInr - fee

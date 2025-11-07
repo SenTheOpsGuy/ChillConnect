@@ -1,15 +1,15 @@
-const express = require('express')
-const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
-const { body, validationResult } = require('express-validator')
-const { auth } = require('../middleware/auth')
-const logger = require('../utils/logger')
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { body, validationResult } = require('express-validator');
+const { auth } = require('../middleware/auth');
+const logger = require('../utils/logger');
 const {
   createUserWithRawSQL,
   findUserByEmail,
   findUserByPhone,
   updateLastLogin,
-} = require('../utils/rawSqlHelpers')
+} = require('../utils/rawSqlHelpers');
 const {
   sendPhoneOTP,
   sendEmailOTP,
@@ -17,28 +17,28 @@ const {
   verifyEmailOTP,
   getPhoneOTPStatus,
   getEmailOTPStatus,
-} = require('../services/otpService')
+} = require('../services/otpService');
 const {
   sendPhoneVerification,
   verifyPhoneNumber,
   sendTransactionalSMS,
-} = require('../services/twilioService')
+} = require('../services/twilioService');
 const {
   sendEmailVerification,
   generateEmailVerificationToken,
   verifyEmailVerificationToken,
   sendWelcomeEmail,
   sendTransactionalEmail,
-} = require('../services/brevoService')
+} = require('../services/brevoService');
 
-const router = express.Router()
+const router = express.Router();
 
 // Generate JWT token
 const generateToken = userId => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
-  })
-}
+  });
+};
 
 // @route   POST /api/auth/register
 // @desc    Register new user
@@ -60,13 +60,13 @@ router.post(
   ],
   async (req, res, next) => {
     try {
-      const errors = validationResult(req)
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           error: 'Validation failed',
           details: errors.array(),
-        })
+        });
       }
 
       const {
@@ -79,12 +79,12 @@ router.post(
         phone,
         ageConfirmed,
         consentGiven,
-      } = req.body
+      } = req.body;
 
       // Check if user already exists
       const existingUser = await req.prisma.user.findUnique({
         where: { email },
-      })
+      });
 
       if (existingUser) {
         return res.status(400).json({
@@ -92,23 +92,23 @@ router.post(
           error: 'Email already exists, try logging in instead',
           action: 'LOGIN',
           loginUrl: '/login',
-        })
+        });
       }
 
       // Verify age (must be 18+)
-      const birthDate = new Date(dateOfBirth)
-      const age = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+      const birthDate = new Date(dateOfBirth);
+      const age = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
 
       if (age < 18) {
         return res.status(400).json({
           success: false,
           error: 'You must be 18 or older to register',
-        })
+        });
       }
 
       // Hash password
-      const salt = await bcrypt.genSalt(parseInt(process.env.BCRYPT_ROUNDS) || 12)
-      const passwordHash = await bcrypt.hash(password, salt)
+      const salt = await bcrypt.genSalt(parseInt(process.env.BCRYPT_ROUNDS) || 12);
+      const passwordHash = await bcrypt.hash(password, salt);
 
       // Create user with profile in transaction
       const user = await req.prisma.$transaction(async prisma => {
@@ -122,7 +122,7 @@ router.post(
             consentGiven: consentGiven === 'true',
             isAgeVerified: true, // Since we verified age during registration
           },
-        })
+        });
 
         // Create profile
         await prisma.userProfile.create({
@@ -132,7 +132,7 @@ router.post(
             lastName,
             dateOfBirth: new Date(dateOfBirth),
           },
-        })
+        });
 
         // Create token wallet
         await prisma.tokenWallet.create({
@@ -141,19 +141,19 @@ router.post(
             balance: 0,
             escrowBalance: 0,
           },
-        })
+        });
 
-        return newUser
-      })
+        return newUser;
+      });
 
       // Send verification email using Brevo
-      const verificationToken = generateEmailVerificationToken(user.id, user.email)
-      await sendEmailVerification(user.email, verificationToken)
+      const verificationToken = generateEmailVerificationToken(user.id, user.email);
+      await sendEmailVerification(user.email, verificationToken);
 
       // Generate JWT token
-      const token = generateToken(user.id)
+      const token = generateToken(user.id);
 
-      logger.info(`New user registered: ${email} (${role})`)
+      logger.info(`New user registered: ${email} (${role})`);
 
       res.status(201).json({
         success: true,
@@ -171,12 +171,12 @@ router.post(
           token,
         },
         message: 'Registration successful. Please check your email to verify your account.',
-      })
+      });
     } catch (error) {
-      next(error)
+      next(error);
     }
   }
-)
+);
 
 // @route   POST /api/auth/login
 // @desc    Login user
@@ -186,19 +186,19 @@ router.post(
   [body('email').isEmail(), body('password').exists()],
   async (req, res, next) => {
     try {
-      const errors = validationResult(req)
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           error: 'Validation failed',
           details: errors.array(),
-        })
+        });
       }
 
-      const { email, password } = req.body
+      const { email, password } = req.body;
 
       // Find user - use Prisma findUnique instead of raw SQL
-      let user
+      let user;
       try {
         user = await req.prisma.user.findUnique({
           where: { email: email },
@@ -209,45 +209,45 @@ router.post(
             role: true,
             isEmailVerified: true,
           },
-        })
+        });
       } catch (dbError) {
-        logger.error('Database query error in login:', dbError)
+        logger.error('Database query error in login:', dbError);
         return res.status(500).json({
           success: false,
           error: 'Database connection error',
-        })
+        });
       }
 
       if (!user) {
         return res.status(400).json({
           success: false,
           error: 'Invalid credentials',
-        })
+        });
       }
 
       // Check password
-      const isMatch = await bcrypt.compare(password, user.passwordHash)
+      const isMatch = await bcrypt.compare(password, user.passwordHash);
       if (!isMatch) {
         return res.status(400).json({
           success: false,
           error: 'Invalid credentials',
-        })
+        });
       }
 
       // Update last login - use raw SQL
       try {
         await req.prisma.$queryRaw`
         UPDATE "User" SET "lastLogin" = ${new Date()} WHERE id = ${user.id}
-      `
+      `;
       } catch (updateError) {
-        logger.error('Failed to update last login:', updateError)
+        logger.error('Failed to update last login:', updateError);
         // Don't fail login for this
       }
 
       // Generate JWT token
-      const token = generateToken(user.id)
+      const token = generateToken(user.id);
 
-      logger.info(`User logged in: ${email}`)
+      logger.info(`User logged in: ${email}`);
 
       res.json({
         success: true,
@@ -267,12 +267,12 @@ router.post(
           token,
         },
         message: 'Login successful',
-      })
+      });
     } catch (error) {
-      next(error)
+      next(error);
     }
   }
-)
+);
 
 // @route   GET /api/auth/me
 // @desc    Get current user
@@ -294,8 +294,8 @@ router.get('/me', auth, async (req, res) => {
         tokenWallet: req.user.tokenWallet,
       },
     },
-  })
-})
+  });
+});
 
 // @route   POST /api/auth/verify-email
 // @desc    Verify email address
@@ -305,39 +305,39 @@ router.post(
   [body('token').notEmpty().withMessage('Verification token is required')],
   async (req, res, next) => {
     try {
-      const errors = validationResult(req)
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           error: 'Validation failed',
           details: errors.array(),
-        })
+        });
       }
 
-      const { token } = req.body
+      const { token } = req.body;
 
       // Verify email verification token using Brevo service
-      const verificationResult = verifyEmailVerificationToken(token)
+      const verificationResult = verifyEmailVerificationToken(token);
 
       if (!verificationResult.success) {
         return res.status(400).json({
           success: false,
           error: 'Invalid or expired verification token',
-        })
+        });
       }
 
       // Update user email verification status
       const user = await req.prisma.user.update({
         where: { email: verificationResult.email },
         data: { isEmailVerified: true },
-      })
+      });
 
-      logger.info(`Email verified for user: ${user.email}`)
+      logger.info(`Email verified for user: ${user.email}`);
 
       res.json({
         success: true,
         message: 'Email verified successfully',
-      })
+      });
     } catch (error) {
       if (
         error.message.includes('Verification token has expired') ||
@@ -346,12 +346,12 @@ router.post(
         return res.status(400).json({
           success: false,
           error: error.message,
-        })
+        });
       }
-      next(error)
+      next(error);
     }
   }
-)
+);
 
 // @route   POST /api/auth/send-phone-otp
 // @desc    Send OTP to phone number (public for registration, private for updates)
@@ -362,83 +362,83 @@ router.post(
     body('phone').custom(phone => {
       // Allow international format or Indian 10-digit numbers
       if (/^\+\d{10,15}$/.test(phone) || /^[6-9]\d{9}$/.test(phone)) {
-        return true
+        return true;
       }
-      throw new Error('Valid phone number is required')
+      throw new Error('Valid phone number is required');
     }),
   ],
   async (req, res, next) => {
     try {
-      const errors = validationResult(req)
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           error: 'Validation failed',
           details: errors.array(),
-        })
+        });
       }
 
-      let { phone } = req.body
+      let { phone } = req.body;
 
       // Format phone number for Indian numbers
       if (phone && !phone.startsWith('+')) {
         // If it's a 10-digit Indian number, add +91
         if (/^[6-9]\d{9}$/.test(phone)) {
-          phone = '+91' + phone
-          logger.info(`Formatted phone number: ${phone}`)
+          phone = '+91' + phone;
+          logger.info(`Formatted phone number: ${phone}`);
         }
       }
 
       // Check if user is authenticated (for profile updates) or unauthenticated (for registration)
-      const authHeader = req.headers.authorization
-      let userId = null
-      let isAuthenticated = false
+      const authHeader = req.headers.authorization;
+      let userId = null;
+      let isAuthenticated = false;
 
       if (authHeader && authHeader.startsWith('Bearer ')) {
         try {
-          const token = authHeader.substring(7)
-          const decoded = jwt.verify(token, process.env.JWT_SECRET)
+          const token = authHeader.substring(7);
+          const decoded = jwt.verify(token, process.env.JWT_SECRET);
           const user = await req.prisma.user.findUnique({
             where: { id: decoded.id },
-          })
+          });
           if (user) {
-            userId = user.id
-            isAuthenticated = true
+            userId = user.id;
+            isAuthenticated = true;
           }
         } catch (authError) {
           // Continue as unauthenticated user for registration
         }
       }
 
-      let result
+      let result;
 
       if (isAuthenticated) {
         // For authenticated users (profile updates)
-        const otpStatus = await getPhoneOTPStatus(userId, phone)
+        const otpStatus = await getPhoneOTPStatus(userId, phone);
 
         if (otpStatus.hasActiveOTP && !otpStatus.canSendOTP) {
           return res.status(429).json({
             success: false,
             error: 'Please wait before requesting another OTP',
             cooldownRemaining: otpStatus.cooldownRemaining,
-          })
+          });
         }
 
-        result = await sendPhoneOTP(userId, phone)
-        logger.info(`OTP sent to phone: ${phone} for authenticated user: ${userId}`)
+        result = await sendPhoneOTP(userId, phone);
+        logger.info(`OTP sent to phone: ${phone} for authenticated user: ${userId}`);
       } else {
         // For registration flow (unauthenticated)
         try {
-          result = await sendPhoneVerification(phone)
-          logger.info(`Registration OTP sent to phone: ${phone}`)
+          result = await sendPhoneVerification(phone);
+          logger.info(`Registration OTP sent to phone: ${phone}`);
         } catch (error) {
-          logger.error('Phone verification error:', error)
+          logger.error('Phone verification error:', error);
 
           // In development, return mock success
           if (process.env.NODE_ENV === 'development') {
-            result = { otp: '123456' }
+            result = { otp: '123456' };
           } else {
-            throw error
+            throw error;
           }
         }
       }
@@ -449,18 +449,18 @@ router.post(
         expiresAt: result.expiresAt || new Date(Date.now() + 10 * 60 * 1000),
         // In development, return OTP for testing
         ...(process.env.NODE_ENV === 'development' && { otp: result.otp || '123456' }),
-      })
+      });
     } catch (error) {
       if (error.message === 'Please wait before requesting another OTP') {
         return res.status(429).json({
           success: false,
           error: error.message,
-        })
+        });
       }
-      next(error)
+      next(error);
     }
   }
-)
+);
 
 // @route   POST /api/auth/verify-phone-otp
 // @desc    Verify phone number with OTP (public for registration, private for updates)
@@ -471,49 +471,49 @@ router.post(
     body('phone').custom(phone => {
       // Allow international format or Indian 10-digit numbers
       if (/^\+\d{10,15}$/.test(phone) || /^[6-9]\d{9}$/.test(phone)) {
-        return true
+        return true;
       }
-      throw new Error('Valid phone number is required')
+      throw new Error('Valid phone number is required');
     }),
     body('otp').isLength({ min: 4, max: 6 }).withMessage('OTP must be 4-6 digits'),
   ],
   async (req, res, next) => {
     try {
-      const errors = validationResult(req)
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           error: 'Validation failed',
           details: errors.array(),
-        })
+        });
       }
 
-      let { phone, otp } = req.body
+      let { phone, otp } = req.body;
 
       // Format phone number for Indian numbers
       if (phone && !phone.startsWith('+')) {
         // If it's a 10-digit Indian number, add +91
         if (/^[6-9]\d{9}$/.test(phone)) {
-          phone = '+91' + phone
-          logger.info(`Formatted phone number for verification: ${phone}`)
+          phone = '+91' + phone;
+          logger.info(`Formatted phone number for verification: ${phone}`);
         }
       }
 
       // Check if user is authenticated (for profile updates) or unauthenticated (for registration)
-      const authHeader = req.headers.authorization
-      let userId = null
-      let isAuthenticated = false
+      const authHeader = req.headers.authorization;
+      let userId = null;
+      let isAuthenticated = false;
 
       if (authHeader && authHeader.startsWith('Bearer ')) {
         try {
-          const token = authHeader.substring(7)
-          const decoded = jwt.verify(token, process.env.JWT_SECRET)
+          const token = authHeader.substring(7);
+          const decoded = jwt.verify(token, process.env.JWT_SECRET);
           const user = await req.prisma.user.findUnique({
             where: { id: decoded.id },
-          })
+          });
           if (user) {
-            userId = user.id
-            isAuthenticated = true
+            userId = user.id;
+            isAuthenticated = true;
           }
         } catch (authError) {
           // Continue as unauthenticated user for registration
@@ -522,27 +522,27 @@ router.post(
 
       if (isAuthenticated) {
         // For authenticated users (profile updates)
-        const result = await verifyPhoneOTP(userId, phone, otp)
-        logger.info(`Phone verified for authenticated user: ${userId}`)
+        const result = await verifyPhoneOTP(userId, phone, otp);
+        logger.info(`Phone verified for authenticated user: ${userId}`);
       } else {
         // For registration flow (unauthenticated)
         try {
-          await verifyPhoneNumber(phone, otp)
-          logger.info(`Phone verified for registration: ${phone}`)
+          await verifyPhoneNumber(phone, otp);
+          logger.info(`Phone verified for registration: ${phone}`);
         } catch (error) {
-          logger.error('Phone verification error:', error)
+          logger.error('Phone verification error:', error);
 
           // In development, accept any 4-6 digit OTP
           if (process.env.NODE_ENV === 'development' && /^\d{4,6}$/.test(otp)) {
-            logger.info(`Phone verified for registration (development): ${phone}`)
+            logger.info(`Phone verified for registration (development): ${phone}`);
           } else {
             if (error.message.includes('Invalid') || error.message.includes('expired')) {
               return res.status(400).json({
                 success: false,
                 error: error.message,
-              })
+              });
             }
-            throw error
+            throw error;
           }
         }
       }
@@ -550,7 +550,7 @@ router.post(
       res.json({
         success: true,
         message: 'Phone number verified successfully',
-      })
+      });
     } catch (error) {
       if (
         error.message.includes('Invalid') ||
@@ -560,12 +560,12 @@ router.post(
         return res.status(400).json({
           success: false,
           error: error.message,
-        })
+        });
       }
-      next(error)
+      next(error);
     }
   }
-)
+);
 
 // @route   POST /api/auth/verify-phone-update
 // @desc    Verify phone number with OTP (for authenticated users)
@@ -579,26 +579,26 @@ router.post(
   ],
   async (req, res, next) => {
     try {
-      const errors = validationResult(req)
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           error: 'Validation failed',
           details: errors.array(),
-        })
+        });
       }
 
-      const { phone, otp } = req.body
+      const { phone, otp } = req.body;
 
       // Verify OTP
-      const result = await verifyPhoneOTP(req.user.id, phone, otp)
+      const result = await verifyPhoneOTP(req.user.id, phone, otp);
 
-      logger.info(`Phone verified for user: ${req.user.email}`)
+      logger.info(`Phone verified for user: ${req.user.email}`);
 
       res.json({
         success: true,
         message: result.message,
-      })
+      });
     } catch (error) {
       if (
         error.message.includes('Invalid') ||
@@ -608,12 +608,12 @@ router.post(
         return res.status(400).json({
           success: false,
           error: error.message,
-        })
+        });
       }
-      next(error)
+      next(error);
     }
   }
-)
+);
 
 // @route   GET /api/auth/otp-status
 // @desc    Get OTP status for a phone number
@@ -623,35 +623,35 @@ router.get(
   [auth, body('phone').isMobilePhone().withMessage('Valid phone number is required')],
   async (req, res, next) => {
     try {
-      const errors = validationResult(req)
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           error: 'Validation failed',
           details: errors.array(),
-        })
+        });
       }
 
-      const { phone } = req.query
+      const { phone } = req.query;
 
       if (!phone) {
         return res.status(400).json({
           success: false,
           error: 'Phone number is required',
-        })
+        });
       }
 
-      const otpStatus = await getPhoneOTPStatus(req.user.id, phone)
+      const otpStatus = await getPhoneOTPStatus(req.user.id, phone);
 
       res.json({
         success: true,
         data: otpStatus,
-      })
+      });
     } catch (error) {
-      next(error)
+      next(error);
     }
   }
-)
+);
 
 // @route   POST /api/auth/send-email-otp
 // @desc    Send OTP to email address (for signup verification)
@@ -664,35 +664,35 @@ router.post(
   ],
   async (req, res, next) => {
     try {
-      const errors = validationResult(req)
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           error: 'Validation failed',
           details: errors.array(),
-        })
+        });
       }
 
-      const { email, userId } = req.body
+      const { email, userId } = req.body;
 
       // For signup flow, we might not have a user ID yet, so we'll use a temp ID
-      const targetUserId = userId || 'temp-' + Date.now()
+      const targetUserId = userId || 'temp-' + Date.now();
 
       // Check email OTP status first
-      const otpStatus = await getEmailOTPStatus(targetUserId, email)
+      const otpStatus = await getEmailOTPStatus(targetUserId, email);
 
       if (otpStatus.hasActiveOTP && !otpStatus.canSendOTP) {
         return res.status(429).json({
           success: false,
           error: 'Please wait before requesting another OTP',
           cooldownRemaining: otpStatus.cooldownRemaining,
-        })
+        });
       }
 
       // Send OTP
-      const result = await sendEmailOTP(targetUserId, email)
+      const result = await sendEmailOTP(targetUserId, email);
 
-      logger.info(`Email OTP sent to: ${email}`)
+      logger.info(`Email OTP sent to: ${email}`);
 
       res.json({
         success: true,
@@ -700,18 +700,18 @@ router.post(
         expiresAt: result.expiresAt,
         // In development, return OTP for testing
         ...(process.env.NODE_ENV === 'development' && { otp: result.otp }),
-      })
+      });
     } catch (error) {
       if (error.message === 'Please wait before requesting another OTP') {
         return res.status(429).json({
           success: false,
           error: error.message,
-        })
+        });
       }
-      next(error)
+      next(error);
     }
   }
-)
+);
 
 // @route   POST /api/auth/verify-email-otp
 // @desc    Verify email address with OTP (for signup verification)
@@ -725,29 +725,29 @@ router.post(
   ],
   async (req, res, next) => {
     try {
-      const errors = validationResult(req)
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           error: 'Validation failed',
           details: errors.array(),
-        })
+        });
       }
 
-      const { email, otp, userId } = req.body
+      const { email, otp, userId } = req.body;
 
       // For signup flow, we might not have a user ID yet, so we'll use a temp ID
-      const targetUserId = userId || 'temp-' + Date.now()
+      const targetUserId = userId || 'temp-' + Date.now();
 
       // Verify OTP
-      const result = await verifyEmailOTP(targetUserId, email, otp)
+      const result = await verifyEmailOTP(targetUserId, email, otp);
 
-      logger.info(`Email OTP verified for: ${email}`)
+      logger.info(`Email OTP verified for: ${email}`);
 
       res.json({
         success: true,
         message: result.message,
-      })
+      });
     } catch (error) {
       if (
         error.message.includes('Invalid') ||
@@ -757,12 +757,12 @@ router.post(
         return res.status(400).json({
           success: false,
           error: error.message,
-        })
+        });
       }
-      next(error)
+      next(error);
     }
   }
-)
+);
 
 // @route   POST /api/auth/login-otp-request
 // @desc    Request OTP for login (phone or email)
@@ -775,94 +775,94 @@ router.post(
   ],
   async (req, res, next) => {
     try {
-      const errors = validationResult(req)
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           error: 'Validation failed',
           details: errors.array(),
-        })
+        });
       }
 
-      let { identifier, type } = req.body
+      let { identifier, type } = req.body;
 
       // Normalize phone number for India if needed
       if (type === 'phone') {
         // If phone number doesn't start with +, assume it's Indian and add +91
         if (!identifier.startsWith('+')) {
           // Remove any leading 0 and add +91 prefix
-          identifier = '+91' + identifier.replace(/^0+/, '')
+          identifier = '+91' + identifier.replace(/^0+/, '');
         }
       }
 
       // Find user by phone or email
-      let user
+      let user;
 
       // Debug: Check if prisma is available
       if (!req.prisma) {
-        logger.error('Prisma client not available in request context')
+        logger.error('Prisma client not available in request context');
         return res.status(500).json({
           success: false,
           error: 'Server configuration error',
-        })
+        });
       }
 
       try {
         if (type === 'phone') {
           const users = await req.prisma.$queryRaw`
           SELECT id, email, phone FROM "User" WHERE phone = ${identifier} LIMIT 1
-        `
-          user = users.length > 0 ? users[0] : null
+        `;
+          user = users.length > 0 ? users[0] : null;
         } else {
           const users = await req.prisma.$queryRaw`
           SELECT id, email, phone FROM "User" WHERE email = ${identifier} LIMIT 1
-        `
-          user = users.length > 0 ? users[0] : null
+        `;
+          user = users.length > 0 ? users[0] : null;
         }
       } catch (dbError) {
-        logger.error('Database query error in login OTP:', dbError)
+        logger.error('Database query error in login OTP:', dbError);
         return res.status(500).json({
           success: false,
           error: 'Database connection error',
-        })
+        });
       }
 
       if (!user) {
         // Add debugging info in development
         if (process.env.NODE_ENV === 'development') {
-          logger.warn(`OTP login attempt for non-existent user: ${identifier} (type: ${type})`)
+          logger.warn(`OTP login attempt for non-existent user: ${identifier} (type: ${type})`);
         }
         return res.status(404).json({
           success: false,
           error: 'User not found with this phone number or email',
-        })
+        });
       }
 
       // Send OTP
-      let result
+      let result;
       if (type === 'phone') {
-        const otpStatus = await getPhoneOTPStatus(user.id, identifier)
+        const otpStatus = await getPhoneOTPStatus(user.id, identifier);
         if (otpStatus.hasActiveOTP && !otpStatus.canSendOTP) {
           return res.status(429).json({
             success: false,
             error: 'Please wait before requesting another OTP',
             cooldownRemaining: otpStatus.cooldownRemaining,
-          })
+          });
         }
-        result = await sendPhoneOTP(user.id, identifier)
+        result = await sendPhoneOTP(user.id, identifier);
       } else {
-        const otpStatus = await getEmailOTPStatus(user.id, identifier)
+        const otpStatus = await getEmailOTPStatus(user.id, identifier);
         if (otpStatus.hasActiveOTP && !otpStatus.canSendOTP) {
           return res.status(429).json({
             success: false,
             error: 'Please wait before requesting another OTP',
             cooldownRemaining: otpStatus.cooldownRemaining,
-          })
+          });
         }
-        result = await sendEmailOTP(user.id, identifier)
+        result = await sendEmailOTP(user.id, identifier);
       }
 
-      logger.info(`Login OTP sent to ${type}: ${identifier} for user: ${user.email}`)
+      logger.info(`Login OTP sent to ${type}: ${identifier} for user: ${user.email}`);
 
       res.json({
         success: true,
@@ -871,18 +871,18 @@ router.post(
         userId: user.id,
         // In development, return OTP for testing
         ...(process.env.NODE_ENV === 'development' && { otp: result.otp }),
-      })
+      });
     } catch (error) {
       if (error.message === 'Please wait before requesting another OTP') {
         return res.status(429).json({
           success: false,
           error: error.message,
-        })
+        });
       }
-      next(error)
+      next(error);
     }
   }
-)
+);
 
 // @route   POST /api/auth/login-otp-verify
 // @desc    Verify OTP and login user
@@ -897,23 +897,23 @@ router.post(
   ],
   async (req, res, next) => {
     try {
-      const errors = validationResult(req)
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           error: 'Validation failed',
           details: errors.array(),
-        })
+        });
       }
 
-      let { identifier, otp, type, userId } = req.body
+      let { identifier, otp, type, userId } = req.body;
 
       // Normalize phone number for India if needed (same as in request endpoint)
       if (type === 'phone') {
         // If phone number doesn't start with +, assume it's Indian and add +91
         if (!identifier.startsWith('+')) {
           // Remove any leading 0 and add +91 prefix
-          identifier = '+91' + identifier.replace(/^0+/, '')
+          identifier = '+91' + identifier.replace(/^0+/, '');
         }
       }
 
@@ -924,47 +924,47 @@ router.post(
           profile: true,
           tokenWallet: true,
         },
-      })
+      });
 
       if (!user) {
         return res.status(404).json({
           success: false,
           error: 'User not found',
-        })
+        });
       }
 
       // Verify OTP
-      let verificationResult
+      let verificationResult;
       if (type === 'phone') {
         // Verify the phone number matches
         if (user.phone !== identifier) {
           return res.status(400).json({
             success: false,
             error: 'Phone number does not match user account',
-          })
+          });
         }
-        verificationResult = await verifyPhoneOTP(userId, identifier, otp)
+        verificationResult = await verifyPhoneOTP(userId, identifier, otp);
       } else {
         // Verify the email matches
         if (user.email !== identifier) {
           return res.status(400).json({
             success: false,
             error: 'Email does not match user account',
-          })
+          });
         }
-        verificationResult = await verifyEmailOTP(userId, identifier, otp)
+        verificationResult = await verifyEmailOTP(userId, identifier, otp);
       }
 
       // Update last login
       await req.prisma.user.update({
         where: { id: user.id },
         data: { lastLogin: new Date() },
-      })
+      });
 
       // Generate JWT token
-      const token = generateToken(user.id)
+      const token = generateToken(user.id);
 
-      logger.info(`User logged in via OTP (${type}): ${user.email}`)
+      logger.info(`User logged in via OTP (${type}): ${user.email}`);
 
       res.json({
         success: true,
@@ -984,7 +984,7 @@ router.post(
           token,
         },
         message: 'OTP login successful',
-      })
+      });
     } catch (error) {
       if (
         error.message.includes('Invalid') ||
@@ -994,12 +994,12 @@ router.post(
         return res.status(400).json({
           success: false,
           error: error.message,
-        })
+        });
       }
-      next(error)
+      next(error);
     }
   }
-)
+);
 
 // @route   POST /api/auth/logout
 // @desc    Logout user
@@ -1007,13 +1007,13 @@ router.post(
 router.post('/logout', auth, (req, res) => {
   // In a more sophisticated setup, you'd invalidate the token
   // For now, just send success response
-  logger.info(`User logged out: ${req.user.email}`)
+  logger.info(`User logged out: ${req.user.email}`);
 
   res.json({
     success: true,
     message: 'Logout successful',
-  })
-})
+  });
+});
 
 // =============================================================================
 // TWILIO-BASED REGISTRATION FLOW ENDPOINTS
@@ -1031,26 +1031,26 @@ router.post(
       .custom(value => {
         // Ensure it starts with +91 for Indian numbers
         if (!value.startsWith('+91')) {
-          throw new Error('Phone number must include +91 country code')
+          throw new Error('Phone number must include +91 country code');
         }
-        return true
+        return true;
       }),
   ],
   async (req, res, next) => {
     try {
-      const errors = validationResult(req)
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           error: 'Validation failed',
           details: errors.array(),
-        })
+        });
       }
 
-      const { phoneNumber } = req.body
+      const { phoneNumber } = req.body;
 
       // Check if phone number is already registered
-      let existingUser
+      let existingUser;
       try {
         // Use raw query to avoid enum issues
         existingUser = await req.prisma.$queryRaw`
@@ -1058,10 +1058,10 @@ router.post(
         FROM "User" 
         WHERE phone = ${phoneNumber} 
         LIMIT 1
-      `
-        existingUser = existingUser.length > 0 ? existingUser[0] : null
+      `;
+        existingUser = existingUser.length > 0 ? existingUser[0] : null;
       } catch (rawQueryError) {
-        console.log('Raw query failed, falling back to regular query')
+        console.log('Raw query failed, falling back to regular query');
         existingUser = await req.prisma.user.findFirst({
           where: { phone: phoneNumber },
           select: {
@@ -1071,24 +1071,24 @@ router.post(
             isVerified: true,
             isPhoneVerified: true,
           },
-        })
+        });
       }
 
       if (existingUser) {
         // Return specific message based on what exists
-        logger.info(`User already exists: ${phoneNumber}`)
+        logger.info(`User already exists: ${phoneNumber}`);
         return res.status(400).json({
           success: false,
           error: 'Phone number already exists, try logging in instead',
           action: 'LOGIN',
           loginUrl: '/login',
-        })
+        });
       }
 
       // Send verification via Twilio
-      const result = await sendPhoneVerification(phoneNumber)
+      const result = await sendPhoneVerification(phoneNumber);
 
-      logger.info(`Twilio phone verification sent to: ${phoneNumber}`)
+      logger.info(`Twilio phone verification sent to: ${phoneNumber}`);
 
       res.json({
         success: true,
@@ -1098,17 +1098,17 @@ router.post(
           channel: result.channel,
           status: result.status,
         },
-      })
+      });
     } catch (error) {
-      logger.error('Twilio phone verification error:', error)
+      logger.error('Twilio phone verification error:', error);
 
       res.status(400).json({
         success: false,
         error: error.message || 'Failed to send verification code',
-      })
+      });
     }
   }
-)
+);
 
 // @route   POST /api/auth/verify-phone
 // @desc    Verify phone number via Twilio for registration
@@ -1121,28 +1121,28 @@ router.post(
   ],
   async (req, res, next) => {
     try {
-      const errors = validationResult(req)
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           error: 'Validation failed',
           details: errors.array(),
-        })
+        });
       }
 
-      const { phoneNumber, otp } = req.body
+      const { phoneNumber, otp } = req.body;
 
       // Verify with Twilio
-      const result = await verifyPhoneNumber(phoneNumber, otp)
+      const result = await verifyPhoneNumber(phoneNumber, otp);
 
       if (!result.success || !result.valid) {
         return res.status(400).json({
           success: false,
           error: 'Invalid verification code',
-        })
+        });
       }
 
-      logger.info(`Twilio phone verification successful for: ${phoneNumber}`)
+      logger.info(`Twilio phone verification successful for: ${phoneNumber}`);
 
       res.json({
         success: true,
@@ -1151,17 +1151,17 @@ router.post(
           phoneNumber,
           verified: true,
         },
-      })
+      });
     } catch (error) {
-      logger.error('Twilio phone verification error:', error)
+      logger.error('Twilio phone verification error:', error);
 
       res.status(400).json({
         success: false,
         error: error.message || 'Failed to verify phone number',
-      })
+      });
     }
   }
-)
+);
 
 // @route   POST /api/auth/send-email-verification
 // @desc    Send email verification for registration
@@ -1171,36 +1171,36 @@ router.post(
   [body('email').isEmail().withMessage('Valid email address is required')],
   async (req, res, next) => {
     try {
-      const errors = validationResult(req)
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           error: 'Validation failed',
           details: errors.array(),
-        })
+        });
       }
 
-      const { email } = req.body
+      const { email } = req.body;
 
       // Check if email is already registered
       const existingUser = await req.prisma.user.findUnique({
         where: { email },
-      })
+      });
 
       if (existingUser) {
         return res.status(400).json({
           success: false,
           error: 'Email is already registered',
-        })
+        });
       }
 
       // Generate verification token
-      const verificationToken = generateEmailVerificationToken('temp-registration', email)
+      const verificationToken = generateEmailVerificationToken('temp-registration', email);
 
       // Send verification email
-      await sendEmailVerification(email, verificationToken)
+      await sendEmailVerification(email, verificationToken);
 
-      logger.info(`Email verification sent to: ${email}`)
+      logger.info(`Email verification sent to: ${email}`);
 
       res.json({
         success: true,
@@ -1209,17 +1209,17 @@ router.post(
           email,
           token: verificationToken, // For development/testing
         },
-      })
+      });
     } catch (error) {
-      logger.error('Email verification error:', error)
+      logger.error('Email verification error:', error);
 
       res.status(400).json({
         success: false,
         error: error.message || 'Failed to send verification email',
-      })
+      });
     }
   }
-)
+);
 
 // @route   POST /api/auth/twilio-register
 // @desc    Complete Twilio-based registration
@@ -1239,22 +1239,22 @@ router.post(
       .withMessage('Valid phone number is required')
       .custom(value => {
         if (!value.startsWith('+91')) {
-          throw new Error('Phone number must include +91 country code')
+          throw new Error('Phone number must include +91 country code');
         }
-        return true
+        return true;
       }),
     body('ageConfirmed').equals('true').withMessage('Age confirmation is required'),
     body('consentGiven').equals('true').withMessage('Consent is required'),
   ],
   async (req, res, next) => {
     try {
-      const errors = validationResult(req)
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           error: 'Validation failed',
           details: errors.array(),
-        })
+        });
       }
 
       const {
@@ -1266,7 +1266,7 @@ router.post(
         phoneNumber,
         ageConfirmed,
         consentGiven,
-      } = req.body
+      } = req.body;
 
       // Check if user already exists
       const existingUser = await req.prisma.user.findFirst({
@@ -1280,19 +1280,19 @@ router.post(
           isVerified: true,
           isPhoneVerified: true,
         },
-      })
+      });
 
       if (existingUser) {
         // Determine what specifically exists
-        let errorMessage = ''
+        let errorMessage = '';
         if (existingUser.email === email && existingUser.phone === phoneNumber) {
-          errorMessage = 'Both email and phone number already exist, try logging in instead'
+          errorMessage = 'Both email and phone number already exist, try logging in instead';
         } else if (existingUser.email === email) {
-          errorMessage = 'Email already exists, try logging in instead'
+          errorMessage = 'Email already exists, try logging in instead';
         } else if (existingUser.phone === phoneNumber) {
-          errorMessage = 'Phone number already exists, try logging in instead'
+          errorMessage = 'Phone number already exists, try logging in instead';
         } else {
-          errorMessage = 'Account already exists, try logging in instead'
+          errorMessage = 'Account already exists, try logging in instead';
         }
 
         return res.status(400).json({
@@ -1300,12 +1300,12 @@ router.post(
           error: errorMessage,
           action: 'LOGIN',
           loginUrl: '/login',
-        })
+        });
       }
 
       // Hash password
-      const salt = await bcrypt.genSalt(parseInt(process.env.BCRYPT_ROUNDS) || 12)
-      const passwordHash = await bcrypt.hash(password, salt)
+      const salt = await bcrypt.genSalt(parseInt(process.env.BCRYPT_ROUNDS) || 12);
+      const passwordHash = await bcrypt.hash(password, salt);
 
       // Create user with profile in transaction
       const user = await req.prisma.$transaction(async prisma => {
@@ -1321,7 +1321,7 @@ router.post(
             isPhoneVerified: true, // Since we verified via Twilio
             isEmailVerified: false, // Will be verified via email link
           },
-        })
+        });
 
         // Create profile
         await prisma.userProfile.create({
@@ -1330,7 +1330,7 @@ router.post(
             firstName,
             lastName,
           },
-        })
+        });
 
         // Create token wallet
         await prisma.tokenWallet.create({
@@ -1339,34 +1339,34 @@ router.post(
             balance: 0,
             escrowBalance: 0,
           },
-        })
+        });
 
-        return newUser
-      })
+        return newUser;
+      });
 
       // Generate JWT token
-      const token = generateToken(user.id)
+      const token = generateToken(user.id);
 
       // Send welcome email
       try {
-        await sendWelcomeEmail(user.email, firstName, user.role)
-        logger.info(`Welcome email sent to new user: ${email}`)
+        await sendWelcomeEmail(user.email, firstName, user.role);
+        logger.info(`Welcome email sent to new user: ${email}`);
       } catch (emailError) {
-        logger.error('Failed to send welcome email:', emailError)
+        logger.error('Failed to send welcome email:', emailError);
         // Don't fail registration if welcome email fails
       }
 
       // Send welcome SMS
       try {
-        const welcomeSMS = `🎉 Welcome to ChillConnect, ${firstName}! Your ${role.toLowerCase()} account is ready. Start connecting today!`
-        await sendTransactionalSMS(phoneNumber, welcomeSMS)
-        logger.info(`Welcome SMS sent to new user: ${phoneNumber}`)
+        const welcomeSMS = `🎉 Welcome to ChillConnect, ${firstName}! Your ${role.toLowerCase()} account is ready. Start connecting today!`;
+        await sendTransactionalSMS(phoneNumber, welcomeSMS);
+        logger.info(`Welcome SMS sent to new user: ${phoneNumber}`);
       } catch (smsError) {
-        logger.error('Failed to send welcome SMS:', smsError)
+        logger.error('Failed to send welcome SMS:', smsError);
         // Don't fail registration if welcome SMS fails
       }
 
-      logger.info(`New user registered via Twilio: ${email} (${role}), phone: ${phoneNumber}`)
+      logger.info(`New user registered via Twilio: ${email} (${role}), phone: ${phoneNumber}`);
 
       res.status(201).json({
         success: true,
@@ -1385,12 +1385,12 @@ router.post(
           token,
         },
         message: 'Registration successful! Welcome emails and SMS sent.',
-      })
+      });
     } catch (error) {
-      next(error)
+      next(error);
     }
   }
-)
+);
 
 // =============================================================================
 // TRANSACTIONAL COMMUNICATION ENDPOINTS
@@ -1413,19 +1413,19 @@ router.post(
   ],
   async (req, res, next) => {
     try {
-      const errors = validationResult(req)
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           error: 'Validation failed',
           details: errors.array(),
-        })
+        });
       }
 
-      const { type, subject, message, recipient } = req.body
-      const user = req.user
+      const { type, subject, message, recipient } = req.body;
+      const user = req.user;
 
-      const results = []
+      const results = [];
 
       if (type === 'email' || type === 'both') {
         try {
@@ -1433,10 +1433,10 @@ router.post(
             recipient || user.email,
             subject || 'ChillConnect Notification',
             message
-          )
-          results.push({ type: 'email', success: true, messageId: emailResult.messageId })
+          );
+          results.push({ type: 'email', success: true, messageId: emailResult.messageId });
         } catch (error) {
-          results.push({ type: 'email', success: false, error: error.message })
+          results.push({ type: 'email', success: false, error: error.message });
         }
       }
 
@@ -1445,52 +1445,52 @@ router.post(
           const smsResult = await sendTransactionalSMS(
             recipient || user.phone,
             message.replace(/<[^>]*>/g, '') // Strip HTML tags for SMS
-          )
-          results.push({ type: 'sms', success: true, messageId: smsResult.sid })
+          );
+          results.push({ type: 'sms', success: true, messageId: smsResult.sid });
         } catch (error) {
-          results.push({ type: 'sms', success: false, error: error.message })
+          results.push({ type: 'sms', success: false, error: error.message });
         }
       }
 
-      logger.info(`Transactional notifications sent to user: ${user.email}`)
+      logger.info(`Transactional notifications sent to user: ${user.email}`);
 
       res.json({
         success: true,
         message: 'Notifications processed',
         results,
-      })
+      });
     } catch (error) {
-      next(error)
+      next(error);
     }
   }
-)
+);
 
 // @route   POST /api/auth/send-welcome
 // @desc    Manually send welcome email (for testing)
 // @access  Private
 router.post('/send-welcome', auth, async (req, res, next) => {
   try {
-    const user = req.user
+    const user = req.user;
 
     if (!user.profile) {
       return res.status(400).json({
         success: false,
         error: 'User profile not found',
-      })
+      });
     }
 
-    await sendWelcomeEmail(user.email, user.profile.firstName, user.role)
+    await sendWelcomeEmail(user.email, user.profile.firstName, user.role);
 
-    logger.info(`Welcome email manually sent to user: ${user.email}`)
+    logger.info(`Welcome email manually sent to user: ${user.email}`);
 
     res.json({
       success: true,
       message: 'Welcome email sent successfully',
-    })
+    });
   } catch (error) {
-    next(error)
+    next(error);
   }
-})
+});
 
 // @route   GET /api/auth/profile
 // @desc    Get user profile
@@ -1524,23 +1524,23 @@ router.get('/profile', auth, async (req, res, next) => {
           },
         },
       },
-    })
+    });
 
     if (!user) {
       return res.status(404).json({
         success: false,
         error: 'User not found',
-      })
+      });
     }
 
     res.json({
       success: true,
       user,
-    })
+    });
   } catch (error) {
-    next(error)
+    next(error);
   }
-})
+});
 
 // @route   POST /api/auth/forgot-password
 // @desc    Send password reset email
@@ -1550,30 +1550,30 @@ router.post(
   [body('email').isEmail().withMessage('Valid email address is required')],
   async (req, res, next) => {
     try {
-      const errors = validationResult(req)
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           error: 'Validation failed',
           details: errors.array(),
-        })
+        });
       }
 
-      const { email } = req.body
+      const { email } = req.body;
 
       // Find user by email
       const user = await req.prisma.user.findUnique({
         where: { email },
-      })
+      });
 
       // Don't reveal if user exists or not for security
       // Always return success to prevent user enumeration
       if (!user) {
-        logger.warn(`Password reset requested for non-existent email: ${email}`)
+        logger.warn(`Password reset requested for non-existent email: ${email}`);
         return res.json({
           success: true,
           message: 'If an account with that email exists, we have sent a password reset link.',
-        })
+        });
       }
 
       // Generate password reset token (24 hour expiry)
@@ -1581,11 +1581,11 @@ router.post(
         { userId: user.id, email: user.email, type: 'password_reset' },
         process.env.JWT_SECRET,
         { expiresIn: '24h' }
-      )
+      );
 
       // Send password reset email
-      const { sendTransactionalEmail } = require('../services/brevoService')
-      const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`
+      const { sendTransactionalEmail } = require('../services/brevoService');
+      const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
       const emailContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -1630,21 +1630,21 @@ router.post(
           </p>
         </div>
       </div>
-    `
+    `;
 
-      await sendTransactionalEmail(email, 'Password Reset - ChillConnect', emailContent)
+      await sendTransactionalEmail(email, 'Password Reset - ChillConnect', emailContent);
 
-      logger.info(`Password reset email sent to: ${email}`)
+      logger.info(`Password reset email sent to: ${email}`);
 
       res.json({
         success: true,
         message: 'If an account with that email exists, we have sent a password reset link.',
-      })
+      });
     } catch (error) {
-      logger.error('Password reset error:', error)
-      next(error)
+      logger.error('Password reset error:', error);
+      next(error);
     }
   }
-)
+);
 
-module.exports = router
+module.exports = router;

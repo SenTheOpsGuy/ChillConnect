@@ -51,7 +51,7 @@ const MyWithdrawals = () => {
   }
 
   const handleCancel = async (withdrawalId) => {
-    if (!confirm('Are you sure you want to cancel this withdrawal? Tokens will be refunded.')) {
+    if (!window.confirm('Are you sure you want to cancel this withdrawal? Tokens will be refunded.')) {
       return
     }
 

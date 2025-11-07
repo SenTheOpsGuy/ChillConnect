@@ -311,8 +311,8 @@ const TicketForm = ({ onClose, onSuccess, bookingId = null }) => {
             <h4 className="text-sm font-medium text-blue-400 mb-2">What happens next?</h4>
             <ul className="text-xs text-gray-300 space-y-1">
               <li>• Your ticket will be reviewed by our support team</li>
-              <li>• We'll respond within 24-48 hours (usually much faster!)</li>
-              <li>• You'll receive email notifications when we reply</li>
+              <li>• We&apos;ll respond within 24-48 hours (usually much faster!)</li>
+              <li>• You&apos;ll receive email notifications when we reply</li>
               <li>• You can track your ticket status in the Support section</li>
             </ul>
           </div>
