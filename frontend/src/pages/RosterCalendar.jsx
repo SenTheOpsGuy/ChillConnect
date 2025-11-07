@@ -16,11 +16,6 @@ const RosterCalendar = () => {
 
   const [currentDate, setCurrentDate] = useState(new Date())
   const [viewMode, setViewMode] = useState('month') // 'month', 'week', 'my-shifts'
-  const [selectedFilters, setSelectedFilters] = useState({
-    department: '',
-    location: '',
-    role: '',
-  })
 
   const isManagerOrAdmin = ['MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(user?.role)
 
@@ -59,7 +54,6 @@ const RosterCalendar = () => {
       dispatch(fetchOrganizationRoster({
         startDate,
         endDate,
-        ...selectedFilters,
       }))
     } else {
       dispatch(fetchMyShifts({ startDate, endDate }))
@@ -68,7 +62,7 @@ const RosterCalendar = () => {
     // Also load leave calendar
     dispatch(fetchLeaves({ startDate, endDate }))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentDate, viewMode, selectedFilters, dispatch])
+  }, [currentDate, viewMode, dispatch])
 
   const navigatePrevious = () => {
     const newDate = new Date(currentDate)

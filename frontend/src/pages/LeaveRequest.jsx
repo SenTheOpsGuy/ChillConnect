@@ -24,6 +24,7 @@ const LeaveRequest = () => {
   })
 
   const [selectedTab, setSelectedTab] = useState('new') // 'new', 'my-requests', 'statistics'
+  const [cancelingLeaveId, setCancelingLeaveId] = useState(null)
 
   useEffect(() => {
     dispatch(fetchLeaveTypes())
@@ -74,18 +75,16 @@ const LeaveRequest = () => {
     }
   }
 
-  const handleCancelLeave = async (leaveRequestId) => {
-    // eslint-disable-next-line no-restricted-globals
-    if (!confirm('Are you sure you want to cancel this leave request?')) {
-      return
-    }
+  const confirmCancelLeave = async () => {
+    if (!cancelingLeaveId) {return}
 
-    const result = await dispatch(cancelLeaveRequest(leaveRequestId))
+    const result = await dispatch(cancelLeaveRequest(cancelingLeaveId))
 
     if (result.meta.requestStatus === 'fulfilled') {
       dispatch(fetchMyLeaveRequests())
       dispatch(fetchMyLeaveStatistics())
     }
+    setCancelingLeaveId(null)
   }
 
   const getStatusBadgeClass = (status) => {
@@ -341,7 +340,7 @@ const LeaveRequest = () => {
                     <div>
                       {(leave.status === 'PENDING' || leave.status === 'APPROVED') && (
                         <button
-                          onClick={() => handleCancelLeave(leave.id)}
+                          onClick={() => setCancelingLeaveId(leave.id)}
                           className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
                         >
                           Cancel
@@ -393,6 +392,33 @@ const LeaveRequest = () => {
                   <p className="text-sm text-gray-600 mt-2">{stats.count} request(s)</p>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Cancel Confirmation Modal */}
+        {cancelingLeaveId && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Cancel Leave Request</h2>
+              <p className="text-gray-700 mb-6">
+                Are you sure you want to cancel this leave request? This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={confirmCancelLeave}
+                  disabled={loading}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 transition-colors font-medium"
+                >
+                  {loading ? 'Canceling...' : 'Yes, Cancel Request'}
+                </button>
+                <button
+                  onClick={() => setCancelingLeaveId(null)}
+                  className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                >
+                  No, Keep It
+                </button>
+              </div>
             </div>
           </div>
         )}
