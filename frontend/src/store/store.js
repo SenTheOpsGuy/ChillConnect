@@ -4,6 +4,8 @@ import bookingSlice from './slices/bookingSlice'
 import chatSlice from './slices/chatSlice'
 import walletSlice from './slices/walletSlice'
 import adminSlice from './slices/adminSlice'
+import rosterSlice from './slices/rosterSlice'
+import leaveSlice from './slices/leaveSlice'
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +14,8 @@ export const store = configureStore({
     chat: chatSlice,
     wallet: walletSlice,
     admin: adminSlice,
+    roster: rosterSlice,
+    leave: leaveSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

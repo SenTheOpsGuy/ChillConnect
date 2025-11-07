@@ -43,6 +43,9 @@ import EmployeeLogin from './pages/Auth/EmployeeLogin'
 import Contact from './pages/Contact'
 import CommunityGuidelines from './pages/CommunityGuidelines'
 import Bookings from './pages/Bookings'
+import RosterCalendar from './pages/RosterCalendar'
+import LeaveRequest from './pages/LeaveRequest'
+import LeaveManagement from './pages/LeaveManagement'
 
 function App() {
   const dispatch = useDispatch()
@@ -322,6 +325,38 @@ function App() {
               <ProtectedRoute roles={['SEEKER', 'PROVIDER']}>
                 <Layout>
                   <BookingDetails />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Roster and Leave Management Routes */}
+          <Route
+            path="/roster"
+            element={
+              <ProtectedRoute roles={['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN']}>
+                <Layout>
+                  <RosterCalendar />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leaves/request"
+            element={
+              <ProtectedRoute roles={['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN']}>
+                <Layout>
+                  <LeaveRequest />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leaves/manage"
+            element={
+              <ProtectedRoute roles={['MANAGER', 'ADMIN', 'SUPER_ADMIN']}>
+                <Layout>
+                  <LeaveManagement />
                 </Layout>
               </ProtectedRoute>
             }
