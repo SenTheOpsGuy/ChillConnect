@@ -289,7 +289,7 @@ const LeaveRequest = () => {
           <div className="space-y-4">
             {myLeaveRequests.length === 0 ? (
               <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-                <p className="text-gray-500">You haven't submitted any leave requests yet.</p>
+                <p className="text-gray-500">You have not submitted any leave requests yet.</p>
                 <button
                   onClick={() => setSelectedTab('new')}
                   className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"

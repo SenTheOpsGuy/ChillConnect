@@ -24,6 +24,7 @@ const LeaveManagement = () => {
   const [showRejectionModal, setShowRejectionModal] = useState(false)
   const [adminNotes, setAdminNotes] = useState('')
   const [rejectionReason, setRejectionReason] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
 
   // Check if user has permission
   const isAuthorized = ['MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(user?.role)
@@ -35,7 +36,7 @@ const LeaveManagement = () => {
     }
 
     dispatch(fetchAllLeaveRequests(filters))
-  }, [filters, isAuthorized])
+  }, [filters, isAuthorized, dispatch, navigate])
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value, page: 1 }))
@@ -69,16 +70,16 @@ const LeaveManagement = () => {
     )
 
     if (result.meta.requestStatus === 'fulfilled') {
-      alert('Leave request approved successfully!')
+      setSuccessMessage('Leave request approved successfully!')
       setShowApprovalModal(false)
       setSelectedLeave(null)
       dispatch(fetchAllLeaveRequests(filters))
+      setTimeout(() => setSuccessMessage(''), 5000)
     }
   }
 
   const handleReject = async () => {
     if (!selectedLeave || !rejectionReason) {
-      alert('Please provide a rejection reason')
       return
     }
 
@@ -91,10 +92,11 @@ const LeaveManagement = () => {
     )
 
     if (result.meta.requestStatus === 'fulfilled') {
-      alert('Leave request rejected')
+      setSuccessMessage('Leave request rejected')
       setShowRejectionModal(false)
       setSelectedLeave(null)
       dispatch(fetchAllLeaveRequests(filters))
+      setTimeout(() => setSuccessMessage(''), 5000)
     }
   }
 
@@ -138,6 +140,15 @@ const LeaveManagement = () => {
           <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center">
             <span>{error}</span>
             <button onClick={() => dispatch(clearError())} className="text-red-700 hover:text-red-900">
+              ✕
+            </button>
+          </div>
+        )}
+
+        {successMessage && (
+          <div className="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex justify-between items-center">
+            <span>{successMessage}</span>
+            <button onClick={() => setSuccessMessage('')} className="text-green-700 hover:text-green-900">
               ✕
             </button>
           </div>

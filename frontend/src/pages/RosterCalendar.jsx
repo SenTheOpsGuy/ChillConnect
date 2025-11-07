@@ -4,8 +4,6 @@ import { useNavigate } from 'react-router-dom'
 import {
   fetchOrganizationRoster,
   fetchMyShifts,
-  fetchLeaveCalendar,
-  clearError,
 } from '../store/slices/rosterSlice'
 import { fetchLeaveCalendar as fetchLeaves } from '../store/slices/leaveSlice'
 
@@ -25,29 +23,6 @@ const RosterCalendar = () => {
   })
 
   const isManagerOrAdmin = ['MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(user?.role)
-
-  useEffect(() => {
-    loadCalendarData()
-  }, [currentDate, viewMode, selectedFilters])
-
-  const loadCalendarData = () => {
-    const { startDate, endDate } = getDateRange()
-
-    if (viewMode === 'my-shifts') {
-      dispatch(fetchMyShifts({ startDate, endDate }))
-    } else if (isManagerOrAdmin) {
-      dispatch(fetchOrganizationRoster({
-        startDate,
-        endDate,
-        ...selectedFilters,
-      }))
-    } else {
-      dispatch(fetchMyShifts({ startDate, endDate }))
-    }
-
-    // Also load leave calendar
-    dispatch(fetchLeaves({ startDate, endDate }))
-  }
 
   const getDateRange = () => {
     const year = currentDate.getFullYear()
@@ -74,6 +49,26 @@ const RosterCalendar = () => {
       endDate: endDate.toISOString(),
     }
   }
+
+  useEffect(() => {
+    const { startDate, endDate } = getDateRange()
+
+    if (viewMode === 'my-shifts') {
+      dispatch(fetchMyShifts({ startDate, endDate }))
+    } else if (isManagerOrAdmin) {
+      dispatch(fetchOrganizationRoster({
+        startDate,
+        endDate,
+        ...selectedFilters,
+      }))
+    } else {
+      dispatch(fetchMyShifts({ startDate, endDate }))
+    }
+
+    // Also load leave calendar
+    dispatch(fetchLeaves({ startDate, endDate }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentDate, viewMode, selectedFilters, dispatch])
 
   const navigatePrevious = () => {
     const newDate = new Date(currentDate)
@@ -148,10 +143,6 @@ const RosterCalendar = () => {
       const leaveEnd = new Date(leave.endDate).getTime()
       return dateTime >= leaveStart && dateTime <= leaveEnd
     })
-  }
-
-  const handleFilterChange = (key, value) => {
-    setSelectedFilters((prev) => ({ ...prev, [key]: value }))
   }
 
   return (
