@@ -1,158 +1,158 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import {
   fetchOrganizationRoster,
   fetchMyShifts,
   fetchLeaveCalendar,
-  clearError
-} from '../store/slices/rosterSlice';
-import { fetchLeaveCalendar as fetchLeaves } from '../store/slices/leaveSlice';
+  clearError,
+} from '../store/slices/rosterSlice'
+import { fetchLeaveCalendar as fetchLeaves } from '../store/slices/leaveSlice'
 
 const RosterCalendar = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { user } = useSelector((state) => state.auth);
-  const { organizationRoster, myShifts, loading, error } = useSelector((state) => state.roster);
-  const { leaveCalendar } = useSelector((state) => state.leave);
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const { user } = useSelector((state) => state.auth)
+  const { organizationRoster, myShifts, loading, error } = useSelector((state) => state.roster)
+  const { leaveCalendar } = useSelector((state) => state.leave)
 
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState('month'); // 'month', 'week', 'my-shifts'
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const [viewMode, setViewMode] = useState('month') // 'month', 'week', 'my-shifts'
   const [selectedFilters, setSelectedFilters] = useState({
     department: '',
     location: '',
-    role: ''
-  });
+    role: '',
+  })
 
-  const isManagerOrAdmin = ['MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(user?.role);
+  const isManagerOrAdmin = ['MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(user?.role)
 
   useEffect(() => {
-    loadCalendarData();
-  }, [currentDate, viewMode, selectedFilters]);
+    loadCalendarData()
+  }, [currentDate, viewMode, selectedFilters])
 
   const loadCalendarData = () => {
-    const { startDate, endDate } = getDateRange();
+    const { startDate, endDate } = getDateRange()
 
     if (viewMode === 'my-shifts') {
-      dispatch(fetchMyShifts({ startDate, endDate }));
+      dispatch(fetchMyShifts({ startDate, endDate }))
     } else if (isManagerOrAdmin) {
       dispatch(fetchOrganizationRoster({
         startDate,
         endDate,
-        ...selectedFilters
-      }));
+        ...selectedFilters,
+      }))
     } else {
-      dispatch(fetchMyShifts({ startDate, endDate }));
+      dispatch(fetchMyShifts({ startDate, endDate }))
     }
 
     // Also load leave calendar
-    dispatch(fetchLeaves({ startDate, endDate }));
-  };
+    dispatch(fetchLeaves({ startDate, endDate }))
+  }
 
   const getDateRange = () => {
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
+    const year = currentDate.getFullYear()
+    const month = currentDate.getMonth()
 
     if (viewMode === 'week') {
-      const startOfWeek = new Date(currentDate);
-      startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      const startOfWeek = new Date(currentDate)
+      startOfWeek.setDate(currentDate.getDate() - currentDate.getDay())
+      const endOfWeek = new Date(startOfWeek)
+      endOfWeek.setDate(startOfWeek.getDate() + 6)
 
       return {
         startDate: startOfWeek.toISOString(),
-        endDate: endOfWeek.toISOString()
-      };
+        endDate: endOfWeek.toISOString(),
+      }
     }
 
     // Month view
-    const startDate = new Date(year, month, 1);
-    const endDate = new Date(year, month + 1, 0, 23, 59, 59);
+    const startDate = new Date(year, month, 1)
+    const endDate = new Date(year, month + 1, 0, 23, 59, 59)
 
     return {
       startDate: startDate.toISOString(),
-      endDate: endDate.toISOString()
-    };
-  };
+      endDate: endDate.toISOString(),
+    }
+  }
 
   const navigatePrevious = () => {
-    const newDate = new Date(currentDate);
+    const newDate = new Date(currentDate)
     if (viewMode === 'week') {
-      newDate.setDate(newDate.getDate() - 7);
+      newDate.setDate(newDate.getDate() - 7)
     } else {
-      newDate.setMonth(newDate.getMonth() - 1);
+      newDate.setMonth(newDate.getMonth() - 1)
     }
-    setCurrentDate(newDate);
-  };
+    setCurrentDate(newDate)
+  }
 
   const navigateNext = () => {
-    const newDate = new Date(currentDate);
+    const newDate = new Date(currentDate)
     if (viewMode === 'week') {
-      newDate.setDate(newDate.getDate() + 7);
+      newDate.setDate(newDate.getDate() + 7)
     } else {
-      newDate.setMonth(newDate.getMonth() + 1);
+      newDate.setMonth(newDate.getMonth() + 1)
     }
-    setCurrentDate(newDate);
-  };
+    setCurrentDate(newDate)
+  }
 
   const navigateToday = () => {
-    setCurrentDate(new Date());
-  };
+    setCurrentDate(new Date())
+  }
 
   const formatMonthYear = () => {
-    return currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-  };
+    return currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  }
 
   const getCalendarDays = () => {
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const startingDayOfWeek = firstDay.getDay();
-    const daysInMonth = lastDay.getDate();
+    const year = currentDate.getFullYear()
+    const month = currentDate.getMonth()
+    const firstDay = new Date(year, month, 1)
+    const lastDay = new Date(year, month + 1, 0)
+    const startingDayOfWeek = firstDay.getDay()
+    const daysInMonth = lastDay.getDate()
 
-    const days = [];
+    const days = []
 
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < startingDayOfWeek; i++) {
-      days.push(null);
+      days.push(null)
     }
 
     // Add days of the month
     for (let i = 1; i <= daysInMonth; i++) {
-      days.push(new Date(year, month, i));
+      days.push(new Date(year, month, i))
     }
 
-    return days;
-  };
+    return days
+  }
 
   const getShiftsForDate = (date) => {
-    if (!date) return [];
+    if (!date) {return []}
 
-    const dateStr = date.toISOString().split('T')[0];
-    const roster = viewMode === 'my-shifts' ? myShifts : organizationRoster;
+    const dateStr = date.toISOString().split('T')[0]
+    const roster = viewMode === 'my-shifts' ? myShifts : organizationRoster
 
     return roster.filter((shift) => {
-      const shiftStart = new Date(shift.startTime).toISOString().split('T')[0];
-      return shiftStart === dateStr;
-    });
-  };
+      const shiftStart = new Date(shift.startTime).toISOString().split('T')[0]
+      return shiftStart === dateStr
+    })
+  }
 
   const getLeavesForDate = (date) => {
-    if (!date) return [];
+    if (!date) {return []}
 
-    const dateTime = date.getTime();
+    const dateTime = date.getTime()
 
     return leaveCalendar.filter((leave) => {
-      const leaveStart = new Date(leave.startDate).getTime();
-      const leaveEnd = new Date(leave.endDate).getTime();
-      return dateTime >= leaveStart && dateTime <= leaveEnd;
-    });
-  };
+      const leaveStart = new Date(leave.startDate).getTime()
+      const leaveEnd = new Date(leave.endDate).getTime()
+      return dateTime >= leaveStart && dateTime <= leaveEnd
+    })
+  }
 
   const handleFilterChange = (key, value) => {
-    setSelectedFilters((prev) => ({ ...prev, [key]: value }));
-  };
+    setSelectedFilters((prev) => ({ ...prev, [key]: value }))
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -264,9 +264,9 @@ const RosterCalendar = () => {
               {/* Calendar Days */}
               <div className="grid grid-cols-7 gap-px bg-gray-200">
                 {getCalendarDays().map((date, index) => {
-                  const shifts = date ? getShiftsForDate(date) : [];
-                  const leaves = date ? getLeavesForDate(date) : [];
-                  const isToday = date && date.toDateString() === new Date().toDateString();
+                  const shifts = date ? getShiftsForDate(date) : []
+                  const leaves = date ? getLeavesForDate(date) : []
+                  const isToday = date && date.toDateString() === new Date().toDateString()
 
                   return (
                     <div
@@ -286,7 +286,7 @@ const RosterCalendar = () => {
                             <div
                               key={shift.id}
                               className="mb-1 px-2 py-1 rounded text-xs truncate cursor-pointer hover:opacity-80"
-                              style={{ backgroundColor: shift.color + '20', borderLeft: `3px solid ${shift.color}` }}
+                              style={{ backgroundColor: `${shift.color}20`, borderLeft: `3px solid ${shift.color}` }}
                               title={`${shift.title} - ${shift.user.profile?.firstName} ${shift.user.profile?.lastName}`}
                             >
                               <div className="font-medium truncate">{shift.title}</div>
@@ -316,7 +316,7 @@ const RosterCalendar = () => {
                         </>
                       )}
                     </div>
-                  );
+                  )
                 })}
               </div>
             </>
@@ -343,7 +343,7 @@ const RosterCalendar = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default RosterCalendar;
+export default RosterCalendar

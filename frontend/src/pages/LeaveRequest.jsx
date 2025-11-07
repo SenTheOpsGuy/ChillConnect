@@ -1,116 +1,115 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import {
   fetchLeaveTypes,
   createLeaveRequest,
   fetchMyLeaveRequests,
   fetchMyLeaveStatistics,
   cancelLeaveRequest,
-  clearError
-} from '../store/slices/leaveSlice';
+  clearError,
+} from '../store/slices/leaveSlice'
 
 const LeaveRequest = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { leaveTypes, myLeaveRequests, myStatistics, loading, error } = useSelector((state) => state.leave);
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const { leaveTypes, myLeaveRequests, myStatistics, loading, error } = useSelector((state) => state.leave)
 
   const [formData, setFormData] = useState({
     leaveTypeId: '',
     startDate: '',
     endDate: '',
     reason: '',
-    notes: ''
-  });
+    notes: '',
+  })
 
-  const [selectedTab, setSelectedTab] = useState('new'); // 'new', 'my-requests', 'statistics'
+  const [selectedTab, setSelectedTab] = useState('new') // 'new', 'my-requests', 'statistics'
 
   useEffect(() => {
-    dispatch(fetchLeaveTypes());
-    dispatch(fetchMyLeaveRequests());
-    dispatch(fetchMyLeaveStatistics());
-  }, [dispatch]);
+    dispatch(fetchLeaveTypes())
+    dispatch(fetchMyLeaveRequests())
+    dispatch(fetchMyLeaveStatistics())
+  }, [dispatch])
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
 
   const calculateTotalDays = () => {
-    if (!formData.startDate || !formData.endDate) return 0;
+    if (!formData.startDate || !formData.endDate) {return 0}
 
-    const start = new Date(formData.startDate);
-    const end = new Date(formData.endDate);
+    const start = new Date(formData.startDate)
+    const end = new Date(formData.endDate)
 
-    if (start > end) return 0;
+    if (start > end) {return 0}
 
-    const timeDiff = end.getTime() - start.getTime();
-    const days = timeDiff / (1000 * 3600 * 24) + 1; // +1 to include both start and end dates
+    const timeDiff = end.getTime() - start.getTime()
+    const days = timeDiff / (1000 * 3600 * 24) + 1 // +1 to include both start and end dates
 
-    return days;
-  };
+    return days
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!formData.leaveTypeId || !formData.startDate || !formData.endDate || !formData.reason) {
-      alert('Please fill in all required fields');
-      return;
+      dispatch(clearError())
+      return
     }
 
-    const result = await dispatch(createLeaveRequest(formData));
+    const result = await dispatch(createLeaveRequest(formData))
 
     if (result.meta.requestStatus === 'fulfilled') {
-      alert('Leave request submitted successfully!');
       setFormData({
         leaveTypeId: '',
         startDate: '',
         endDate: '',
         reason: '',
-        notes: ''
-      });
-      dispatch(fetchMyLeaveRequests());
-      dispatch(fetchMyLeaveStatistics());
-      setSelectedTab('my-requests');
+        notes: '',
+      })
+      dispatch(fetchMyLeaveRequests())
+      dispatch(fetchMyLeaveStatistics())
+      setSelectedTab('my-requests')
     }
-  };
+  }
 
   const handleCancelLeave = async (leaveRequestId) => {
+    // eslint-disable-next-line no-restricted-globals
     if (!confirm('Are you sure you want to cancel this leave request?')) {
-      return;
+      return
     }
 
-    const result = await dispatch(cancelLeaveRequest(leaveRequestId));
+    const result = await dispatch(cancelLeaveRequest(leaveRequestId))
 
     if (result.meta.requestStatus === 'fulfilled') {
-      alert('Leave request cancelled successfully!');
-      dispatch(fetchMyLeaveRequests());
-      dispatch(fetchMyLeaveStatistics());
+      dispatch(fetchMyLeaveRequests())
+      dispatch(fetchMyLeaveStatistics())
     }
-  };
+  }
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
       case 'PENDING':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800'
       case 'APPROVED':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800'
       case 'REJECTED':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800'
       case 'CANCELLED':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800'
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800'
     }
-  };
+  }
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
-    });
-  };
+      day: 'numeric',
+    })
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -399,7 +398,7 @@ const LeaveRequest = () => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default LeaveRequest;
+export default LeaveRequest

@@ -1,128 +1,128 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import {
   fetchAllLeaveRequests,
   approveLeaveRequest,
   rejectLeaveRequest,
-  clearError
-} from '../store/slices/leaveSlice';
+  clearError,
+} from '../store/slices/leaveSlice'
 
 const LeaveManagement = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { user } = useSelector((state) => state.auth);
-  const { allLeaveRequests, pagination, loading, error } = useSelector((state) => state.leave);
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const { user } = useSelector((state) => state.auth)
+  const { allLeaveRequests, pagination, loading, error } = useSelector((state) => state.leave)
 
   const [filters, setFilters] = useState({
     status: 'PENDING',
-    page: 1
-  });
+    page: 1,
+  })
 
-  const [selectedLeave, setSelectedLeave] = useState(null);
-  const [showApprovalModal, setShowApprovalModal] = useState(false);
-  const [showRejectionModal, setShowRejectionModal] = useState(false);
-  const [adminNotes, setAdminNotes] = useState('');
-  const [rejectionReason, setRejectionReason] = useState('');
+  const [selectedLeave, setSelectedLeave] = useState(null)
+  const [showApprovalModal, setShowApprovalModal] = useState(false)
+  const [showRejectionModal, setShowRejectionModal] = useState(false)
+  const [adminNotes, setAdminNotes] = useState('')
+  const [rejectionReason, setRejectionReason] = useState('')
 
   // Check if user has permission
-  const isAuthorized = ['MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(user?.role);
+  const isAuthorized = ['MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(user?.role)
 
   useEffect(() => {
     if (!isAuthorized) {
-      navigate('/');
-      return;
+      navigate('/')
+      return
     }
 
-    dispatch(fetchAllLeaveRequests(filters));
-  }, [filters, isAuthorized]);
+    dispatch(fetchAllLeaveRequests(filters))
+  }, [filters, isAuthorized])
 
   const handleFilterChange = (key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value, page: 1 }));
-  };
+    setFilters((prev) => ({ ...prev, [key]: value, page: 1 }))
+  }
 
   const handlePageChange = (newPage) => {
-    setFilters((prev) => ({ ...prev, page: newPage }));
-  };
+    setFilters((prev) => ({ ...prev, page: newPage }))
+  }
 
   const openApprovalModal = (leave) => {
-    setSelectedLeave(leave);
-    setAdminNotes('');
-    setShowApprovalModal(true);
-  };
+    setSelectedLeave(leave)
+    setAdminNotes('')
+    setShowApprovalModal(true)
+  }
 
   const openRejectionModal = (leave) => {
-    setSelectedLeave(leave);
-    setRejectionReason('');
-    setAdminNotes('');
-    setShowRejectionModal(true);
-  };
+    setSelectedLeave(leave)
+    setRejectionReason('')
+    setAdminNotes('')
+    setShowRejectionModal(true)
+  }
 
   const handleApprove = async () => {
-    if (!selectedLeave) return;
+    if (!selectedLeave) {return}
 
     const result = await dispatch(
       approveLeaveRequest({
         leaveRequestId: selectedLeave.id,
-        adminNotes
-      })
-    );
+        adminNotes,
+      }),
+    )
 
     if (result.meta.requestStatus === 'fulfilled') {
-      alert('Leave request approved successfully!');
-      setShowApprovalModal(false);
-      setSelectedLeave(null);
-      dispatch(fetchAllLeaveRequests(filters));
+      alert('Leave request approved successfully!')
+      setShowApprovalModal(false)
+      setSelectedLeave(null)
+      dispatch(fetchAllLeaveRequests(filters))
     }
-  };
+  }
 
   const handleReject = async () => {
     if (!selectedLeave || !rejectionReason) {
-      alert('Please provide a rejection reason');
-      return;
+      alert('Please provide a rejection reason')
+      return
     }
 
     const result = await dispatch(
       rejectLeaveRequest({
         leaveRequestId: selectedLeave.id,
         rejectionReason,
-        adminNotes
-      })
-    );
+        adminNotes,
+      }),
+    )
 
     if (result.meta.requestStatus === 'fulfilled') {
-      alert('Leave request rejected');
-      setShowRejectionModal(false);
-      setSelectedLeave(null);
-      dispatch(fetchAllLeaveRequests(filters));
+      alert('Leave request rejected')
+      setShowRejectionModal(false)
+      setSelectedLeave(null)
+      dispatch(fetchAllLeaveRequests(filters))
     }
-  };
+  }
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
       case 'PENDING':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800'
       case 'APPROVED':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800'
       case 'REJECTED':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800'
       case 'CANCELLED':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800'
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800'
     }
-  };
+  }
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
-    });
-  };
+      day: 'numeric',
+    })
+  }
 
   if (!isAuthorized) {
-    return null;
+    return null
   }
 
   return (
@@ -417,7 +417,7 @@ const LeaveManagement = () => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default LeaveManagement;
+export default LeaveManagement
