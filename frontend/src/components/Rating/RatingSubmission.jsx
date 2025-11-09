@@ -1,29 +1,29 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
-import { FiX, FiCheck } from 'react-icons/fi';
-import RatingStars from './RatingStars';
+import React, { useState } from 'react'
+import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
+import { FiX, FiCheck } from 'react-icons/fi'
+import RatingStars from './RatingStars'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const RatingSubmission = ({ booking, onClose, onSubmitted }) => {
-  const { token } = useSelector((state) => state.auth);
-  const [rating, setRating] = useState(0);
-  const [review, setReview] = useState('');
-  const [anonymous, setAnonymous] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const { token } = useSelector((state) => state.auth)
+  const [rating, setRating] = useState(0)
+  const [review, setReview] = useState('')
+  const [anonymous, setAnonymous] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (rating === 0) {
-      toast.error('Please select a star rating');
-      return;
+      toast.error('Please select a star rating')
+      return
     }
 
     try {
-      setSubmitting(true);
+      setSubmitting(true)
 
       await axios.post(
         `${API_URL}/api/ratings`,
@@ -31,27 +31,27 @@ const RatingSubmission = ({ booking, onClose, onSubmitted }) => {
           bookingId: booking.id,
           rating,
           review: review.trim() || undefined,
-          anonymous
+          anonymous,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
 
-      toast.success('Rating submitted successfully!');
+      toast.success('Rating submitted successfully!')
 
       if (onSubmitted) {
-        onSubmitted();
+        onSubmitted()
       }
 
       if (onClose) {
-        onClose();
+        onClose()
       }
     } catch (error) {
-      console.error('Error submitting rating:', error);
-      toast.error(error.response?.data?.error || 'Failed to submit rating');
+      console.error('Error submitting rating:', error)
+      toast.error(error.response?.data?.error || 'Failed to submit rating')
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
@@ -126,7 +126,7 @@ const RatingSubmission = ({ booking, onClose, onSubmitted }) => {
             <label htmlFor="anonymous" className="text-sm text-gray-300 cursor-pointer flex-1">
               <span className="font-medium">Submit anonymously</span>
               <p className="text-xs text-gray-500 mt-1">
-                Your name won't be shown with this rating
+                Your name won&apos;t be shown with this rating
               </p>
             </label>
           </div>
@@ -182,7 +182,7 @@ const RatingSubmission = ({ booking, onClose, onSubmitted }) => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default RatingSubmission;
+export default RatingSubmission

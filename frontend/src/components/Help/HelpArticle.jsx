@@ -1,26 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
+import React, { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import { useParams, useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
 import {
   FiArrowLeft,
   FiThumbsUp,
   FiClock,
   FiEye,
-  FiChevronRight
-} from 'react-icons/fi';
+  FiChevronRight,
+} from 'react-icons/fi'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 const HelpArticle = () => {
-  const { slug } = useParams();
-  const navigate = useNavigate();
-  const { token } = useSelector((state) => state.auth);
-  const [article, setArticle] = useState(null);
-  const [relatedArticles, setRelatedArticles] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [helpful, setHelpful] = useState(false);
+  const { slug } = useParams()
+  const navigate = useNavigate()
+  const { token } = useSelector((state) => state.auth)
+  const [article, setArticle] = useState(null)
+  const [relatedArticles, setRelatedArticles] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [helpful, setHelpful] = useState(false)
 
   const categoryInfo = {
     GETTING_STARTED: { label: 'Getting Started', icon: '🚀' },
@@ -29,119 +29,119 @@ const HelpArticle = () => {
     PAYMENTS: { label: 'Payments', icon: '💳' },
     SAFETY: { label: 'Safety', icon: '🛡️' },
     PROVIDERS: { label: 'For Providers', icon: '💼' },
-    FAQ: { label: 'FAQ', icon: '❓' }
-  };
+    FAQ: { label: 'FAQ', icon: '❓' },
+  }
 
   useEffect(() => {
     if (slug) {
-      fetchArticle();
+      fetchArticle()
     }
-  }, [slug]);
+  }, [slug])
 
   const fetchArticle = async () => {
     try {
-      setLoading(true);
+      setLoading(true)
       const response = await axios.get(`${API_URL}/api/help/articles/${slug}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
-      setArticle(response.data.data.article);
-      setRelatedArticles(response.data.data.relatedArticles || []);
+      setArticle(response.data.data.article)
+      setRelatedArticles(response.data.data.relatedArticles || [])
     } catch (error) {
-      console.error('Error fetching article:', error);
-      toast.error('Failed to load article');
-      navigate('/help');
+      console.error('Error fetching article:', error)
+      toast.error('Failed to load article')
+      navigate('/help')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleMarkHelpful = async () => {
-    if (helpful || !article) return;
+    if (helpful || !article) {return}
 
     try {
       await axios.post(
         `${API_URL}/api/help/articles/${article.id}/helpful`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
 
-      setHelpful(true);
-      setArticle({ ...article, helpfulCount: article.helpfulCount + 1 });
-      toast.success('Thank you for your feedback!');
+      setHelpful(true)
+      setArticle({ ...article, helpfulCount: article.helpfulCount + 1 })
+      toast.success('Thank you for your feedback!')
     } catch (error) {
-      console.error('Error marking helpful:', error);
-      toast.error('Failed to submit feedback');
+      console.error('Error marking helpful:', error)
+      toast.error('Failed to submit feedback')
     }
-  };
+  }
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
-    });
-  };
+      day: 'numeric',
+    })
+  }
 
   // Simple markdown to HTML converter for basic formatting
   const renderMarkdown = (content) => {
-    if (!content) return '';
+    if (!content) {return ''}
 
-    let html = content;
+    let html = content
 
     // Headers
-    html = html.replace(/^### (.*$)/gim, '<h3 class="text-xl font-semibold text-white mt-6 mb-3">$1</h3>');
-    html = html.replace(/^## (.*$)/gim, '<h2 class="text-2xl font-bold text-white mt-8 mb-4">$1</h2>');
-    html = html.replace(/^# (.*$)/gim, '<h1 class="text-3xl font-bold text-white mt-10 mb-5">$1</h1>');
+    html = html.replace(/^### (.*$)/gim, '<h3 class="text-xl font-semibold text-white mt-6 mb-3">$1</h3>')
+    html = html.replace(/^## (.*$)/gim, '<h2 class="text-2xl font-bold text-white mt-8 mb-4">$1</h2>')
+    html = html.replace(/^# (.*$)/gim, '<h1 class="text-3xl font-bold text-white mt-10 mb-5">$1</h1>')
 
     // Bold
-    html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-white">$1</strong>');
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-white">$1</strong>')
 
     // Italic
-    html = html.replace(/\*(.+?)\*/g, '<em class="italic">$1</em>');
+    html = html.replace(/\*(.+?)\*/g, '<em class="italic">$1</em>')
 
     // Code blocks
-    html = html.replace(/```([^`]+)```/g, '<pre class="bg-gray-900 p-4 rounded-lg my-4 overflow-x-auto"><code class="text-sm text-gray-300">$1</code></pre>');
+    html = html.replace(/```([^`]+)```/g, '<pre class="bg-gray-900 p-4 rounded-lg my-4 overflow-x-auto"><code class="text-sm text-gray-300">$1</code></pre>')
 
     // Inline code
-    html = html.replace(/`([^`]+)`/g, '<code class="px-2 py-1 bg-gray-800 rounded text-red-400 text-sm">$1</code>');
+    html = html.replace(/`([^`]+)`/g, '<code class="px-2 py-1 bg-gray-800 rounded text-red-400 text-sm">$1</code>')
 
     // Links
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-red-400 hover:text-red-300 underline" target="_blank" rel="noopener noreferrer">$1</a>');
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-red-400 hover:text-red-300 underline" target="_blank" rel="noopener noreferrer">$1</a>')
 
     // Lists
-    html = html.replace(/^\* (.+)$/gim, '<li class="ml-6 text-gray-300">$1</li>');
-    html = html.replace(/^- (.+)$/gim, '<li class="ml-6 text-gray-300">$1</li>');
+    html = html.replace(/^\* (.+)$/gim, '<li class="ml-6 text-gray-300">$1</li>')
+    html = html.replace(/^- (.+)$/gim, '<li class="ml-6 text-gray-300">$1</li>')
 
     // Wrap consecutive list items
-    html = html.replace(/(<li.*<\/li>\n?)+/g, '<ul class="list-disc my-4 space-y-2">$&</ul>');
+    html = html.replace(/(<li.*<\/li>\n?)+/g, '<ul class="list-disc my-4 space-y-2">$&</ul>')
 
     // Paragraphs
     html = html.split('\n\n').map(para => {
       if (para.trim() && !para.startsWith('<')) {
-        return `<p class="text-gray-300 leading-relaxed my-4">${para}</p>`;
+        return `<p class="text-gray-300 leading-relaxed my-4">${para}</p>`
       }
-      return para;
-    }).join('\n');
+      return para
+    }).join('\n')
 
-    return html;
-  };
+    return html
+  }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="spinner w-8 h-8"></div>
       </div>
-    );
+    )
   }
 
   if (!article) {
-    return null;
+    return null
   }
 
-  const categoryLabel = categoryInfo[article.category]?.label || article.category;
-  const categoryIcon = categoryInfo[article.category]?.icon || '📄';
+  const categoryLabel = categoryInfo[article.category]?.label || article.category
+  const categoryIcon = categoryInfo[article.category]?.icon || '📄'
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -291,7 +291,7 @@ const HelpArticle = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default HelpArticle;
+export default HelpArticle

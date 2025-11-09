@@ -1,105 +1,105 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
+import React, { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
 import {
   FiHelpCircle,
   FiEye,
   FiPlus,
   FiClock,
   FiCheckCircle,
-  FiMessageSquare
-} from 'react-icons/fi';
-import TicketForm from './TicketForm';
-import TicketDetails from './TicketDetails';
+  FiMessageSquare,
+} from 'react-icons/fi'
+import TicketForm from './TicketForm'
+import TicketDetails from './TicketDetails'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const MyTickets = () => {
-  const { token } = useSelector((state) => state.auth);
-  const [tickets, setTickets] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState(null);
-  const [statusFilter, setStatusFilter] = useState('ALL');
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [selectedTicket, setSelectedTicket] = useState(null);
+  const { token } = useSelector((state) => state.auth)
+  const [tickets, setTickets] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [pagination, setPagination] = useState(null)
+  const [statusFilter, setStatusFilter] = useState('ALL')
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [selectedTicket, setSelectedTicket] = useState(null)
 
   useEffect(() => {
-    fetchTickets();
-  }, [page, statusFilter]);
+    fetchTickets()
+  }, [page, statusFilter])
 
   const fetchTickets = async () => {
     try {
-      setLoading(true);
-      const params = { page, limit: 10 };
+      setLoading(true)
+      const params = { page, limit: 10 }
       if (statusFilter !== 'ALL') {
-        params.status = statusFilter;
+        params.status = statusFilter
       }
 
       const response = await axios.get(`${API_URL}/api/support/tickets`, {
         params,
-        headers: { Authorization: `Bearer ${token}` }
-      });
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
-      setTickets(response.data.data.tickets);
-      setPagination(response.data.data.pagination);
+      setTickets(response.data.data.tickets)
+      setPagination(response.data.data.pagination)
     } catch (error) {
-      console.error('Error fetching tickets:', error);
-      toast.error('Failed to load support tickets');
+      console.error('Error fetching tickets:', error)
+      toast.error('Failed to load support tickets')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const getStatusIcon = (status) => {
     switch (status) {
       case 'OPEN':
-        return <FiHelpCircle className="text-yellow-500" />;
+        return <FiHelpCircle className="text-yellow-500" />
       case 'IN_PROGRESS':
-        return <FiClock className="text-blue-500" />;
+        return <FiClock className="text-blue-500" />
       case 'WAITING_USER':
-        return <FiMessageSquare className="text-orange-500" />;
+        return <FiMessageSquare className="text-orange-500" />
       case 'RESOLVED':
-        return <FiCheckCircle className="text-green-500" />;
+        return <FiCheckCircle className="text-green-500" />
       case 'CLOSED':
-        return <FiCheckCircle className="text-gray-500" />;
+        return <FiCheckCircle className="text-gray-500" />
       default:
-        return <FiHelpCircle className="text-gray-500" />;
+        return <FiHelpCircle className="text-gray-500" />
     }
-  };
+  }
 
   const getStatusColor = (status) => {
     switch (status) {
       case 'OPEN':
-        return 'bg-yellow-600 bg-opacity-20 text-yellow-500 border-yellow-600';
+        return 'bg-yellow-600 bg-opacity-20 text-yellow-500 border-yellow-600'
       case 'IN_PROGRESS':
-        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600';
+        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600'
       case 'WAITING_USER':
-        return 'bg-orange-600 bg-opacity-20 text-orange-500 border-orange-600';
+        return 'bg-orange-600 bg-opacity-20 text-orange-500 border-orange-600'
       case 'RESOLVED':
-        return 'bg-green-600 bg-opacity-20 text-green-500 border-green-600';
+        return 'bg-green-600 bg-opacity-20 text-green-500 border-green-600'
       case 'CLOSED':
-        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600';
+        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600'
       default:
-        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600';
+        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600'
     }
-  };
+  }
 
   const getPriorityColor = (priority) => {
     switch (priority) {
       case 'URGENT':
-        return 'text-red-500';
+        return 'text-red-500'
       case 'HIGH':
-        return 'text-yellow-500';
+        return 'text-yellow-500'
       case 'MEDIUM':
-        return 'text-blue-500';
+        return 'text-blue-500'
       case 'LOW':
-        return 'text-gray-500';
+        return 'text-gray-500'
       default:
-        return 'text-gray-500';
+        return 'text-gray-500'
     }
-  };
+  }
 
   const getCategoryLabel = (category) => {
     const labels = {
@@ -109,30 +109,30 @@ const MyTickets = () => {
       TECHNICAL: 'Technical',
       VERIFICATION: 'Verification',
       SAFETY: 'Safety',
-      OTHER: 'Other'
-    };
-    return labels[category] || category;
-  };
+      OTHER: 'Other',
+    }
+    return labels[category] || category
+  }
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
-    });
-  };
+      day: 'numeric',
+    })
+  }
 
   const handleViewTicket = (ticket) => {
-    setSelectedTicket(ticket);
-  };
+    setSelectedTicket(ticket)
+  }
 
   if (loading && page === 1) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="spinner w-8 h-8"></div>
       </div>
-    );
+    )
   }
 
   return (
@@ -160,8 +160,8 @@ const MyTickets = () => {
             <button
               key={status}
               onClick={() => {
-                setStatusFilter(status);
-                setPage(1);
+                setStatusFilter(status)
+                setPage(1)
               }}
               className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
                 statusFilter === status
@@ -194,7 +194,7 @@ const MyTickets = () => {
         ) : (
           <div className="space-y-4">
             {tickets.map((ticket) => {
-              const lastMessage = ticket.messages?.[0];
+              const lastMessage = ticket.messages?.[0]
 
               return (
                 <div key={ticket.id} className="card hover:border-blue-600 transition-all">
@@ -265,7 +265,7 @@ const MyTickets = () => {
                     </div>
                   </div>
                 </div>
-              );
+              )
             })}
           </div>
         )}
@@ -299,8 +299,8 @@ const MyTickets = () => {
         <TicketForm
           onClose={() => setShowCreateForm(false)}
           onSuccess={() => {
-            setShowCreateForm(false);
-            fetchTickets();
+            setShowCreateForm(false)
+            fetchTickets()
           }}
         />
       )}
@@ -314,7 +314,7 @@ const MyTickets = () => {
         />
       )}
     </>
-  );
-};
+  )
+}
 
-export default MyTickets;
+export default MyTickets

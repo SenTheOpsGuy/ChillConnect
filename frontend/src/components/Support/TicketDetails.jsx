@@ -1,101 +1,101 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
+import React, { useState, useEffect, useRef } from 'react'
+import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
 import {
   FiX,
   FiSend,
   FiUser,
   FiClock,
   FiCheckCircle,
-  FiMessageSquare
-} from 'react-icons/fi';
+  FiMessageSquare,
+} from 'react-icons/fi'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
-  const { token, user } = useSelector((state) => state.auth);
-  const [ticket, setTicket] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState('');
-  const [sending, setSending] = useState(false);
-  const messagesEndRef = useRef(null);
+  const { token, user } = useSelector((state) => state.auth)
+  const [ticket, setTicket] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [message, setMessage] = useState('')
+  const [sending, setSending] = useState(false)
+  const messagesEndRef = useRef(null)
 
   useEffect(() => {
-    fetchTicketDetails();
-  }, [ticketId]);
+    fetchTicketDetails()
+  }, [ticketId])
 
   useEffect(() => {
-    scrollToBottom();
-  }, [ticket?.messages]);
+    scrollToBottom()
+  }, [ticket?.messages])
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   const fetchTicketDetails = async () => {
     try {
-      setLoading(true);
+      setLoading(true)
       const response = await axios.get(`${API_URL}/api/support/tickets/${ticketId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setTicket(response.data.data.ticket);
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setTicket(response.data.data.ticket)
     } catch (error) {
-      console.error('Error fetching ticket details:', error);
-      toast.error('Failed to load ticket details');
+      console.error('Error fetching ticket details:', error)
+      toast.error('Failed to load ticket details')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSendMessage = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!message.trim()) {
-      toast.error('Please enter a message');
-      return;
+      toast.error('Please enter a message')
+      return
     }
 
     try {
-      setSending(true);
+      setSending(true)
 
       await axios.post(
         `${API_URL}/api/support/tickets/${ticketId}/messages`,
         { message: message.trim() },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
 
-      toast.success('Reply sent successfully');
-      setMessage('');
-      await fetchTicketDetails();
+      toast.success('Reply sent successfully')
+      setMessage('')
+      await fetchTicketDetails()
 
       if (onUpdate) {
-        onUpdate();
+        onUpdate()
       }
     } catch (error) {
-      console.error('Error sending message:', error);
-      toast.error(error.response?.data?.error || 'Failed to send reply');
+      console.error('Error sending message:', error)
+      toast.error(error.response?.data?.error || 'Failed to send reply')
     } finally {
-      setSending(false);
+      setSending(false)
     }
-  };
+  }
 
   const getStatusColor = (status) => {
     switch (status) {
       case 'OPEN':
-        return 'bg-yellow-600 bg-opacity-20 text-yellow-500 border-yellow-600';
+        return 'bg-yellow-600 bg-opacity-20 text-yellow-500 border-yellow-600'
       case 'IN_PROGRESS':
-        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600';
+        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600'
       case 'WAITING_USER':
-        return 'bg-orange-600 bg-opacity-20 text-orange-500 border-orange-600';
+        return 'bg-orange-600 bg-opacity-20 text-orange-500 border-orange-600'
       case 'RESOLVED':
-        return 'bg-green-600 bg-opacity-20 text-green-500 border-green-600';
+        return 'bg-green-600 bg-opacity-20 text-green-500 border-green-600'
       case 'CLOSED':
-        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600';
+        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600'
       default:
-        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600';
+        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600'
     }
-  };
+  }
 
   const getCategoryLabel = (category) => {
     const labels = {
@@ -105,35 +105,35 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
       TECHNICAL: 'Technical',
       VERIFICATION: 'Verification',
       SAFETY: 'Safety',
-      OTHER: 'Other'
-    };
-    return labels[category] || category;
-  };
+      OTHER: 'Other',
+    }
+    return labels[category] || category
+  }
 
   const formatDateTime = (dateString) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return date.toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+      minute: '2-digit',
+    })
+  }
 
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
         <div className="spinner w-8 h-8"></div>
       </div>
-    );
+    )
   }
 
   if (!ticket) {
-    return null;
+    return null
   }
 
-  const isClosed = ticket.status === 'CLOSED';
+  const isClosed = ticket.status === 'CLOSED'
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
@@ -253,8 +253,8 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
 
           {/* Messages */}
           {ticket.messages && ticket.messages.map((msg) => {
-            const isCurrentUser = msg.sender.id === user.id;
-            const isStaff = msg.isStaff;
+            const isCurrentUser = msg.sender.id === user.id
+            const isStaff = msg.isStaff
 
             return (
               <div key={msg.id} className="flex gap-4">
@@ -291,7 +291,7 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                   </div>
                 </div>
               </div>
-            );
+            )
           })}
 
           {/* Resolution */}
@@ -363,7 +363,7 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default TicketDetails;
+export default TicketDetails

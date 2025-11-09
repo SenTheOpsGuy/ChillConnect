@@ -1,40 +1,40 @@
-import React from 'react';
-import { FiStar } from 'react-icons/fi';
-import { FaStar, FaStarHalfAlt } from 'react-icons/fa';
+import React from 'react'
+import { FiStar } from 'react-icons/fi'
+import { FaStar, FaStarHalfAlt } from 'react-icons/fa'
 
 const RatingStars = ({ rating, size = 'md', interactive = false, onChange }) => {
-  const [hoverRating, setHoverRating] = React.useState(0);
+  const [hoverRating, setHoverRating] = React.useState(0)
 
   const sizes = {
     sm: 'text-sm',
     md: 'text-xl',
     lg: 'text-2xl',
-    xl: 'text-3xl'
-  };
+    xl: 'text-3xl',
+  }
 
-  const getSizeClass = () => sizes[size] || sizes.md;
+  const getSizeClass = () => sizes[size] || sizes.md
 
   const handleClick = (value) => {
     if (interactive && onChange) {
-      onChange(value);
+      onChange(value)
     }
-  };
+  }
 
   const handleMouseEnter = (value) => {
     if (interactive) {
-      setHoverRating(value);
+      setHoverRating(value)
     }
-  };
+  }
 
   const handleMouseLeave = () => {
     if (interactive) {
-      setHoverRating(0);
+      setHoverRating(0)
     }
-  };
+  }
 
   const renderStar = (index) => {
-    const value = index + 1;
-    const currentRating = hoverRating || rating;
+    const value = index + 1
+    const currentRating = hoverRating || rating
 
     if (currentRating >= value) {
       // Full star
@@ -42,23 +42,23 @@ const RatingStars = ({ rating, size = 'md', interactive = false, onChange }) => 
         <FaStar
           className={`${interactive ? 'cursor-pointer' : ''} text-yellow-500 transition-all`}
         />
-      );
+      )
     } else if (currentRating >= value - 0.5) {
       // Half star
       return (
         <FaStarHalfAlt
           className={`${interactive ? 'cursor-pointer' : ''} text-yellow-500 transition-all`}
         />
-      );
+      )
     } else {
       // Empty star
       return (
         <FiStar
           className={`${interactive ? 'cursor-pointer hover:text-yellow-500' : ''} text-gray-600 transition-all`}
         />
-      );
+      )
     }
-  };
+  }
 
   return (
     <div className={`flex items-center gap-1 ${getSizeClass()}`}>
@@ -79,7 +79,7 @@ const RatingStars = ({ rating, size = 'md', interactive = false, onChange }) => 
         </span>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default RatingStars;
+export default RatingStars

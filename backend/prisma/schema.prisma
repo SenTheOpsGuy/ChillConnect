@@ -185,6 +185,13 @@ model User {
   withdrawalRequests WithdrawalRequest[]
   approvedWithdrawals WithdrawalRequest[] @relation("ApprovedWithdrawals")
 
+  // Leave management
+  leaveRequests    LeaveRequest[]
+  reviewedLeaves   LeaveRequest[] @relation("ReviewedLeaves")
+
+  // Roster shifts
+  rosterShifts     RosterShift[]
+
   @@map("users")
 }
 
@@ -637,4 +644,117 @@ model WithdrawalRequest {
   @@index([status])
   @@index([requestNumber])
   @@map("withdrawal_requests")
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum LeaveTypeEnum {
+  SICK
+  VACATION
+  PERSONAL
+  MATERNITY
+  PATERNITY
+  UNPAID
+  OTHER
+}
+
+model LeaveType {
+  id              String   @id @default(uuid())
+  name            String   // e.g., "Sick Leave", "Annual Leave"
+  code            LeaveTypeEnum @unique
+  description     String?
+  maxDaysPerYear  Int?     // null means unlimited
+  requiresApproval Boolean @default(true)
+  isPaid          Boolean  @default(true)
+  color           String   @default("#3B82F6") // Color for calendar display
+  isActive        Boolean  @default(true)
+
+  // Leave requests of this type
+  leaveRequests   LeaveRequest[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("leave_types")
+}
+
+model LeaveRequest {
+  id              String      @id @default(uuid())
+  requestNumber   Int         @unique @default(autoincrement())
+
+  // Employee requesting leave
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Leave details
+  leaveTypeId     String
+  leaveType       LeaveType   @relation(fields: [leaveTypeId], references: [id])
+
+  startDate       DateTime
+  endDate         DateTime
+  totalDays       Float       // Can be partial days (0.5 for half day)
+
+  reason          String
+  status          LeaveStatus @default(PENDING)
+
+  // Approval workflow
+  reviewedBy      String?
+  reviewedByUser  User?       @relation("ReviewedLeaves", fields: [reviewedBy], references: [id])
+  reviewedAt      DateTime?
+  rejectionReason String?
+
+  // Metadata
+  attachments     String[]    // URLs to supporting documents
+  notes           String?     // Additional notes from employee
+  adminNotes      String?     // Notes from approver
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([startDate])
+  @@index([endDate])
+  @@map("leave_requests")
+}
+
+model RosterShift {
+  id              String   @id @default(uuid())
+
+  // Employee assigned to this shift
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Shift details
+  title           String   // e.g., "Morning Shift", "Evening Shift", "On Call"
+  startTime       DateTime
+  endTime         DateTime
+
+  // Location/department
+  location        String?  // e.g., "Office", "Remote", "Site A"
+  department      String?  // e.g., "Support", "Sales", "Operations"
+
+  // Shift metadata
+  isRecurring     Boolean  @default(false)
+  recurringPattern String? // JSON: {"frequency": "weekly", "daysOfWeek": [1,2,3,4,5]}
+  color           String   @default("#10B981") // Color for calendar display
+
+  // Notes
+  notes           String?
+
+  // Created/managed by
+  createdBy       String   // Manager or admin who created the shift
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([startTime])
+  @@index([endTime])
+  @@map("roster_shifts")
 }

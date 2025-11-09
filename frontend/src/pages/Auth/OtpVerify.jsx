@@ -82,7 +82,7 @@ const OtpVerify = () => {
     }
 
     try {
-      const result = await dispatch(verifyLoginOTP({ 
+      await dispatch(verifyLoginOTP({ 
         identifier, 
         otp, 
         type: loginType, 
@@ -175,7 +175,7 @@ const OtpVerify = () => {
           Enter Verification Code
         </h2>
         <p className="mt-2 text-center text-gray-600">
-          We've sent a 6-digit code to your {loginType === 'phone' ? 'phone number' : 'email'}
+          We&apos;ve sent a 6-digit code to your {loginType === 'phone' ? 'phone number' : 'email'}
         </p>
       </div>
 

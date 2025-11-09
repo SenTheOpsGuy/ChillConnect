@@ -1,25 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
-import { FiPlus, FiEdit2, FiTrash2, FiSave, FiX, FiBarChart2 } from 'react-icons/fi';
+import { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
+import { FiPlus, FiEdit2, FiTrash2, FiSave, FiX, FiBarChart2 } from 'react-icons/fi'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const TemplateManagement = () => {
-  const { token } = useSelector((state) => state.auth);
-  const [templates, setTemplates] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState('ALL');
-  const [isCreating, setIsCreating] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState(null);
+  const { token } = useSelector((state) => state.auth)
+  const [templates, setTemplates] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState(null)
+  const [selectedCategory, setSelectedCategory] = useState('ALL')
+  const [isCreating, setIsCreating] = useState(false)
+  const [editingTemplate, setEditingTemplate] = useState(null)
+  const [deletingTemplateId, setDeletingTemplateId] = useState(null)
   const [formData, setFormData] = useState({
     category: 'BOOKING_COORDINATION',
     templateText: '',
     description: '',
-    variables: []
-  });
+    variables: [],
+  })
 
   const categories = [
     { value: 'ALL', label: 'All Categories' },
@@ -27,92 +28,92 @@ const TemplateManagement = () => {
     { value: 'SERVICE_DISCUSSION', label: 'Service Discussion' },
     { value: 'LOGISTICS', label: 'Logistics' },
     { value: 'SUPPORT', label: 'Support' },
-    { value: 'SYSTEM', label: 'System Messages' }
-  ];
+    { value: 'SYSTEM', label: 'System Messages' },
+  ]
 
   useEffect(() => {
-    fetchTemplates();
-    fetchStats();
-  }, []);
+    fetchTemplates()
+    fetchStats()
+  }, [])
 
   const fetchTemplates = async () => {
     try {
-      setLoading(true);
+      setLoading(true)
       const response = await axios.get(`${API_URL}/api/templates/admin/all`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setTemplates(response.data.data.templates);
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setTemplates(response.data.data.templates)
     } catch (error) {
-      console.error('Error fetching templates:', error);
-      toast.error('Failed to load templates');
+      console.error('Error fetching templates:', error)
+      toast.error('Failed to load templates')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const fetchStats = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/templates/admin/stats`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setStats(response.data.data);
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setStats(response.data.data)
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error('Error fetching stats:', error)
     }
-  };
+  }
 
   const handleCreate = () => {
-    setIsCreating(true);
-    setEditingTemplate(null);
+    setIsCreating(true)
+    setEditingTemplate(null)
     setFormData({
       category: 'BOOKING_COORDINATION',
       templateText: '',
       description: '',
-      variables: []
-    });
-  };
+      variables: [],
+    })
+  }
 
   const handleEdit = (template) => {
-    setEditingTemplate(template);
-    setIsCreating(false);
+    setEditingTemplate(template)
+    setIsCreating(false)
     setFormData({
       category: template.category,
       templateText: template.templateText,
       description: template.description || '',
-      variables: template.variables || []
-    });
-  };
+      variables: template.variables || [],
+    })
+  }
 
   const handleCancel = () => {
-    setIsCreating(false);
-    setEditingTemplate(null);
+    setIsCreating(false)
+    setEditingTemplate(null)
     setFormData({
       category: 'BOOKING_COORDINATION',
       templateText: '',
       description: '',
-      variables: []
-    });
-  };
+      variables: [],
+    })
+  }
 
   const extractVariables = (text) => {
-    const matches = text.match(/{{(\w+)}}/g);
-    if (!matches) return [];
-    return matches.map(match => match.replace(/{{|}}/g, ''));
-  };
+    const matches = text.match(/{{(\w+)}}/g)
+    if (!matches) {return []}
+    return matches.map(match => match.replace(/{{|}}/g, ''))
+  }
 
   const handleTemplateTextChange = (text) => {
     setFormData({
       ...formData,
       templateText: text,
-      variables: extractVariables(text)
-    });
-  };
+      variables: extractVariables(text),
+    })
+  }
 
   const handleSave = async () => {
     try {
       if (!formData.templateText.trim()) {
-        toast.error('Template text is required');
-        return;
+        toast.error('Template text is required')
+        return
       }
 
       if (editingTemplate) {
@@ -120,56 +121,57 @@ const TemplateManagement = () => {
         await axios.put(
           `${API_URL}/api/templates/admin/${editingTemplate.id}`,
           formData,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        toast.success('Template updated successfully');
+          { headers: { Authorization: `Bearer ${token}` } },
+        )
+        toast.success('Template updated successfully')
       } else {
         // Create new template
         await axios.post(
           `${API_URL}/api/templates/admin`,
           formData,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        toast.success('Template created successfully');
+          { headers: { Authorization: `Bearer ${token}` } },
+        )
+        toast.success('Template created successfully')
       }
 
-      handleCancel();
-      fetchTemplates();
-      fetchStats();
+      handleCancel()
+      fetchTemplates()
+      fetchStats()
     } catch (error) {
-      console.error('Error saving template:', error);
-      toast.error(error.response?.data?.error || 'Failed to save template');
+      console.error('Error saving template:', error)
+      toast.error(error.response?.data?.error || 'Failed to save template')
     }
-  };
+  }
 
-  const handleDelete = async (templateId) => {
-    if (!confirm('Are you sure you want to deactivate this template?')) {
-      return;
-    }
+  const confirmDelete = async () => {
+    if (!deletingTemplateId) {return}
 
     try {
-      await axios.delete(`${API_URL}/api/templates/admin/${templateId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      toast.success('Template deactivated');
-      fetchTemplates();
-      fetchStats();
+      await axios.delete(`${API_URL}/api/templates/admin/${deletingTemplateId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      toast.success('Template deactivated')
+      fetchTemplates()
+      fetchStats()
+      setDeletingTemplateId(null)
     } catch (error) {
-      console.error('Error deleting template:', error);
-      toast.error('Failed to delete template');
+      console.error('Error deleting template:', error)
+      toast.error('Failed to delete template')
+    } finally {
+      setDeletingTemplateId(null)
     }
-  };
+  }
 
   const filteredTemplates = selectedCategory === 'ALL'
     ? templates
-    : templates.filter(t => t.category === selectedCategory);
+    : templates.filter(t => t.category === selectedCategory)
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="spinner w-12 h-12"></div>
       </div>
-    );
+    )
   }
 
   return (
@@ -394,7 +396,7 @@ const TemplateManagement = () => {
                             key={index}
                             className="px-2 py-1 bg-gray-800 text-gray-400 rounded text-xs"
                           >
-                            {'{{' + variable + '}}'}
+                            {`{{${variable}}}`}
                           </span>
                         ))}
                       </div>
@@ -410,7 +412,7 @@ const TemplateManagement = () => {
                       <FiEdit2 />
                     </button>
                     <button
-                      onClick={() => handleDelete(template.id)}
+                      onClick={() => setDeletingTemplateId(template.id)}
                       className="p-2 bg-gray-800 hover:bg-red-600 text-white rounded-lg transition-colors"
                       title="Deactivate template"
                     >
@@ -423,8 +425,34 @@ const TemplateManagement = () => {
           )}
         </div>
       </div>
-    </div>
-  );
-};
 
-export default TemplateManagement;
+      {/* Delete Confirmation Modal */}
+      {deletingTemplateId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-white mb-4">Deactivate Template</h3>
+            <p className="text-gray-300 mb-6">
+              Are you sure you want to deactivate this template? It will no longer be available for use.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={confirmDelete}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+              >
+                Yes, Deactivate
+              </button>
+              <button
+                onClick={() => setDeletingTemplateId(null)}
+                className="flex-1 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default TemplateManagement

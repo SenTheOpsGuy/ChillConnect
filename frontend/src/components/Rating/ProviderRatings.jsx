@@ -1,80 +1,80 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
-import { FiFilter, FiMessageSquare } from 'react-icons/fi';
-import RatingStars from './RatingStars';
+import React, { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
+import { FiFilter, FiMessageSquare } from 'react-icons/fi'
+import RatingStars from './RatingStars'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const ProviderRatings = ({ providerId }) => {
-  const { token } = useSelector((state) => state.auth);
-  const [ratings, setRatings] = useState([]);
-  const [statistics, setStatistics] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [filterRating, setFilterRating] = useState(null);
-  const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState(null);
+  const { token } = useSelector((state) => state.auth)
+  const [ratings, setRatings] = useState([])
+  const [statistics, setStatistics] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [filterRating, setFilterRating] = useState(null)
+  const [page, setPage] = useState(1)
+  const [pagination, setPagination] = useState(null)
 
   useEffect(() => {
-    fetchRatings();
-  }, [providerId, filterRating, page]);
+    fetchRatings()
+  }, [providerId, filterRating, page])
 
   const fetchRatings = async () => {
     try {
-      setLoading(true);
-      const params = { page, limit: 10 };
+      setLoading(true)
+      const params = { page, limit: 10 }
       if (filterRating) {
-        params.rating = filterRating;
+        params.rating = filterRating
       }
 
       const response = await axios.get(
         `${API_URL}/api/ratings/provider/${providerId}`,
         {
           params,
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      )
 
-      setRatings(response.data.data.ratings);
-      setStatistics(response.data.data.statistics);
-      setPagination(response.data.data.pagination);
+      setRatings(response.data.data.ratings)
+      setStatistics(response.data.data.statistics)
+      setPagination(response.data.data.pagination)
     } catch (error) {
-      console.error('Error fetching ratings:', error);
-      toast.error('Failed to load ratings');
+      console.error('Error fetching ratings:', error)
+      toast.error('Failed to load ratings')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const getRatingPercentage = (star) => {
-    if (!statistics || !statistics.breakdown) return 0;
-    const breakdown = statistics.breakdown;
-    const total = statistics.totalRatings || 0;
-    const count = breakdown[star] || 0;
-    return total > 0 ? (count / total) * 100 : 0;
-  };
+    if (!statistics || !statistics.breakdown) {return 0}
+    const breakdown = statistics.breakdown
+    const total = statistics.totalRatings || 0
+    const count = breakdown[star] || 0
+    return total > 0 ? (count / total) * 100 : 0
+  }
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now - date);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffTime = Math.abs(now - date)
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-    if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
-    return date.toLocaleDateString();
-  };
+    if (diffDays === 0) {return 'Today'}
+    if (diffDays === 1) {return 'Yesterday'}
+    if (diffDays < 7) {return `${diffDays} days ago`}
+    if (diffDays < 30) {return `${Math.floor(diffDays / 7)} weeks ago`}
+    if (diffDays < 365) {return `${Math.floor(diffDays / 30)} months ago`}
+    return date.toLocaleDateString()
+  }
 
   if (loading && page === 1) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="spinner w-8 h-8"></div>
       </div>
-    );
+    )
   }
 
   if (!statistics || statistics.totalRatings === 0) {
@@ -86,7 +86,7 @@ const ProviderRatings = ({ providerId }) => {
           Be the first to rate this provider
         </p>
       </div>
-    );
+    )
   }
 
   return (
@@ -112,8 +112,8 @@ const ProviderRatings = ({ providerId }) => {
           {/* Rating Breakdown */}
           <div className="space-y-2">
             {[5, 4, 3, 2, 1].map((star) => {
-              const percentage = getRatingPercentage(star);
-              const count = statistics.breakdown?.[star] || 0;
+              const percentage = getRatingPercentage(star)
+              const count = statistics.breakdown?.[star] || 0
 
               return (
                 <button
@@ -132,7 +132,7 @@ const ProviderRatings = ({ providerId }) => {
                   </div>
                   <span className="text-sm text-gray-400 w-8 text-right">{count}</span>
                 </button>
-              );
+              )
             })}
           </div>
         </div>
@@ -148,8 +148,8 @@ const ProviderRatings = ({ providerId }) => {
             </div>
             <button
               onClick={() => {
-                setFilterRating(null);
-                setPage(1);
+                setFilterRating(null)
+                setPage(1)
               }}
               className="text-sm text-red-500 hover:text-red-400"
             >
@@ -244,8 +244,8 @@ const ProviderRatings = ({ providerId }) => {
           <p className="text-gray-400">No {filterRating}-star ratings found</p>
           <button
             onClick={() => {
-              setFilterRating(null);
-              setPage(1);
+              setFilterRating(null)
+              setPage(1)
             }}
             className="mt-4 text-red-500 hover:text-red-400"
           >
@@ -254,7 +254,7 @@ const ProviderRatings = ({ providerId }) => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default ProviderRatings;
+export default ProviderRatings

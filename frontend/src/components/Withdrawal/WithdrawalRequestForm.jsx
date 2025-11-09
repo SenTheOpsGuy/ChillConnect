@@ -1,134 +1,134 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
-import { FiX, FiDollarSign, FiAlertTriangle } from 'react-icons/fi';
+import React, { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
+import { FiX, FiDollarSign, FiAlertTriangle } from 'react-icons/fi'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const WithdrawalRequestForm = ({ onClose, onSuccess }) => {
-  const { token } = useSelector((state) => state.auth);
-  const [paymentMethods, setPaymentMethods] = useState([]);
-  const [wallet, setWallet] = useState(null);
+  const { token } = useSelector((state) => state.auth)
+  const [paymentMethods, setPaymentMethods] = useState([])
+  const [wallet, setWallet] = useState(null)
   const [formData, setFormData] = useState({
     amountTokens: '',
     paymentMethodId: '',
-    providerNotes: ''
-  });
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+    providerNotes: '',
+  })
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
 
-  const PLATFORM_FEE_PERCENT = 5;
-  const MIN_WITHDRAWAL = 100;
+  const PLATFORM_FEE_PERCENT = 5
+  const MIN_WITHDRAWAL = 100
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData()
+  }, [])
 
   const fetchData = async () => {
     try {
-      setLoading(true);
+      setLoading(true)
       const [methodsRes, tokensRes] = await Promise.all([
         axios.get(`${API_URL}/api/withdrawals/payment-methods`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         }),
         axios.get(`${API_URL}/api/tokens/balance`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-      ]);
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ])
 
-      setPaymentMethods(methodsRes.data.data.paymentMethods);
-      setWallet(tokensRes.data.data.wallet);
+      setPaymentMethods(methodsRes.data.data.paymentMethods)
+      setWallet(tokensRes.data.data.wallet)
 
       // Set default payment method
-      const defaultMethod = methodsRes.data.data.paymentMethods.find(m => m.isDefault);
+      const defaultMethod = methodsRes.data.data.paymentMethods.find(m => m.isDefault)
       if (defaultMethod) {
-        setFormData(prev => ({ ...prev, paymentMethodId: defaultMethod.id }));
+        setFormData(prev => ({ ...prev, paymentMethodId: defaultMethod.id }))
       }
     } catch (error) {
-      console.error('Error fetching data:', error);
-      toast.error('Failed to load payment methods');
+      console.error('Error fetching data:', error)
+      toast.error('Failed to load payment methods')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const calculateAmounts = () => {
-    const tokens = parseInt(formData.amountTokens) || 0;
-    const amountInr = tokens * 100;
-    const fee = Math.floor(amountInr * (PLATFORM_FEE_PERCENT / 100));
-    const netAmount = amountInr - fee;
+    const tokens = parseInt(formData.amountTokens, 10) || 0
+    const amountInr = tokens * 100
+    const fee = Math.floor(amountInr * (PLATFORM_FEE_PERCENT / 100))
+    const netAmount = amountInr - fee
 
-    return { tokens, amountInr, fee, netAmount };
-  };
+    return { tokens, amountInr, fee, netAmount }
+  }
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setFormData({
       ...formData,
-      [name]: value
-    });
-  };
+      [name]: value,
+    })
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    const { tokens } = calculateAmounts();
+    const { tokens } = calculateAmounts()
 
     if (tokens < MIN_WITHDRAWAL) {
-      toast.error(`Minimum withdrawal is ${MIN_WITHDRAWAL} tokens`);
-      return;
+      toast.error(`Minimum withdrawal is ${MIN_WITHDRAWAL} tokens`)
+      return
     }
 
     if (!wallet || tokens > wallet.balance) {
-      toast.error('Insufficient token balance');
-      return;
+      toast.error('Insufficient token balance')
+      return
     }
 
     if (!formData.paymentMethodId) {
-      toast.error('Please select a payment method');
-      return;
+      toast.error('Please select a payment method')
+      return
     }
 
     try {
-      setSubmitting(true);
+      setSubmitting(true)
 
       const response = await axios.post(
         `${API_URL}/api/withdrawals/request`,
         {
           amountTokens: tokens,
           paymentMethodId: formData.paymentMethodId,
-          providerNotes: formData.providerNotes.trim() || null
+          providerNotes: formData.providerNotes.trim() || null,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
 
-      toast.success(response.data.message);
+      toast.success(response.data.message)
 
       if (onSuccess) {
-        onSuccess();
+        onSuccess()
       }
 
       if (onClose) {
-        onClose();
+        onClose()
       }
     } catch (error) {
-      console.error('Error requesting withdrawal:', error);
-      toast.error(error.response?.data?.error || 'Failed to request withdrawal');
+      console.error('Error requesting withdrawal:', error)
+      toast.error(error.response?.data?.error || 'Failed to request withdrawal')
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
-  const { tokens, amountInr, fee, netAmount } = calculateAmounts();
-  const isValid = tokens >= MIN_WITHDRAWAL && wallet && tokens <= wallet.balance;
+  const { tokens, amountInr, fee, netAmount } = calculateAmounts()
+  const isValid = tokens >= MIN_WITHDRAWAL && wallet && tokens <= wallet.balance
 
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
         <div className="spinner w-8 h-8"></div>
       </div>
-    );
+    )
   }
 
   if (paymentMethods.length === 0) {
@@ -149,9 +149,9 @@ const WithdrawalRequestForm = ({ onClose, onSuccess }) => {
             </button>
             <button
               onClick={() => {
-                onClose();
+                onClose()
                 // Navigate to add payment method
-                window.location.href = '/provider/payment-methods';
+                window.location.href = '/provider/payment-methods'
               }}
               className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
             >
@@ -160,7 +160,7 @@ const WithdrawalRequestForm = ({ onClose, onSuccess }) => {
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -227,7 +227,7 @@ const WithdrawalRequestForm = ({ onClose, onSuccess }) => {
                   <span className="text-red-400">-₹{fee.toLocaleString()}</span>
                 </div>
                 <div className="pt-2 border-t border-gray-700 flex justify-between">
-                  <span className="text-white font-medium">You'll Receive:</span>
+                  <span className="text-white font-medium">You&apos;ll Receive:</span>
                   <span className="text-green-400 font-bold text-lg">₹{netAmount.toLocaleString()}</span>
                 </div>
               </div>
@@ -319,7 +319,7 @@ const WithdrawalRequestForm = ({ onClose, onSuccess }) => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default WithdrawalRequestForm;
+export default WithdrawalRequestForm

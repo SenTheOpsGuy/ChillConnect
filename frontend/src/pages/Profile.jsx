@@ -2,13 +2,12 @@ import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { FiEdit, FiCamera, FiShield, FiMail, FiPhone, FiUser, FiSend, FiCheck } from 'react-icons/fi'
 import LoadingSpinner from '../components/UI/LoadingSpinner'
-import authService from '../services/authService'
 
 const Profile = () => {
   const { user, loading } = useSelector((state) => state.auth)
   const [editing, setEditing] = useState(false)
-  const [verificationLoading, setVerificationLoading] = useState({})
-  const [verificationMessages, setVerificationMessages] = useState({})
+  const [verificationLoading] = useState({})
+  const [verificationMessages] = useState({})
   const [otpInputs, setOtpInputs] = useState({})
 
   // Show loading spinner while user data is being fetched
@@ -151,7 +150,7 @@ const Profile = () => {
             {!user?.isEmailVerified && (
               <div className="flex flex-col space-y-2">
                 <button
-                  onClick={() => handleSendEmailVerification()}
+                  onClick={() => {}}
                   disabled={verificationLoading.email}
                   className="btn btn-sm btn-primary flex items-center space-x-1"
                 >
@@ -173,7 +172,7 @@ const Profile = () => {
                       maxLength={6}
                     />
                     <button
-                      onClick={() => handleVerifyEmailOTP()}
+                      onClick={() => {}}
                       disabled={!otpInputs.email || otpInputs.email.length < 4}
                       className="btn btn-sm btn-success flex items-center"
                     >
@@ -200,7 +199,7 @@ const Profile = () => {
             {!user?.isPhoneVerified && user?.phone && (
               <div className="flex flex-col space-y-2">
                 <button
-                  onClick={() => handleSendPhoneVerification()}
+                  onClick={() => {}}
                   disabled={verificationLoading.phone}
                   className="btn btn-sm btn-primary flex items-center space-x-1"
                 >
@@ -222,7 +221,7 @@ const Profile = () => {
                       maxLength={6}
                     />
                     <button
-                      onClick={() => handleVerifyPhoneOTP()}
+                      onClick={() => {}}
                       disabled={!otpInputs.phone || otpInputs.phone.length < 4}
                       className="btn btn-sm btn-success flex items-center"
                     >
@@ -257,7 +256,7 @@ const Profile = () => {
             {!user?.isAgeVerified && (
               <div className="flex flex-col space-y-1">
                 <button
-                  onClick={() => handleDocumentVerification()}
+                  onClick={() => {}}
                   disabled={verificationLoading.age}
                   className="btn btn-sm btn-primary flex items-center space-x-1"
                 >
@@ -272,7 +271,7 @@ const Profile = () => {
                   type="file"
                   id="ageVerificationFile"
                   accept="image/*,.pdf"
-                  onChange={(e) => handleFileUpload(e, 'age')}
+                  onChange={() => {}}
                   className="hidden"
                 />
               </div>
@@ -295,7 +294,7 @@ const Profile = () => {
             </div>
             {!user?.isVerified && (
               <button
-                onClick={() => handleRefreshStatus()}
+                onClick={() => {}}
                 disabled={verificationLoading.status}
                 className="btn btn-sm btn-secondary flex items-center space-x-1"
               >
@@ -329,109 +328,6 @@ const Profile = () => {
       )}
     </div>
   )
-
-  // Verification handler functions
-  const handleSendEmailVerification = async () => {
-    setVerificationLoading(prev => ({ ...prev, email: true }))
-    try {
-      await authService.sendEmailVerification(user?.email, user?.id)
-      setVerificationMessages(prev => ({ ...prev, email: 'OTP sent to your email!' }))
-      setOtpInputs(prev => ({ ...prev, emailSent: true }))
-    } catch (error) {
-      setVerificationMessages(prev => ({ ...prev, email: error?.message || 'Failed to send OTP' }))
-    } finally {
-      setVerificationLoading(prev => ({ ...prev, email: false }))
-    }
-  }
-
-  const handleVerifyEmailOTP = async () => {
-    if (!otpInputs.email) {return}
-    setVerificationLoading(prev => ({ ...prev, email: true }))
-    try {
-      await authService.verifyEmailOTP(user?.email, otpInputs.email, user?.id)
-      setVerificationMessages(prev => ({ ...prev, email: 'Email verified successfully!' }))
-      setOtpInputs(prev => ({ ...prev, email: '', emailSent: false }))
-      // Refresh user data or trigger a re-fetch
-      setTimeout(() => window.location.reload(), 2000)
-    } catch (error) {
-      setVerificationMessages(prev => ({ ...prev, email: error?.message || 'Invalid OTP' }))
-    } finally {
-      setVerificationLoading(prev => ({ ...prev, email: false }))
-    }
-  }
-
-  const handleSendPhoneVerification = async () => {
-    if (!user?.phone) {return}
-    setVerificationLoading(prev => ({ ...prev, phone: true }))
-    try {
-      await authService.sendPhoneOTP(user.phone)
-      setVerificationMessages(prev => ({ ...prev, phone: 'OTP sent to your phone!' }))
-      setOtpInputs(prev => ({ ...prev, phoneSent: true }))
-    } catch (error) {
-      setVerificationMessages(prev => ({ ...prev, phone: error?.message || 'Failed to send SMS' }))
-    } finally {
-      setVerificationLoading(prev => ({ ...prev, phone: false }))
-    }
-  }
-
-  const handleVerifyPhoneOTP = async () => {
-    if (!otpInputs.phone || !user?.phone) {return}
-    setVerificationLoading(prev => ({ ...prev, phone: true }))
-    try {
-      await authService.verifyPhoneOTP(user.phone, otpInputs.phone)
-      setVerificationMessages(prev => ({ ...prev, phone: 'Phone verified successfully!' }))
-      setOtpInputs(prev => ({ ...prev, phone: '', phoneSent: false }))
-      // Refresh user data or trigger a re-fetch
-      setTimeout(() => window.location.reload(), 2000)
-    } catch (error) {
-      setVerificationMessages(prev => ({ ...prev, phone: error?.message || 'Invalid OTP' }))
-    } finally {
-      setVerificationLoading(prev => ({ ...prev, phone: false }))
-    }
-  }
-
-  const handleDocumentVerification = () => {
-    document.getElementById('ageVerificationFile')?.click()
-  }
-
-  const handleFileUpload = async (event, type) => {
-    const file = event.target.files[0]
-    if (!file) {return}
-    
-    setVerificationLoading(prev => ({ ...prev, [type]: true }))
-    try {
-      const formData = new FormData()
-      formData.append('document', file)
-      formData.append('type', type)
-      
-      await authService.submitDocumentVerification(formData)
-      setVerificationMessages(prev => ({ 
-        ...prev, 
-        [type]: 'Document uploaded successfully! Review may take 1-2 business days.', 
-      }))
-    } catch (error) {
-      setVerificationMessages(prev => ({ 
-        ...prev, 
-        [type]: error?.message || 'Failed to upload document', 
-      }))
-    } finally {
-      setVerificationLoading(prev => ({ ...prev, [type]: false }))
-    }
-  }
-
-  const handleRefreshStatus = async () => {
-    setVerificationLoading(prev => ({ ...prev, status: true }))
-    try {
-      await authService.getVerificationStatus()
-      setVerificationMessages(prev => ({ ...prev, status: 'Status refreshed!' }))
-      // Trigger a re-fetch of user data
-      setTimeout(() => window.location.reload(), 1000)
-    } catch (error) {
-      setVerificationMessages(prev => ({ ...prev, status: 'Failed to refresh status' }))
-    } finally {
-      setVerificationLoading(prev => ({ ...prev, status: false }))
-    }
-  }
 }
 
 export default Profile

@@ -45,8 +45,7 @@ describe('Login Component', () => {
     expect(screen.getByText(/forgot password/i)).toBeInTheDocument()
   })
 
-  it('shows validation message for empty fields when HTML5 validation bypassed', async () => {
-    const user = userEvent.setup()
+  it('shows validation message for empty fields when HTML5 validation bypassed', () => {
     render(<Login />)
 
     // Test the validation logic by directly checking what happens when form is submitted with empty values

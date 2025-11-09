@@ -1,81 +1,81 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
-import { FiAlertTriangle, FiEye, FiMessageSquare, FiClock, FiCheckCircle, FiXCircle } from 'react-icons/fi';
-import DisputeDetails from './DisputeDetails';
+import React, { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
+import { FiAlertTriangle, FiEye, FiMessageSquare, FiClock, FiCheckCircle, FiXCircle } from 'react-icons/fi'
+import DisputeDetails from './DisputeDetails'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const MyDisputes = () => {
-  const { token } = useSelector((state) => state.auth);
-  const [disputes, setDisputes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState(null);
-  const [selectedDispute, setSelectedDispute] = useState(null);
-  const [statusFilter, setStatusFilter] = useState('ALL');
+  const { token } = useSelector((state) => state.auth)
+  const [disputes, setDisputes] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [pagination, setPagination] = useState(null)
+  const [selectedDispute, setSelectedDispute] = useState(null)
+  const [statusFilter, setStatusFilter] = useState('ALL')
 
   useEffect(() => {
-    fetchDisputes();
-  }, [page, statusFilter]);
+    fetchDisputes()
+  }, [page, statusFilter])
 
   const fetchDisputes = async () => {
     try {
-      setLoading(true);
-      const params = { page, limit: 10 };
+      setLoading(true)
+      const params = { page, limit: 10 }
       if (statusFilter !== 'ALL') {
-        params.status = statusFilter;
+        params.status = statusFilter
       }
 
       const response = await axios.get(`${API_URL}/api/disputes/my-disputes`, {
         params,
-        headers: { Authorization: `Bearer ${token}` }
-      });
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
-      setDisputes(response.data.data.disputes);
-      setPagination(response.data.data.pagination);
+      setDisputes(response.data.data.disputes)
+      setPagination(response.data.data.pagination)
     } catch (error) {
-      console.error('Error fetching disputes:', error);
-      toast.error('Failed to load disputes');
+      console.error('Error fetching disputes:', error)
+      toast.error('Failed to load disputes')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const getStatusIcon = (status) => {
     switch (status) {
       case 'OPEN':
-        return <FiAlertTriangle className="text-yellow-500" />;
+        return <FiAlertTriangle className="text-yellow-500" />
       case 'INVESTIGATING':
-        return <FiClock className="text-blue-500" />;
+        return <FiClock className="text-blue-500" />
       case 'RESOLVED':
-        return <FiCheckCircle className="text-green-500" />;
+        return <FiCheckCircle className="text-green-500" />
       case 'CLOSED':
-        return <FiXCircle className="text-gray-500" />;
+        return <FiXCircle className="text-gray-500" />
       case 'ESCALATED':
-        return <FiAlertTriangle className="text-red-500" />;
+        return <FiAlertTriangle className="text-red-500" />
       default:
-        return <FiMessageSquare className="text-gray-500" />;
+        return <FiMessageSquare className="text-gray-500" />
     }
-  };
+  }
 
   const getStatusColor = (status) => {
     switch (status) {
       case 'OPEN':
-        return 'bg-yellow-600 bg-opacity-20 text-yellow-500 border-yellow-600';
+        return 'bg-yellow-600 bg-opacity-20 text-yellow-500 border-yellow-600'
       case 'INVESTIGATING':
-        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600';
+        return 'bg-blue-600 bg-opacity-20 text-blue-500 border-blue-600'
       case 'RESOLVED':
-        return 'bg-green-600 bg-opacity-20 text-green-500 border-green-600';
+        return 'bg-green-600 bg-opacity-20 text-green-500 border-green-600'
       case 'CLOSED':
-        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600';
+        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600'
       case 'ESCALATED':
-        return 'bg-red-600 bg-opacity-20 text-red-500 border-red-600';
+        return 'bg-red-600 bg-opacity-20 text-red-500 border-red-600'
       default:
-        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600';
+        return 'bg-gray-600 bg-opacity-20 text-gray-500 border-gray-600'
     }
-  };
+  }
 
   const getDisputeTypeLabel = (type) => {
     const labels = {
@@ -84,38 +84,38 @@ const MyDisputes = () => {
       PAYMENT_ISSUE: 'Payment Issue',
       BEHAVIOR_ISSUE: 'Behavior Issue',
       TERMS_VIOLATION: 'Terms Violation',
-      OTHER: 'Other'
-    };
-    return labels[type] || type;
-  };
+      OTHER: 'Other',
+    }
+    return labels[type] || type
+  }
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
-    });
-  };
+      day: 'numeric',
+    })
+  }
 
   const handleViewDetails = async (disputeId) => {
     try {
       const response = await axios.get(`${API_URL}/api/disputes/${disputeId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setSelectedDispute(response.data.data.dispute);
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setSelectedDispute(response.data.data.dispute)
     } catch (error) {
-      console.error('Error fetching dispute details:', error);
-      toast.error('Failed to load dispute details');
+      console.error('Error fetching dispute details:', error)
+      toast.error('Failed to load dispute details')
     }
-  };
+  }
 
   if (loading && page === 1) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="spinner w-8 h-8"></div>
       </div>
-    );
+    )
   }
 
   return (
@@ -137,8 +137,8 @@ const MyDisputes = () => {
             <button
               key={status}
               onClick={() => {
-                setStatusFilter(status);
-                setPage(1);
+                setStatusFilter(status)
+                setPage(1)
               }}
               className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
                 statusFilter === status
@@ -165,7 +165,7 @@ const MyDisputes = () => {
         ) : (
           <div className="space-y-4">
             {disputes.map((dispute) => {
-              const isReporter = dispute.role === 'reporter';
+              const isReporter = dispute.role === 'reporter'
 
               return (
                 <div key={dispute.id} className="card hover:border-red-600 transition-all">
@@ -253,7 +253,7 @@ const MyDisputes = () => {
                     </div>
                   </div>
                 </div>
-              );
+              )
             })}
           </div>
         )}
@@ -291,7 +291,7 @@ const MyDisputes = () => {
         />
       )}
     </>
-  );
-};
+  )
+}
 
-export default MyDisputes;
+export default MyDisputes

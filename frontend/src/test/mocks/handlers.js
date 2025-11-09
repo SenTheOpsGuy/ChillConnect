@@ -3,8 +3,16 @@ import { http, HttpResponse } from 'msw'
 const API_BASE_URL = 'http://localhost:5001'
 
 export const handlers = [
-  // Auth endpoints
+  // Auth endpoints - support both /api and full URL paths
   http.post(`${API_BASE_URL}/auth/login`, () => {
+    return HttpResponse.json({
+      success: true,
+      user: global.testUser,
+      token: 'mock-jwt-token',
+    })
+  }),
+
+  http.post('/api/auth/login', () => {
     return HttpResponse.json({
       success: true,
       user: global.testUser,

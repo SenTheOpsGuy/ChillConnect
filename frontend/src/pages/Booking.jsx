@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 
 const Booking = () => {
   const navigate = useNavigate()
-  const { user } = useSelector((state) => state.auth)
+  useSelector((state) => state.auth)
   const [formData, setFormData] = useState({
     providerId: '',
     serviceType: 'incall',
@@ -56,11 +56,11 @@ const Booking = () => {
         navigate(`/booking/${booking.id}`)
       } else {
         const error = await response.json()
-        alert(error.message || 'Booking failed')
+        console.error(error.message || 'Booking failed')
       }
     } catch (error) {
       console.error('Booking error:', error)
-      alert('Booking failed. Please try again.')
+      console.error('Booking failed. Please try again.')
     } finally {
       setLoading(false)
     }

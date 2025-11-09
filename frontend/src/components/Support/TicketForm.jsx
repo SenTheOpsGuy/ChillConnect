@@ -1,22 +1,22 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
-import { FiHelpCircle, FiX, FiUpload, FiSend } from 'react-icons/fi';
+import React, { useState } from 'react'
+import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
+import { FiHelpCircle, FiX, FiUpload, FiSend } from 'react-icons/fi'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const TicketForm = ({ onClose, onSuccess, bookingId = null }) => {
-  const { token } = useSelector((state) => state.auth);
+  const { token } = useSelector((state) => state.auth)
   const [formData, setFormData] = useState({
     subject: '',
     description: '',
     category: '',
     priority: 'MEDIUM',
-    attachments: []
-  });
-  const [attachmentInput, setAttachmentInput] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+    attachments: [],
+  })
+  const [attachmentInput, setAttachmentInput] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   const categories = [
     { value: 'ACCOUNT', label: 'Account Issues', icon: '👤', description: 'Login, profile, settings' },
@@ -25,102 +25,102 @@ const TicketForm = ({ onClose, onSuccess, bookingId = null }) => {
     { value: 'TECHNICAL', label: 'Technical Issues', icon: '🔧', description: 'App bugs or errors' },
     { value: 'VERIFICATION', label: 'Verification', icon: '✓', description: 'Identity or age verification' },
     { value: 'SAFETY', label: 'Safety Concerns', icon: '🛡️', description: 'Report safety issues' },
-    { value: 'OTHER', label: 'Other', icon: '💬', description: 'Something else' }
-  ];
+    { value: 'OTHER', label: 'Other', icon: '💬', description: 'Something else' },
+  ]
 
   const priorities = [
     { value: 'LOW', label: 'Low', color: 'text-gray-400' },
     { value: 'MEDIUM', label: 'Medium', color: 'text-blue-400' },
     { value: 'HIGH', label: 'High', color: 'text-yellow-400' },
-    { value: 'URGENT', label: 'Urgent', color: 'text-red-400' }
-  ];
+    { value: 'URGENT', label: 'Urgent', color: 'text-red-400' },
+  ]
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setFormData({
       ...formData,
-      [name]: value
-    });
-  };
+      [name]: value,
+    })
+  }
 
   const handleAddAttachment = () => {
     if (!attachmentInput.trim()) {
-      toast.error('Please enter a valid URL');
-      return;
+      toast.error('Please enter a valid URL')
+      return
     }
 
     try {
-      new URL(attachmentInput);
+      new URL(attachmentInput)
       setFormData({
         ...formData,
-        attachments: [...formData.attachments, attachmentInput.trim()]
-      });
-      setAttachmentInput('');
+        attachments: [...formData.attachments, attachmentInput.trim()],
+      })
+      setAttachmentInput('')
     } catch (error) {
-      toast.error('Please enter a valid URL');
+      toast.error('Please enter a valid URL')
     }
-  };
+  }
 
   const handleRemoveAttachment = (index) => {
     setFormData({
       ...formData,
-      attachments: formData.attachments.filter((_, i) => i !== index)
-    });
-  };
+      attachments: formData.attachments.filter((_, i) => i !== index),
+    })
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!formData.category) {
-      toast.error('Please select a category');
-      return;
+      toast.error('Please select a category')
+      return
     }
 
     if (!formData.subject.trim()) {
-      toast.error('Please enter a subject');
-      return;
+      toast.error('Please enter a subject')
+      return
     }
 
     if (!formData.description.trim()) {
-      toast.error('Please provide a description');
-      return;
+      toast.error('Please provide a description')
+      return
     }
 
     try {
-      setSubmitting(true);
+      setSubmitting(true)
 
       const payload = {
         ...formData,
         subject: formData.subject.trim(),
-        description: formData.description.trim()
-      };
+        description: formData.description.trim(),
+      }
 
       if (bookingId) {
-        payload.bookingId = bookingId;
+        payload.bookingId = bookingId
       }
 
       const response = await axios.post(
         `${API_URL}/api/support/tickets`,
         payload,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
 
-      toast.success(response.data.message || 'Support ticket created successfully');
+      toast.success(response.data.message || 'Support ticket created successfully')
 
       if (onSuccess) {
-        onSuccess(response.data.data.ticket);
+        onSuccess(response.data.data.ticket)
       }
 
       if (onClose) {
-        onClose();
+        onClose()
       }
     } catch (error) {
-      console.error('Error creating ticket:', error);
-      toast.error(error.response?.data?.error || 'Failed to create support ticket');
+      console.error('Error creating ticket:', error)
+      toast.error(error.response?.data?.error || 'Failed to create support ticket')
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
@@ -264,8 +264,8 @@ const TicketForm = ({ onClose, onSuccess, bookingId = null }) => {
                 className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:border-blue-600 focus:outline-none"
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddAttachment();
+                    e.preventDefault()
+                    handleAddAttachment()
                   }
                 }}
               />
@@ -311,8 +311,8 @@ const TicketForm = ({ onClose, onSuccess, bookingId = null }) => {
             <h4 className="text-sm font-medium text-blue-400 mb-2">What happens next?</h4>
             <ul className="text-xs text-gray-300 space-y-1">
               <li>• Your ticket will be reviewed by our support team</li>
-              <li>• We'll respond within 24-48 hours (usually much faster!)</li>
-              <li>• You'll receive email notifications when we reply</li>
+              <li>• We&apos;ll respond within 24-48 hours (usually much faster!)</li>
+              <li>• You&apos;ll receive email notifications when we reply</li>
               <li>• You can track your ticket status in the Support section</li>
             </ul>
           </div>
@@ -347,7 +347,7 @@ const TicketForm = ({ onClose, onSuccess, bookingId = null }) => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default TicketForm;
+export default TicketForm

@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
-import { FiAlertTriangle, FiX, FiUpload } from 'react-icons/fi';
+import React, { useState } from 'react'
+import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
+import { FiAlertTriangle, FiX, FiUpload } from 'react-icons/fi'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const DisputeForm = ({ booking, onClose, onSuccess }) => {
-  const { token } = useSelector((state) => state.auth);
+  const { token } = useSelector((state) => state.auth)
   const [formData, setFormData] = useState({
     disputeType: '',
     description: '',
-    evidence: []
-  });
-  const [evidenceInput, setEvidenceInput] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+    evidence: [],
+  })
+  const [evidenceInput, setEvidenceInput] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   const disputeTypes = [
     { value: 'NO_SHOW', label: 'No Show', description: 'The other party did not show up' },
@@ -22,63 +22,63 @@ const DisputeForm = ({ booking, onClose, onSuccess }) => {
     { value: 'PAYMENT_ISSUE', label: 'Payment Issue', description: 'Problems with payment or tokens' },
     { value: 'BEHAVIOR_ISSUE', label: 'Behavior Issue', description: 'Inappropriate or unprofessional behavior' },
     { value: 'TERMS_VIOLATION', label: 'Terms Violation', description: 'Violation of platform terms' },
-    { value: 'OTHER', label: 'Other', description: 'Other issue not listed above' }
-  ];
+    { value: 'OTHER', label: 'Other', description: 'Other issue not listed above' },
+  ]
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setFormData({
       ...formData,
-      [name]: value
-    });
-  };
+      [name]: value,
+    })
+  }
 
   const handleAddEvidence = () => {
     if (!evidenceInput.trim()) {
-      toast.error('Please enter a valid URL');
-      return;
+      toast.error('Please enter a valid URL')
+      return
     }
 
     // Basic URL validation
     try {
-      new URL(evidenceInput);
+      new URL(evidenceInput)
       setFormData({
         ...formData,
-        evidence: [...formData.evidence, evidenceInput.trim()]
-      });
-      setEvidenceInput('');
+        evidence: [...formData.evidence, evidenceInput.trim()],
+      })
+      setEvidenceInput('')
     } catch (error) {
-      toast.error('Please enter a valid URL');
+      toast.error('Please enter a valid URL')
     }
-  };
+  }
 
   const handleRemoveEvidence = (index) => {
     setFormData({
       ...formData,
-      evidence: formData.evidence.filter((_, i) => i !== index)
-    });
-  };
+      evidence: formData.evidence.filter((_, i) => i !== index),
+    })
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!formData.disputeType) {
-      toast.error('Please select a dispute type');
-      return;
+      toast.error('Please select a dispute type')
+      return
     }
 
     if (!formData.description.trim()) {
-      toast.error('Please provide a description');
-      return;
+      toast.error('Please provide a description')
+      return
     }
 
     if (formData.description.trim().length < 20) {
-      toast.error('Description must be at least 20 characters');
-      return;
+      toast.error('Description must be at least 20 characters')
+      return
     }
 
     try {
-      setSubmitting(true);
+      setSubmitting(true)
 
       await axios.post(
         `${API_URL}/api/disputes`,
@@ -86,27 +86,27 @@ const DisputeForm = ({ booking, onClose, onSuccess }) => {
           bookingId: booking.id,
           disputeType: formData.disputeType,
           description: formData.description.trim(),
-          evidence: formData.evidence
+          evidence: formData.evidence,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
 
-      toast.success('Dispute filed successfully. Our team will review it shortly.');
+      toast.success('Dispute filed successfully. Our team will review it shortly.')
 
       if (onSuccess) {
-        onSuccess();
+        onSuccess()
       }
 
       if (onClose) {
-        onClose();
+        onClose()
       }
     } catch (error) {
-      console.error('Error filing dispute:', error);
-      toast.error(error.response?.data?.error || 'Failed to file dispute');
+      console.error('Error filing dispute:', error)
+      toast.error(error.response?.data?.error || 'Failed to file dispute')
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
@@ -231,8 +231,8 @@ const DisputeForm = ({ booking, onClose, onSuccess }) => {
                 className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:border-red-600 focus:outline-none"
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddEvidence();
+                    e.preventDefault()
+                    handleAddEvidence()
                   }
                 }}
               />
@@ -315,7 +315,7 @@ const DisputeForm = ({ booking, onClose, onSuccess }) => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default DisputeForm;
+export default DisputeForm

@@ -52,12 +52,12 @@ const ForgotPassword = () => {
           </h1>
           
           <p className="text-white/80 mb-6 leading-relaxed">
-            We've sent a password reset link to <span className="font-medium text-white">{email}</span>. 
+            We&apos;ve sent a password reset link to <span className="font-medium text-white">{email}</span>.
             Check your inbox and follow the instructions to reset your password.
           </p>
           
           <div className="text-sm text-white/60 mb-6">
-            Didn't receive the email? Check your spam folder or try again in a few minutes.
+            Didn&apos;t receive the email? Check your spam folder or try again in a few minutes.
           </div>
           
           <Link
@@ -84,7 +84,7 @@ const ForgotPassword = () => {
             Forgot Password?
           </h1>
           <p className="text-white/80">
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we&apos;ll send you a link to reset your password.
           </p>
         </div>
 
