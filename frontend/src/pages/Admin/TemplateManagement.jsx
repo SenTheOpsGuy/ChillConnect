@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
@@ -14,6 +14,7 @@ const TemplateManagement = () => {
   const [selectedCategory, setSelectedCategory] = useState('ALL')
   const [isCreating, setIsCreating] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState(null)
+  const [deletingTemplateId, setDeletingTemplateId] = useState(null)
   const [formData, setFormData] = useState({
     category: 'BOOKING_COORDINATION',
     templateText: '',
@@ -142,21 +143,22 @@ const TemplateManagement = () => {
     }
   }
 
-  const handleDelete = async (templateId) => {
-    if (!confirm('Are you sure you want to deactivate this template?')) {
-      return
-    }
+  const confirmDelete = async () => {
+    if (!deletingTemplateId) {return}
 
     try {
-      await axios.delete(`${API_URL}/api/templates/admin/${templateId}`, {
+      await axios.delete(`${API_URL}/api/templates/admin/${deletingTemplateId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       toast.success('Template deactivated')
       fetchTemplates()
       fetchStats()
+      setDeletingTemplateId(null)
     } catch (error) {
       console.error('Error deleting template:', error)
       toast.error('Failed to delete template')
+    } finally {
+      setDeletingTemplateId(null)
     }
   }
 
@@ -410,7 +412,7 @@ const TemplateManagement = () => {
                       <FiEdit2 />
                     </button>
                     <button
-                      onClick={() => handleDelete(template.id)}
+                      onClick={() => setDeletingTemplateId(template.id)}
                       className="p-2 bg-gray-800 hover:bg-red-600 text-white rounded-lg transition-colors"
                       title="Deactivate template"
                     >
@@ -423,6 +425,32 @@ const TemplateManagement = () => {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deletingTemplateId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-white mb-4">Deactivate Template</h3>
+            <p className="text-gray-300 mb-6">
+              Are you sure you want to deactivate this template? It will no longer be available for use.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={confirmDelete}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+              >
+                Yes, Deactivate
+              </button>
+              <button
+                onClick={() => setDeletingTemplateId(null)}
+                className="flex-1 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

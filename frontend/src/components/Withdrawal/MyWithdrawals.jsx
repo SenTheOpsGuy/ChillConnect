@@ -22,6 +22,7 @@ const MyWithdrawals = () => {
   const [pagination, setPagination] = useState(null)
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [showRequestForm, setShowRequestForm] = useState(false)
+  const [cancelingWithdrawalId, setCancelingWithdrawalId] = useState(null)
 
   useEffect(() => {
     fetchWithdrawals()
@@ -50,23 +51,24 @@ const MyWithdrawals = () => {
     }
   }
 
-  const handleCancel = async (withdrawalId) => {
-    if (!window.confirm('Are you sure you want to cancel this withdrawal? Tokens will be refunded.')) {
-      return
-    }
+  const confirmCancel = async () => {
+    if (!cancelingWithdrawalId) {return}
 
     try {
       await axios.put(
-        `${API_URL}/api/withdrawals/${withdrawalId}/cancel`,
+        `${API_URL}/api/withdrawals/${cancelingWithdrawalId}/cancel`,
         {},
         { headers: { Authorization: `Bearer ${token}` } },
       )
 
       toast.success('Withdrawal cancelled and tokens refunded')
       fetchWithdrawals()
+      setCancelingWithdrawalId(null)
     } catch (error) {
       console.error('Error cancelling withdrawal:', error)
       toast.error(error.response?.data?.error || 'Failed to cancel withdrawal')
+    } finally {
+      setCancelingWithdrawalId(null)
     }
   }
 
@@ -276,7 +278,7 @@ const MyWithdrawals = () => {
                     <div className="flex items-center gap-3">
                       {withdrawal.status === 'PENDING' && (
                         <button
-                          onClick={() => handleCancel(withdrawal.id)}
+                          onClick={() => setCancelingWithdrawalId(withdrawal.id)}
                           className="text-sm text-red-500 hover:text-red-400 font-medium"
                         >
                           Cancel Request
@@ -335,6 +337,32 @@ const MyWithdrawals = () => {
             fetchWithdrawals()
           }}
         />
+      )}
+
+      {/* Cancel Confirmation Modal */}
+      {cancelingWithdrawalId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-white mb-4">Cancel Withdrawal</h3>
+            <p className="text-gray-300 mb-6">
+              Are you sure you want to cancel this withdrawal? Tokens will be refunded to your account.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={confirmCancel}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+              >
+                Yes, Cancel Withdrawal
+              </button>
+              <button
+                onClick={() => setCancelingWithdrawalId(null)}
+                className="flex-1 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium"
+              >
+                Keep Withdrawal
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   )

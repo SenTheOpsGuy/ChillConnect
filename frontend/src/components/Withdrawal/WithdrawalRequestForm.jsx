@@ -227,7 +227,7 @@ const WithdrawalRequestForm = ({ onClose, onSuccess }) => {
                   <span className="text-red-400">-₹{fee.toLocaleString()}</span>
                 </div>
                 <div className="pt-2 border-t border-gray-700 flex justify-between">
-                  <span className="text-white font-medium">You'll Receive:</span>
+                  <span className="text-white font-medium">You&apos;ll Receive:</span>
                   <span className="text-green-400 font-bold text-lg">₹{netAmount.toLocaleString()}</span>
                 </div>
               </div>

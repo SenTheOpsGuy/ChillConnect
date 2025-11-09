@@ -8,7 +8,7 @@ import RatingStars from './RatingStars'
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const MyRatings = ({ type = 'received' }) => {
-  const { token, user } = useSelector((state) => state.auth)
+  const { token } = useSelector((state) => state.auth)
   const [ratings, setRatings] = useState([])
   const [statistics, setStatistics] = useState(null)
   const [loading, setLoading] = useState(true)

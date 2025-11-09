@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
 import {
   FiAlertTriangle,
   FiEye,
-  FiUser,
   FiCheckCircle,
   FiClock,
   FiXCircle,
-  FiTrendingUp,
   FiActivity,
 } from 'react-icons/fi'
 
@@ -122,7 +120,7 @@ const DisputeManagement = () => {
         {
           resolution: resolveData.resolution.trim(),
           refundIssued: resolveData.refundIssued,
-          refundAmount: resolveData.refundIssued ? parseInt(resolveData.refundAmount) : null,
+          refundAmount: resolveData.refundIssued ? parseInt(resolveData.refundAmount, 10) : null,
         },
         { headers: { Authorization: `Bearer ${token}` } },
       )

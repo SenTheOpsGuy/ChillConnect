@@ -39,6 +39,20 @@ jest.mock('aws-sdk', () => ({
       promise: jest.fn().mockResolvedValue({}),
     })),
   })),
+  SES: jest.fn(() => ({
+    sendEmail: jest.fn().mockImplementation(() => ({
+      promise: jest.fn().mockResolvedValue({
+        MessageId: 'mock-message-id',
+      }),
+    })),
+  })),
+  SNS: jest.fn(() => ({
+    publish: jest.fn().mockImplementation(() => ({
+      promise: jest.fn().mockResolvedValue({
+        MessageId: 'mock-message-id',
+      }),
+    })),
+  })),
 }));
 
 // Mock winston logger
@@ -79,7 +93,7 @@ beforeAll(async () => {
       stdio: 'inherit',
     });
   } catch (error) {
-    console.error('Error resetting database:', error.message);
+    // Error resetting database
   }
 
   // Initialize Prisma client
@@ -106,7 +120,7 @@ afterEach(async () => {
         try {
           await prisma.$executeRawUnsafe(`TRUNCATE TABLE "public"."${tablename}" CASCADE;`);
         } catch (error) {
-          console.log(`Error truncating ${tablename}:`, error.message);
+          // Error truncating table
         }
       }
     }
@@ -124,7 +138,7 @@ afterAll(async () => {
 global.testUser = {
   email: 'test@example.com',
   passwordHash: '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewD8o2VTLzxQEe.K', // "password123"
-  role: 'USER',
+  role: 'SEEKER',
   isVerified: true,
   isEmailVerified: true,
   isPhoneVerified: false,
@@ -168,7 +182,6 @@ global.createTestUser = async (userData = {}) => {
       userId: user.id,
       firstName: 'Test',
       lastName: 'User',
-      displayName: 'Test User',
       ...userData.profile,
     },
   });
@@ -198,9 +211,6 @@ global.createTestProvider = async (providerData = {}) => {
       userId: provider.id,
       firstName: 'Test',
       lastName: 'Provider',
-      displayName: 'Test Provider',
-      isProvider: true,
-      verificationStatus: 'APPROVED',
       hourlyRate: 500,
       ...providerData.profile,
     },
@@ -233,7 +243,7 @@ global.createTestBooking = async (seekerId, providerId, bookingData = {}) => {
   });
 };
 
-global.generateJWT = (userId, role = 'USER') => {
+global.generateJWT = (userId, role = 'SEEKER') => {
   const jwt = require('jsonwebtoken');
   return jwt.sign(
     { userId, role },

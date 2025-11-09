@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
@@ -6,7 +6,6 @@ import {
   FiMessageSquare,
   FiEye,
   FiCheckCircle,
-  FiXCircle,
   FiClock,
   FiAlertTriangle,
 } from 'react-icons/fi'
@@ -25,10 +24,11 @@ const SupportManagement = () => {
     category: '',
     priority: '',
   })
-  const [selectedTicket, setSelectedTicket] = useState(null)
-  const [assigneeId, setAssigneeId] = useState('')
-  const [resolution, setResolution] = useState('')
-  const [submitting, setSubmitting] = useState(false)
+  // const [selectedTicket, setSelectedTicket] = useState(null)
+  // const [assigneeId, setAssigneeId] = useState('')
+  // const [resolution, setResolution] = useState('')
+  // const [submitting, setSubmitting] = useState(false)
+  const [closingTicketId, setClosingTicketId] = useState(null)
 
   useEffect(() => {
     fetchTickets()
@@ -66,64 +66,64 @@ const SupportManagement = () => {
     }
   }
 
-  const handleAssign = async (ticketId) => {
-    if (!assigneeId) {
-      toast.error('Please select a staff member')
-      return
-    }
+  // const handleAssign = async (ticketId) => {
+  //   if (!assigneeId) {
+  //     toast.error('Please select a staff member')
+  //     return
+  //   }
+
+  //   try {
+  //     setSubmitting(true)
+  //     await axios.put(
+  //       `${API_URL}/api/support/admin/tickets/${ticketId}/assign`,
+  //       { assignedTo: assigneeId },
+  //       { headers: { Authorization: `Bearer ${token}` } },
+  //     )
+
+  //     toast.success('Ticket assigned successfully')
+  //     fetchTickets()
+  //     setSelectedTicket(null)
+  //   } catch (error) {
+  //     console.error('Error assigning ticket:', error)
+  //     toast.error(error.response?.data?.error || 'Failed to assign ticket')
+  //   } finally {
+  //     setSubmitting(false)
+  //   }
+  // }
+
+  // const handleResolve = async (ticketId) => {
+  //   if (!resolution.trim()) {
+  //     toast.error('Please provide a resolution summary')
+  //     return
+  //   }
+
+  //   try {
+  //     setSubmitting(true)
+  //     await axios.put(
+  //       `${API_URL}/api/support/admin/tickets/${ticketId}/resolve`,
+  //       { resolution: resolution.trim() },
+  //       { headers: { Authorization: `Bearer ${token}` } },
+  //     )
+
+  //     toast.success('Ticket resolved successfully')
+  //     fetchTickets()
+  //     fetchStatistics()
+  //     setSelectedTicket(null)
+  //     setResolution('')
+  //   } catch (error) {
+  //     console.error('Error resolving ticket:', error)
+  //     toast.error(error.response?.data?.error || 'Failed to resolve ticket')
+  //   } finally {
+  //     setSubmitting(false)
+  //   }
+  // }
+
+  const confirmClose = async () => {
+    if (!closingTicketId) {return}
 
     try {
-      setSubmitting(true)
       await axios.put(
-        `${API_URL}/api/support/admin/tickets/${ticketId}/assign`,
-        { assignedTo: assigneeId },
-        { headers: { Authorization: `Bearer ${token}` } },
-      )
-
-      toast.success('Ticket assigned successfully')
-      fetchTickets()
-      setSelectedTicket(null)
-    } catch (error) {
-      console.error('Error assigning ticket:', error)
-      toast.error(error.response?.data?.error || 'Failed to assign ticket')
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  const handleResolve = async (ticketId) => {
-    if (!resolution.trim()) {
-      toast.error('Please provide a resolution summary')
-      return
-    }
-
-    try {
-      setSubmitting(true)
-      await axios.put(
-        `${API_URL}/api/support/admin/tickets/${ticketId}/resolve`,
-        { resolution: resolution.trim() },
-        { headers: { Authorization: `Bearer ${token}` } },
-      )
-
-      toast.success('Ticket resolved successfully')
-      fetchTickets()
-      fetchStatistics()
-      setSelectedTicket(null)
-      setResolution('')
-    } catch (error) {
-      console.error('Error resolving ticket:', error)
-      toast.error(error.response?.data?.error || 'Failed to resolve ticket')
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  const handleClose = async (ticketId) => {
-    if (!confirm('Are you sure you want to close this ticket?')) {return}
-
-    try {
-      await axios.put(
-        `${API_URL}/api/support/admin/tickets/${ticketId}/close`,
+        `${API_URL}/api/support/admin/tickets/${closingTicketId}/close`,
         {},
         { headers: { Authorization: `Bearer ${token}` } },
       )
@@ -131,10 +131,12 @@ const SupportManagement = () => {
       toast.success('Ticket closed successfully')
       fetchTickets()
       fetchStatistics()
-      setSelectedTicket(null)
+      setClosingTicketId(null)
     } catch (error) {
       console.error('Error closing ticket:', error)
       toast.error(error.response?.data?.error || 'Failed to close ticket')
+    } finally {
+      setClosingTicketId(null)
     }
   }
 
@@ -409,6 +411,32 @@ const SupportManagement = () => {
           </div>
         )}
       </div>
+
+      {/* Close Confirmation Modal */}
+      {closingTicketId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-white mb-4">Close Ticket</h3>
+            <p className="text-gray-300 mb-6">
+              Are you sure you want to close this ticket?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={confirmClose}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+              >
+                Yes, Close Ticket
+              </button>
+              <button
+                onClick={() => setClosingTicketId(null)}
+                className="flex-1 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
