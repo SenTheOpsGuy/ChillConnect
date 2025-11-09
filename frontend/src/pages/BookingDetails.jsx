@@ -51,11 +51,11 @@ const BookingDetails = () => {
         await fetchBookingDetails() // Refresh booking details
       } else {
         const error = await response.json()
-        window.alert(error.message || `Failed to ${action} booking`)
+        console.error(error.message || `Failed to ${action} booking`)
       }
     } catch (error) {
       console.error(`Error ${action} booking:`, error)
-      window.alert(`Failed to ${action} booking`)
+      console.error(`Failed to ${action} booking`)
     } finally {
       setActionLoading(false)
     }

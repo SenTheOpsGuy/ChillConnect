@@ -117,7 +117,7 @@ const TwilioRegister = () => {
                   Choose Your Account Type
                 </h3>
                 <p className="text-sm text-gray-600 mb-6 text-center">
-                  Select whether you're looking for services or providing them
+                  Select whether you&apos;re looking for services or providing them
                 </p>
               </div>
 
@@ -133,7 +133,7 @@ const TwilioRegister = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                       </svg>
                     </div>
-                    <h4 className="text-lg font-semibold text-gray-900 mb-2">I'm a Seeker</h4>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">I&apos;m a Seeker</h4>
                     <p className="text-sm text-gray-600">
                       Looking for companionship and social connections
                     </p>
@@ -151,7 +151,7 @@ const TwilioRegister = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
                     </div>
-                    <h4 className="text-lg font-semibold text-gray-900 mb-2">I'm a Provider</h4>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">I&apos;m a Provider</h4>
                     <p className="text-sm text-gray-600">
                       Offering companionship and social services
                     </p>
@@ -351,7 +351,7 @@ const PhoneVerification = ({ onVerify, phoneNumber, onResend }) => {
           Verify Your Phone Number
         </h3>
         <p className="text-sm text-gray-600">
-          We've sent a 6-digit verification code to<br />
+          We&apos;ve sent a 6-digit verification code to<br />
           <strong>{phoneNumber}</strong>
         </p>
       </div>
@@ -384,7 +384,7 @@ const PhoneVerification = ({ onVerify, phoneNumber, onResend }) => {
           onClick={onResend}
           className="w-full text-blue-600 hover:text-blue-500 text-sm"
         >
-          Didn't receive the code? Resend
+          Didn&apos;t receive the code? Resend
         </button>
       </form>
     </div>
@@ -405,7 +405,7 @@ const EmailVerification = ({ email, onResend }) => {
           Check Your Email
         </h3>
         <p className="text-sm text-gray-600">
-          We've sent a verification link to<br />
+          We&apos;ve sent a verification link to<br />
           <strong>{email}</strong>
         </p>
         <p className="text-sm text-gray-600 mt-4">
@@ -417,7 +417,7 @@ const EmailVerification = ({ email, onResend }) => {
         onClick={onResend}
         className="w-full text-blue-600 hover:text-blue-500 text-sm"
       >
-        Didn't receive the email? Resend
+        Didn&apos;t receive the email? Resend
       </button>
     </div>
   )

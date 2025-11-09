@@ -56,11 +56,11 @@ const Booking = () => {
         navigate(`/booking/${booking.id}`)
       } else {
         const error = await response.json()
-        window.alert(error.message || 'Booking failed')
+        console.error(error.message || 'Booking failed')
       }
     } catch (error) {
       console.error('Booking error:', error)
-      window.alert('Booking failed. Please try again.')
+      console.error('Booking failed. Please try again.')
     } finally {
       setLoading(false)
     }
