@@ -1,5 +1,4 @@
 const otpService = require('../../otpService');
-const crypto = require('crypto');
 
 describe('OTP Service - Unit Tests', () => {
   let testUser;
@@ -36,7 +35,7 @@ describe('OTP Service - Unit Tests', () => {
 
     it('should invalidate previous OTPs of same type', async () => {
       // Generate first OTP
-      const firstOTP = await otpService.generateOTP(testUser.id, 'EMAIL_VERIFICATION');
+      await otpService.generateOTP(testUser.id, 'EMAIL_VERIFICATION');
       
       // Generate second OTP
       const secondOTP = await otpService.generateOTP(testUser.id, 'EMAIL_VERIFICATION');
@@ -239,7 +238,7 @@ describe('OTP Service - Unit Tests', () => {
     it('should not remove valid OTPs', async () => {
       await otpService.generateOTP(testUser.id, 'EMAIL_VERIFICATION');
       
-      const result = await otpService.cleanupExpiredOTPs();
+      await otpService.cleanupExpiredOTPs();
       
       const remainingOTPs = await global.prisma.oTP.findMany({
         where: {

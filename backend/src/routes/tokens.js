@@ -284,7 +284,7 @@ router.get('/transactions', auth, async (req, res, next) => {
 // @route   POST /api/tokens/webhook
 // @desc    Handle PayPal webhook notifications
 // @access  Public (but validated)
-router.post('/webhook', async (req, res, next) => {
+router.post('/webhook', async (req, res) => {
   try {
     // Validate webhook signature
     const isValid = paypalService.validateWebhook(req.headers, req.body);

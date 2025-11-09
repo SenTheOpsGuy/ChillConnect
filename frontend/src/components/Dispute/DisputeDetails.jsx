@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useSelector } from 'react-redux'
+import PropTypes from 'prop-types'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
 import {
@@ -388,6 +389,51 @@ const DisputeDetails = ({ dispute, onClose, onUpdate }) => {
       </div>
     </div>
   )
+}
+
+DisputeDetails.propTypes = {
+  dispute: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    reportedBy: PropTypes.string.isRequired,
+    status: PropTypes.string.isRequired,
+    appealedAt: PropTypes.string,
+    disputeType: PropTypes.string.isRequired,
+    createdAt: PropTypes.string.isRequired,
+    updatedAt: PropTypes.string.isRequired,
+    resolvedAt: PropTypes.string,
+    description: PropTypes.string.isRequired,
+    evidence: PropTypes.arrayOf(PropTypes.string),
+    resolution: PropTypes.string,
+    refundIssued: PropTypes.bool,
+    refundAmount: PropTypes.number,
+    appealReason: PropTypes.string,
+    reporter: PropTypes.shape({
+      profile: PropTypes.shape({
+        firstName: PropTypes.string,
+        lastName: PropTypes.string,
+      }),
+    }),
+    reportedUser: PropTypes.shape({
+      profile: PropTypes.shape({
+        firstName: PropTypes.string,
+        lastName: PropTypes.string,
+      }),
+    }),
+    booking: PropTypes.shape({
+      scheduledAt: PropTypes.string,
+      serviceType: PropTypes.string,
+      totalTokens: PropTypes.number,
+      status: PropTypes.string,
+    }),
+    assignedManager: PropTypes.shape({
+      profile: PropTypes.shape({
+        firstName: PropTypes.string,
+        lastName: PropTypes.string,
+      }),
+    }),
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+  onUpdate: PropTypes.func.isRequired,
 }
 
 export default DisputeDetails

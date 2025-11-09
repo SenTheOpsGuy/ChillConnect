@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
+import PropTypes from 'prop-types'
 import { toast } from 'react-hot-toast'
 import { FiSearch, FiSend, FiX } from 'react-icons/fi'
 
@@ -32,7 +33,6 @@ const TemplateSelector = ({ token, bookingId, onSend, onClose }) => {
       })
       setTemplates(response.data.data.categories)
     } catch (error) {
-      console.error('Error fetching templates:', error)
       toast.error('Failed to load message templates')
     } finally {
       setLoading(false)
@@ -110,7 +110,6 @@ const TemplateSelector = ({ token, bookingId, onSend, onClose }) => {
 
       toast.success('Message sent')
     } catch (error) {
-      console.error('Error sending message:', error)
       toast.error(error.response?.data?.error || 'Failed to send message')
     }
   }
@@ -282,6 +281,13 @@ const TemplateSelector = ({ token, bookingId, onSend, onClose }) => {
       )}
     </div>
   )
+}
+
+TemplateSelector.propTypes = {
+  token: PropTypes.string.isRequired,
+  bookingId: PropTypes.string.isRequired,
+  onSend: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
 }
 
 export default TemplateSelector

@@ -65,7 +65,6 @@ function App() {
 
     // Handle app state changes
     CapacitorApp.addListener('appStateChange', ({ isActive }) => {
-      console.log('App state changed. Is active?', isActive)
       if (isActive && token) {
         // App became active, refresh user data
         dispatch(loadUser())
@@ -93,12 +92,10 @@ function App() {
         await mobileService.setupPushNotifications()
       }
     } catch (error) {
-      console.error('Mobile features initialization error:', error)
+      // Mobile features initialization failed, continue without them
     }
   }
 
-  // Debug logging
-  console.log('Auth state:', { isAuthenticated, loading, user: !!user })
 
   if (loading) {
     return <LoadingSpinner />

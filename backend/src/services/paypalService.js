@@ -137,7 +137,7 @@ const processRefund = async (saleId, refundAmount) => {
 };
 
 // Validate webhook signature (for production use)
-const validateWebhook = (headers, body) => {
+const validateWebhook = () => {
   try {
     // PayPal webhook validation logic
     // This would involve verifying the signature using PayPal's webhook validation API

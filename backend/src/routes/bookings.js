@@ -30,7 +30,7 @@ router.get('/search', [
       });
     }
 
-    const { location, service, date, page = 1, limit = 20 } = req.query;
+    const { location, service, page = 1, limit = 20 } = req.query;
     const skip = (page - 1) * limit;
 
     // Build search filters
@@ -538,7 +538,7 @@ router.put('/:id/status', [
     }
 
     const { id } = req.params;
-    const { status, reason } = req.body;
+    const { status } = req.body;
 
     // Get booking
     const booking = await req.prisma.booking.findUnique({

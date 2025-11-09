@@ -513,7 +513,7 @@ router.delete('/admin/:id', [
   try {
     const { id } = req.params;
 
-    const template = await req.prisma.chatTemplate.update({
+    await req.prisma.chatTemplate.update({
       where: { id },
       data: { isActive: false }
     });

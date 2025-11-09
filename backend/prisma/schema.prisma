@@ -200,31 +200,23 @@ model UserProfile {
   userId      String   @unique
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
-  firstName   String?
-  lastName    String?
-  displayName String?
-  age         Int?
-  phoneNumber String?
-  location    String?
-  bio         String?
-  profilePhoto String?
-  
-  // Provider-specific fields
-  isProvider       Boolean @default(false)
-  verificationStatus String @default("PENDING") // "PENDING", "APPROVED", "REJECTED"
-  services         String? // JSON string of services
-  hourlyRate       Int?     // in tokens
-  availability     String?  // JSON availability schedule
-
-  // Rating fields (for providers)
-  averageRating    Float?   @default(0)
-  totalRatings     Int      @default(0)
-  ratingBreakdown  String?  // JSON with breakdown: {"5": 10, "4": 5, "3": 2, "2": 0, "1": 0}
+  firstName       String
+  lastName        String
+  dateOfBirth     DateTime?
+  bio             String?
+  location        String?
+  profilePhoto    String?
+  services        String[]
+  hourlyRate      Int?
+  availability    Json?
+  verificationDocs String[]
+  rating          Float?   @default(0)
+  reviewCount     Int      @default(0)
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@map("profiles")
+  @@map("user_profiles")
 }
 
 model OTP {

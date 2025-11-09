@@ -1,5 +1,6 @@
 import { useSelector } from 'react-redux'
 import { Navigate } from 'react-router-dom'
+import PropTypes from 'prop-types'
 import LoadingSpinner from '../UI/LoadingSpinner'
 
 const ProtectedRoute = ({ children, roles = [] }) => {
@@ -24,6 +25,11 @@ const ProtectedRoute = ({ children, roles = [] }) => {
   }
 
   return children
+}
+
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+  roles: PropTypes.arrayOf(PropTypes.string),
 }
 
 export default ProtectedRoute

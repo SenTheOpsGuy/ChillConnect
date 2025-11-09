@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useSelector } from 'react-redux'
+import PropTypes from 'prop-types'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
 import { FiAlertTriangle, FiX, FiUpload } from 'react-icons/fi'
@@ -316,6 +317,14 @@ const DisputeForm = ({ booking, onClose, onSuccess }) => {
       </div>
     </div>
   )
+}
+
+DisputeForm.propTypes = {
+  booking: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func.isRequired,
 }
 
 export default DisputeForm

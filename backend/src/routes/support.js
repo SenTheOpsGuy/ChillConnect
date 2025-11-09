@@ -1,6 +1,6 @@
 const express = require('express');
 const { body, query, validationResult } = require('express-validator');
-const { auth, requireVerification, requireRole } = require('../middleware/auth');
+const { auth, requireRole } = require('../middleware/auth');
 const logger = require('../utils/logger');
 
 const router = express.Router();
@@ -304,7 +304,7 @@ router.post('/tickets/:id/messages', [
     }
 
     // Create message and update ticket status
-    const [ticketMessage, updatedTicket] = await req.prisma.$transaction([
+    const [ticketMessage] = await req.prisma.$transaction([
       req.prisma.ticketMessage.create({
         data: {
           ticketId: id,
