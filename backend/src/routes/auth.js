@@ -5,12 +5,6 @@ const { body, validationResult } = require('express-validator');
 const { auth } = require('../middleware/auth');
 const logger = require('../utils/logger');
 const {
-  createUserWithRawSQL,
-  findUserByEmail,
-  findUserByPhone,
-  updateLastLogin,
-} = require('../utils/rawSqlHelpers');
-const {
   sendPhoneOTP,
   sendEmailOTP,
   verifyPhoneOTP,
@@ -77,7 +71,6 @@ router.post(
         lastName,
         dateOfBirth,
         phone,
-        ageConfirmed,
         consentGiven,
       } = req.body;
 
@@ -522,7 +515,7 @@ router.post(
 
       if (isAuthenticated) {
         // For authenticated users (profile updates)
-        const result = await verifyPhoneOTP(userId, phone, otp);
+        await verifyPhoneOTP(userId, phone, otp);
         logger.info(`Phone verified for authenticated user: ${userId}`);
       } else {
         // For registration flow (unauthenticated)
@@ -934,7 +927,6 @@ router.post(
       }
 
       // Verify OTP
-      let verificationResult;
       if (type === 'phone') {
         // Verify the phone number matches
         if (user.phone !== identifier) {
@@ -943,7 +935,7 @@ router.post(
             error: 'Phone number does not match user account',
           });
         }
-        verificationResult = await verifyPhoneOTP(userId, identifier, otp);
+        await verifyPhoneOTP(userId, identifier, otp);
       } else {
         // Verify the email matches
         if (user.email !== identifier) {
@@ -952,7 +944,7 @@ router.post(
             error: 'Email does not match user account',
           });
         }
-        verificationResult = await verifyEmailOTP(userId, identifier, otp);
+        await verifyEmailOTP(userId, identifier, otp);
       }
 
       // Update last login
@@ -1036,7 +1028,7 @@ router.post(
         return true;
       }),
   ],
-  async (req, res, next) => {
+  async (req, res) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -1061,7 +1053,7 @@ router.post(
       `;
         existingUser = existingUser.length > 0 ? existingUser[0] : null;
       } catch (rawQueryError) {
-        console.log('Raw query failed, falling back to regular query');
+        logger.info('Raw query failed, falling back to regular query');
         existingUser = await req.prisma.user.findFirst({
           where: { phone: phoneNumber },
           select: {
@@ -1119,7 +1111,7 @@ router.post(
     body('phoneNumber').isMobilePhone().withMessage('Valid phone number is required'),
     body('otp').isLength({ min: 4, max: 8 }).withMessage('Verification code must be 4-8 digits'),
   ],
-  async (req, res, next) => {
+  async (req, res) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -1169,7 +1161,7 @@ router.post(
 router.post(
   '/send-email-verification',
   [body('email').isEmail().withMessage('Valid email address is required')],
-  async (req, res, next) => {
+  async (req, res) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -1264,7 +1256,6 @@ router.post(
         firstName,
         lastName,
         phoneNumber,
-        ageConfirmed,
         consentGiven,
       } = req.body;
 

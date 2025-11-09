@@ -82,7 +82,7 @@ const OtpVerify = () => {
     }
 
     try {
-      const result = await dispatch(verifyLoginOTP({ 
+      await dispatch(verifyLoginOTP({ 
         identifier, 
         otp, 
         type: loginType, 

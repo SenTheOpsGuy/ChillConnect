@@ -1,8 +1,6 @@
 const express = require('express');
 const { body, query, validationResult } = require('express-validator');
 const { auth, authorize } = require('../middleware/auth');
-const requireAuth = auth;
-const requireRole = authorize;
 const logger = require('../utils/logger');
 const assignmentService = require('../services/assignmentService');
 const chatService = require('../services/chatService');
@@ -696,7 +694,7 @@ router.post('/users/:id/suspend', [
 
     // TODO: Add suspension logic to user model
     // For now, we'll use isVerified as a simple suspension mechanism
-    const user = await req.prisma.user.update({
+    await req.prisma.user.update({
       where: { id },
       data: { isVerified: !suspended }
     });

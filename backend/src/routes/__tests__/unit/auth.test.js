@@ -1,6 +1,5 @@
 const request = require('supertest');
-const { app } = require('../../index');
-const bcrypt = require('bcryptjs');
+const { app } = require('../../../index');
 const jwt = require('jsonwebtoken');
 
 describe('Auth Routes - Unit Tests', () => {
